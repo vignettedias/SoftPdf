@@ -231,9 +231,9 @@ def text_w(s, font, size):
 def compose(chs, out_pdf):
     doc = pymupdf.open()
     som = pymupdf.open(SOM)
-    # cover: the book's front cover (10th edition), full page at A4 proportions
+    # cover: the official 10th-edition front cover, full page (cropped equally at the sides to A4 proportions)
     cov = doc.new_page(width=A4.width, height=A4.height)
-    cov.insert_image(cov.rect, filename=os.path.join(HERE, 'cover_src10.jpeg'), keep_proportion=False)
+    cov.insert_image(cov.rect, filename=os.path.join(HERE, 'cover_official10.jpeg'), keep_proportion=False)
     opener_img = os.path.join(HERE, 'opener.png')
     report = []
     for ch in chs:
