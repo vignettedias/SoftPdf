@@ -402,9 +402,9 @@ function isLeapYear(year):
 --- solution
 (a) The flow graph has three predicate nodes (1, 3, and 5), one per condition ([[fig:cfg-leap]]). Its edges are 1→2, 1→3, 3→4, 3→5, 5→6, 5→7, and the four returns into the exit node 8, so E = 10 and N = 8: V(G) = 10 − 8 + 2 = 4 = 3 + 1.
 
-@fig cfg-leap
-
 Each independent path is described by the outcome of every condition it passes through. A path cannot be 'divisible by 4, not divisible by 100, and divisible by 400', because a year that is not divisible by 100 returns True before the third condition is tested.
+
+@fig cfg-leap
 
 (b) Equivalence classes are formed from the *input domain*. A non-leap year is a valid input with the expected output False, so it is a valid class, not an invalid one. The valid classes follow the rules: V1 not divisible by 4; V2 divisible by 4 but not by 100; V3 divisible by 400; V4 divisible by 100 but not by 400. The invalid classes are inputs outside the specification: I1 a year ≤ 0 (if years must be positive) and I2 a non-integer value.
 --- answer

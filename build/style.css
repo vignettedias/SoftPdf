@@ -82,16 +82,9 @@ pre{margin:8pt 0;padding:0 0 0 12pt;background:none;font:400 7.9pt/10pt 'Fira Mo
 pre code{font-size:inherit;font-family:inherit}
 .fig pre{margin:0}
 
-/* worked examples: the question is set like the book's sidebars (bracketed frame, sans text);
-   the solution is ordinary body text */
+/* worked examples: plain text; the question in sans, the solution as ordinary body text */
 .ex{clear:both;margin:16pt 0 14pt 0}
-.ex .qbox{margin-left:-88pt;width:424pt;box-sizing:border-box;padding:8pt 16pt 9pt 16pt;
-  border-left:1pt solid var(--cyan);border-right:1pt solid var(--cyan);
-  background:linear-gradient(var(--cyan),var(--cyan)) left top/34pt 1pt no-repeat,
-    linear-gradient(var(--cyan),var(--cyan)) right top/34pt 1pt no-repeat,
-    linear-gradient(var(--cyan),var(--cyan)) left bottom/34pt 1pt no-repeat,
-    linear-gradient(var(--cyan),var(--cyan)) right bottom/34pt 1pt no-repeat;
-  box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.ex .qbox{margin:0;padding:0}
 .ex .qbox{break-inside:avoid}
 .ex .ext{font:600 9.5pt/12pt 'Fira Sans',sans-serif;color:var(--ink);margin-bottom:5pt;text-align:left;break-after:avoid}
 .ex .ext .n{margin-right:6pt}
