@@ -157,7 +157,7 @@ A *component diagram* shows how a system is divided into modular, replaceable co
 
 @fig lib-component
 
-A *deployment diagram* shows the physical hardware on which software is deployed. A *node* is a physical or virtual computational resource, drawn as a three-dimensional box: a *device node* is hardware such as a server or a phone, and an *execution environment node* is a software container such as a JVM, a Docker container, or an operating system. An *artifact* is a file or deliverable deployed on a node, such as library-core.jar. A *communication path*, a solid line between nodes, is labeled with the protocol used, such as HTTPS or JDBC. Nodes may be nested, for example a container inside a virtual machine. [[fig:lib-deploy]] shows the library system deployed on four nodes.
+A *deployment diagram* shows the physical hardware on which software is deployed. A *node* is a physical or virtual computational resource, drawn as a three-dimensional box: a *device node* is hardware such as a server or a phone, and an *execution environment node* is a software container such as a JVM, a Docker container, or an operating system. An *artifact* is a file or deliverable deployed on a node, such as library-core.jar. A *communication path*, a solid line between nodes, is labeled with the protocol used, such as HTTPS or JDBC. A *deployment specification*, a note attached to a deployment, gives configuration parameters such as memory limits. Nodes may be nested, for example a container inside a virtual machine. [[fig:lib-deploy]] shows the library system deployed on four nodes.
 
 @fig lib-deploy
 

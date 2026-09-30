@@ -86,6 +86,8 @@ Cyclomatic complexity, V(G), is a software metric that gives the number of linea
 2. V(G) = D + 1, where D is the number of predicate (decision) nodes; a multi-way decision with k outgoing edges counts as k − 1.
 3. V(G) = R, the number of regions of the planar flow graph, including the outer region.
 
+Some texts write the second formula as V(G) = P + 1, using P for the number of predicate nodes; this is the same formula, and P here must not be confused with the number of connected components in E − N + 2P.
+
 The basis path testing procedure is: draw the flow graph; compute V(G); list V(G) independent paths, each adding at least one new edge; design a test case, with inputs and expected output, for each path; and execute the tests. Modules with V(G) above about 10 are hard to test and are candidates for refactoring.
 
 ::: example ex-larger | Basis paths of a two-way decision
@@ -149,13 +151,53 @@ The edges in [[fig:cfg-countpos]] are 1→2, 2→3, 3→4, 3→7, 4→5, 4→6, 
 V(G) = 3. Path 1–2–3–7 (n = 0): output 0. Path 1–2–3–4–6–3–7 (n = 1, a = [−2]): output 0. Path 1–2–3–4–5–6–3–7 (n = 1, a = [5]): output 1.
 :::
 
+::: example ex-flowchart | A flowchart with two decisions
+In the following flowchart, b and c are inputs: Start; a = 10; if a > b then a = b; otherwise, if a > c then b = c, else c = a; then print a, b, c; Stop. Compute V(G) by all three methods and design the basis path tests.
+--- solution
+Number the boxes: 1 Start; 2 a = 10; 3 a > b?; 4 a = b; 5 a > c?; 6 b = c; 7 c = a; 8 print a, b, c; 9 Stop ([[fig:cfg-flowchart]]).
+
+@fig cfg-flowchart
+
+*Method 1.* The edges are 1→2, 2→3, 3→4, 3→5, 5→6, 5→7, 4→8, 6→8, 7→8, 8→9, so E = 10 and N = 9: V(G) = 10 − 9 + 2 = 3.
+
+*Method 2.* The predicate nodes are 3 and 5, so V(G) = 2 + 1 = 3.
+
+*Method 3.* The regions are R1 (3–4–8–6–5–3), R2 (5–6–8–7–5), and the outer region R3, so V(G) = 3.
+--- answer
+V(G) = 3. Path 1–2–3–4–8–9 (b = 5, c = 3): prints 5, 5, 3. Path 1–2–3–5–6–8–9 (b = 20, c = 4): prints 10, 4, 4. Path 1–2–3–5–7–8–9 (b = 20, c = 30): prints 10, 20, 10.
+:::
+
+::: example ex-sumloop | A loop with constant bounds
+Find V(G) and the basis path tests for: 1 sum = 0; 2 i = 1; 3 while (i <= 5); 4 sum = sum + i; 5 i++; 6 printf("The sum is: %d", sum); 7 return 0.
+--- solution
+From [[fig:cfg-sumloop]], the edges are 1→2, 2→3, 3→4, 4→5, 5→3, 3→6, 6→7: E = 7 and N = 7, so V(G) = 7 − 7 + 2 = 2, and the single predicate node (3) gives 1 + 1 = 2.
+
+@fig cfg-sumloop
+
+The basis paths are P1: 1–2–3–6–7 (loop not entered) and P2: 1–2–3–4–5–3–6–7 (loop entered). Because the bounds are constants, the test i ≤ 5 is always true the first time, so no input can make P1 happen: it is an *infeasible path*. An infeasible path is recorded as such and not forced.
+--- answer
+V(G) = 2. P2 is tested by running the program: it iterates five times and prints 'The sum is: 15'; this single run also traverses the exit edge 3→6, so all seven edges are covered. P1 is infeasible. If the bound were an input n, P1 would be tested with n = 0 (expected output 'The sum is: 0').
+:::
+
 A compound condition is split into one predicate node per simple condition. For if (x > 0 AND y > 0) the graph has two predicate nodes and V(G) = 3, and the tests (x = −1, y = 7), (x = 2, y = −3), and (x = 2, y = 3) exercise both simple conditions as false. Treating the compound condition as one node would give V(G) = 2 and would miss an error such as OR written for AND. Similarly, a switch with four outgoing edges counts as 4 − 1 = 3 decisions, so a switch with three cases and a default has V(G) = 4.
 
 ### 8.3.3 Graph matrices
 
 A graph matrix is a square matrix whose rows and columns correspond to the nodes of a flow graph; the entry in row i and column j records a direct link from node i to node j. Direction matters, so the matrix is generally not symmetric. Links are usually named with letters and nodes with digits. A *connection matrix* replaces each link by a weight, in the simplest case 1 for a connection. It gives a mechanical way of computing V(G): for each row, count the 1s and subtract 1; ignore empty rows; add the results; and add 1. A row with k entries is a k-way decision and contributes k − 1, so the procedure computes D + 1.
 
-For a graph with links a: 1→1, b: 1→2, c: 1→3, d: 2→4, and e: 3→4, row 1 has three entries (3 − 1 = 2), rows 2 and 3 have one each (0), and row 4 is empty. So V(G) = 2 + 0 + 0 + 1 = 3, which agrees with E − N + 2 = 5 − 4 + 2 = 3.
+::: example ex-matrix | Cyclomatic complexity from a connection matrix
+A flow graph has the links a: 1→1 (a self-loop), b: 1→2, c: 1→3, d: 2→4, and e: 3→4. Draw its graph matrix and connection matrix, find V(G), and list the paths.
+--- solution
+Each link is entered in the row of the node it leaves and the column of the node it enters ([[fig:gm-graph]]). In the connection matrix, row 1 has three connections (3 − 1 = 2), rows 2 and 3 have one each (1 − 1 = 0), and row 4, the exit node, is empty and is ignored.
+
+@fig gm-graph
+
+V(G) = (2 + 0 + 0) + 1 = 3. Check: E = 5 links and N = 4 nodes, so E − N + 2 = 3. The number of 1s in the matrix (5) equals E, and the number of rows (4) equals N; both are useful checks.
+--- answer
+V(G) = 3. Following the rows from node 1 to the empty row gives the paths 1–2–4 (links b, d) and 1–3–4 (links c, e); the third independent path uses the self-loop first, 1–1–2–4 (links a, b, d).
+:::
+
+When two parallel links join the same pair of nodes, the graph matrix records both in one cell (written a + b). This book follows the common convention of treating such a cell as a single connection when the connection matrix is built, so the cell holds 1; a graph with parallel links a + b from 1 to 2, c from 1 to 3, and d from 3 to 4 therefore has V(G) = (2 − 1) + (1 − 1) + 1 = 2, with the paths 1–2 and 1–3–4. If each link is to be weighted separately, the cell holds 2 and the extra path via b is counted; the convention used should be stated.
 
 ## 8.4 Black-box testing
 
@@ -174,6 +216,18 @@ A login system, for example, accepts a password only if its length L is 6 to 12 
 Boundary value analysis (BVA) tests the edges of the input domain, selecting values just below, exactly on, and just above each boundary, because errors cluster at boundaries. Programmers often write < where ≤ was intended, and such off-by-one errors leave typical values unaffected. For a range [a, b] the values are min−, min, min+, a nominal value, max−, max, and max+ ([[fig:bva-line]]). For the password rule the boundary tests are lengths 5, 6, 7, 11, 12, and 13; if the code were written len > 6 and len < 12, the tests at 6 and 12 would fail, whereas a mid-range value such as 9 would detect nothing. With n independent inputs, single-fault BVA needs 4n + 1 tests and robustness testing, which adds min− and max+, needs 6n + 1.
 
 @fig bva-line
+
+::: example ex-age | Equivalence classes and boundary values for two inputs
+An insurance form accepts an age from 18 to 60 and a policy type from {Gold, Silver}. Derive the equivalence classes, a minimal equivalence-partitioning test set, and the boundary value tests for age.
+--- solution
+*Classes.* Age: V1 (18 ≤ age ≤ 60), I1 (age < 18), I2 (age > 60). Policy: V2 (Gold or Silver), I3 (any other value).
+
+*ECP tests.* The valid classes are combined in one test; each invalid class is tested alone with every other input valid: TC1 (35, Gold) → accepted; TC2 (12, Gold) → rejected, age; TC3 (70, Silver) → rejected, age; TC4 (35, Platinum) → rejected, policy.
+
+*BVA tests for age.* Lower boundary 18: 17, 18, 19. Upper boundary 60: 59, 60, 61. With the nominal value 35, single-fault BVA uses 18, 19, 35, 59, 60 (4n + 1 = 5), and robustness testing adds 17 and 61 (6n + 1 = 7).
+--- answer
+Four ECP tests (one valid, three invalid) and seven boundary tests {17, 18, 19, 35, 59, 60, 61}. The values 17 and 61 also represent the invalid age classes, so the combined suite needs no separate values such as 12 and 70 for age.
+:::
 
 ::: example ex-bva-fact | Boundary value tests for the factorial function
 Identify the boundaries of the input domain of the factorial function of [[ex:ex-fact]] and generate boundary value test cases for it.
@@ -195,6 +249,16 @@ It is tempting to take an arbitrary 'reasonable' maximum such as 10 and then als
 
 *Decision table testing* is used for systems with complex business logic. A decision table lists the *conditions* (inputs that affect behavior), the *actions* (outputs), and the *rules*, each a unique combination of conditions with its actions. A complete table of n Boolean conditions has 2ⁿ rules, and each rule gives a test case. For a login with the conditions 'username correct' and 'password correct', there are four rules; only T, T shows the home page, and the other three show an error message. Rules with the same actions that differ only in one condition may be merged with a 'don't care' entry.
 
+::: example ex-discount | A decision table for a checkout discount
+At checkout, a logged-in customer whose cart total exceeds ₹1,000 receives a 10% discount; a logged-in customer with a smaller total pays full price; a customer who is not logged in is redirected to the login page, whatever the total. Build the decision table and derive the test cases.
+--- solution
+There are two Boolean conditions, C1 (logged in?) and C2 (total > ₹1,000?), so the table has 2² = 4 rules ([[fig:discount-table]]).
+
+@fig discount-table
+--- answer
+R1: logged in, total ₹1,500 → pays ₹1,350. R2: logged in, total ₹800 → pays ₹800. R3: not logged in, ₹1,500 → login page. R4: not logged in, ₹800 → login page. R3 and R4 have the same action and differ only in C2, so they may be merged into one rule with C2 = '–' (don't care), giving three tests. Boundary values for C2 should be added: a total of exactly ₹1,000 must pay full price, and ₹1,000.01 must receive the discount.
+:::
+
 *State transition testing* is used for systems whose behavior depends on their current state and so on the sequence of earlier inputs. The system is modeled by states, transitions, the events that cause them, and the outputs produced. A test is designed for each transition or sequence of events, and invalid events in each state are also tested, where the expected result is that the state does not change. [[fig:pin-state]] models PIN entry at an ATM: the tests are a correct PIN first time; one wrong then correct; two wrong then correct; and three wrong, which blocks the account and is the most important negative test. [[fig:login-state]] models a login system, whose transition table gives five tests: enter username; valid password; invalid password; retry after an error; and logout.
 
 @fig pin-state
@@ -211,11 +275,21 @@ It is tempting to take an arbitrary 'reasonable' maximum such as 10 and then als
 
 <p class="eq">Mutation score = killed mutants ÷ (total mutants − equivalent mutants) × 100%.</p>
 
-For example, if 35 of 50 mutants are killed and 5 are equivalent, the score is 35 ÷ 45 × 100 = 77.78%; if improved tests kill 7 more, it becomes 42 ÷ 45 × 100 = 93.33%. For the code if (x > 5) return "High" with the tests x = 10 and x = 2, the mutant x ≥ 5 survives until the boundary test x = 5 is added, and the mutant x > 6 survives until x = 6 is added: boundary values kill relational mutants.
+For example, if a suite kills 90 of 120 mutants and none is equivalent, the score is 90 ÷ 120 × 100 = 75%. If 35 of 50 mutants are killed and 5 are equivalent, the score is 35 ÷ 45 × 100 = 77.78%; if improved tests kill 7 more, it becomes 42 ÷ 45 × 100 = 93.33%.
+
+::: example ex-mutation | Killing relational and arithmetic mutants
+(a) The code if (x > 5) return "High"; else return "Low"; is tested with x = 10 and x = 2. The mutants are M1: x >= 5, M2: x < 5, and M3: x > 6. Find the mutation score and improve the tests. (b) The code return a + b; with mutants a − b, a * b, and a / b is tested with (a, b) = (2, 2). Find the score and improve the test.
+--- solution
+(a) For x = 10 the original and M1 and M3 return High, but M2 returns Low, so M2 is killed. For x = 2 the original, M1, and M3 return Low. M1 and M3 survive: score 1 ÷ 3 × 100 = 33.33%. The test x = 5 makes the original return Low and M1 return High, killing M1; the test x = 6 makes the original return High and M3 return Low, killing M3.
+
+(b) The expected result is 4. a − b gives 0 and a / b gives 1, so both are killed, but a * b gives 4 and survives, because 2 + 2 = 2 × 2: score 2 ÷ 3 × 100 = 66.67%. The test (3, 1), expected 4, gives 3 for a * b and kills it.
+--- answer
+(a) 33.33%, rising to 100% with the tests {10, 2, 5, 6}: boundary values kill relational mutants. (b) 66.67%, rising to 100% with (3, 1): test data should avoid values for which different operators give the same result.
+:::
 
 ## 8.6 Testing object-oriented and web systems
 
-Object-oriented software needs a different approach because the natural unit of testing is the class, not the function: an operation's result depends on the object's state, operations may be inherited or overridden, and the code executed for a call may be chosen only at run time. *Class testing* exercises sequences of operations on one object, observing its state through public operations because its attributes are encapsulated. *Integration testing* checks that collaborating objects exchange messages correctly. *Inheritance testing* re-runs a base class's tests in the context of each subclass, because an overridden method works under new rules. *Polymorphism testing* supplies a test for each possible binding of a polymorphic call. *Scenario-based testing* follows a use case across several objects. The difficulties are encapsulation, inheritance (a change in a base class can affect every subclass), polymorphism, and state dependencies.
+Object-oriented software needs a different approach because the natural unit of testing is the class, not the function: an operation's result depends on the object's state, operations may be inherited or overridden, and the code executed for a call may be chosen only at run time. *Class testing* exercises sequences of operations on one object, observing its state through public operations because its attributes are encapsulated. *Integration testing* checks that collaborating objects exchange messages correctly. *Inheritance testing* re-runs a base class's tests in the context of each subclass, because an overridden method works under new rules. *Polymorphism testing* supplies a test for each possible binding of a polymorphic call. *Scenario-based testing* follows a use case across several objects. The difficulties are encapsulation, inheritance (a change in a base class can affect every subclass), polymorphism, and state dependencies. The main techniques are *random testing* (random inputs and operation sequences), *fault-based testing* (planting faults, as in mutation testing), *scenario-based testing*, and *use-case testing*. For example, an Account class is class-tested with sequences such as deposit(100), withdraw(40), and getBalance() → 60, and withdraw(10) on a new account → rejected; if SavingsAccount overrides withdraw to keep a minimum balance of 500, the inherited tests are re-run for SavingsAccount, and with a balance of 1,000 it must allow withdraw(500) but reject withdraw(501).
 
 A web-based system runs in a browser and interacts with its users over the Internet, so it must work across many devices, browsers, and network conditions. Its testing includes functional, cross-browser, cross-platform, performance (load and stress), security (such as SQL injection and session hijacking), usability, compatibility, database, API, accessibility, localization and internationalization, and regression testing.
 

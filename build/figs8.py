@@ -190,3 +190,58 @@ def _():
     f.arrow([(290, 32), (290, 46), (40, 46), (40, 32)], size=3.5, dash='3,2')
     f.text(165, 53, 'repeated after each fix or change', size=6, italic=True)
     return f.svg()
+
+
+@fig('cfg-flowchart', 'Flow graph of the three-variable flowchart', scale=0.78)
+def _():
+    f = Fig(200, 250, fs=6.6)
+    pos = {1: (70, 12), 2: (70, 40), 3: (70, 70), 4: (30, 110), 5: (110, 104), 6: (80, 146), 7: (140, 146), 8: (70, 200), 9: (70, 236)}
+    cfg(f, pos, [(1, 2), (2, 3), (3, 4, None, (42, 86, 'Yes')), (3, 5, None, (100, 82, 'No')), (5, 6, None, (86, 124, 'Yes')), (5, 7, None, (134, 124, 'No')),
+                 (4, 8, [(30, 200)]), (6, 8), (7, 8, [(140, 200)]), (8, 9)], pred=(3, 5))
+    f.text(70, 126, 'R1', size=6.4, weight=600, color=CYAN); f.text(112, 172, 'R2', size=6.4, weight=600, color=CYAN); f.text(176, 60, 'R3', size=6.4, weight=600, color=CYAN)
+    return f.svg()
+
+
+@fig('cfg-sumloop', 'Flow graph of the summation loop', scale=0.78)
+def _():
+    f = Fig(200, 190, fs=6.6)
+    pos = {1: (60, 12), 2: (60, 40), 3: (60, 72), 4: (110, 100), 5: (110, 136), 6: (60, 150), 7: (60, 180)}
+    cfg(f, pos, [(1, 2), (2, 3), (3, 4, None, (96, 78, 'T')), (4, 5), (5, 3, [(160, 136), (160, 72)]), (3, 6, None, (52, 112, 'F')), (6, 7)], pred=(3,))
+    return f.svg()
+
+
+@fig('gm-graph', 'A flow graph with a self-loop, and its graph and connection matrices', wide=True)
+def _():
+    f = Fig(420, 120, fs=6.6)
+    pos = {1: (40, 30), 2: (16, 78), 3: (64, 78), 4: (40, 110)}
+    cfg(f, pos, [(1, 2, None, (22, 52, 'b')), (1, 3, None, (58, 52, 'c')), (2, 4, None, (22, 98, 'd')), (3, 4, None, (58, 98, 'e'))])
+    f.raw(f'<path d="M 34 23 C 20 4, 60 4, 46 23" fill="none" stroke="{DARK}" stroke-width="0.5"/>'); f.head(50, 14, 46, 23, 'fill', 4); f.text(40, 8, 'a', size=5.8, italic=True)
+    def matrix(x0, title, cells, extra=None):
+        f.text(x0 + 60, 6, title, weight=500)
+        cw, ch = 22, 16
+        for j in range(4):
+            f.text(x0 + 24 + j * cw + cw / 2, 18, str(j + 1), weight=500)
+        for i in range(4):
+            y = 22 + i * ch
+            f.text(x0 + 12, y + ch / 2, str(i + 1), weight=500)
+            for j in range(4):
+                f.rect(x0 + 24 + j * cw, y, cw, ch, stroke=CYAN, sw=0.5, fill='#EAF7FD' if cells.get((i, j)) else 'white')
+                if cells.get((i, j)):
+                    f.text(x0 + 24 + j * cw + cw / 2, y + ch / 2, cells[(i, j)])
+        if extra:
+            f.text(x0 + 24 + 4 * cw + 4, 18, extra[0], anchor='start', weight=500, size=6)
+            for i, t in enumerate(extra[1]):
+                f.text(x0 + 24 + 4 * cw + 6, 22 + i * ch + ch / 2, t, anchor='start', size=6.2)
+    matrix(96, 'Graph matrix', {(0, 0): 'a', (0, 1): 'b', (0, 2): 'c', (1, 3): 'd', (2, 3): 'e'})
+    matrix(236, 'Connection matrix', {(0, 0): '1', (0, 1): '1', (0, 2): '1', (1, 3): '1', (2, 3): '1'}, ('count − 1', ['3 − 1 = 2', '1 − 1 = 0', '1 − 1 = 0', 'ignore']))
+    return f.svg()
+
+
+FIGS['discount-table'] = ('Decision table for the checkout discount', table_html(
+    ['', 'R1', 'R2', 'R3', 'R4'],
+    [['C1: Logged in?', 'T', 'T', 'F', 'F'],
+     ['C2: Cart total > ₹1,000?', 'T', 'F', 'T', 'F'],
+     ['A1: Apply 10% discount', '×', '', '', ''],
+     ['A2: Charge full price', '', '×', '', ''],
+     ['A3: Redirect to login', '', '', '×', '×']],
+    ['40%', '15%', '15%', '15%', '15%']), {'wide': True})

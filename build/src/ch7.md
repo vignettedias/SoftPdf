@@ -165,6 +165,12 @@ Coupling is the degree of interdependence between modules: how closely one modul
 5. *Stamp coupling* A whole data structure is passed when only part of it is needed, as when process_student(student) uses only student.id. Changes to the structure ripple to the callee unnecessarily.
 6. *Data coupling* (weakest) Modules share only the elementary data they need, as parameters, as in greet_user(name, age).
 
+::: example ex-coupling | Classifying cohesion and coupling together
+Classify each fragment. (1) end_of_day() closes the database, backs up the logs, and sends a summary e-mail. (2) shipping_cost(order) uses only order.weight from an Order record with twenty fields. (3) render(report, fmt), with fmt in {"pdf", "csv", "html"} and a separate branch for each. (4) Two modules both read and write a global variable current_user. (5) greet_user(name, age) is called with just the two values it prints.
+--- answer
+(1) Temporal cohesion: the tasks are grouped only because they run at the end of the day. (2) Stamp coupling: a whole record is passed where one field is needed; passing order.weight would give data coupling. (3) Inside render, logical cohesion; between the caller and render, control coupling, since fmt selects the behavior. (4) Common coupling through shared global data. (5) Data coupling, the weakest and best form.
+:::
+
 The two properties reinforce each other. When related elements are placed together (high cohesion), fewer connections are needed to other modules (low coupling); when modules communicate through a few simple parameters, each can be understood in isolation. The results are concrete: a requirement change affects one module (modular continuity); a fault is unlikely to propagate (modular protection); each module can be unit-tested with simple stubs and drivers; functionally cohesive, data-coupled modules can be reused elsewhere; and teams can work in parallel. Note the difference between communicational cohesion (functions *inside one module* sharing data, which is acceptable) and common coupling (*different modules* sharing global data, which is not).
 
 ## 7.4 User interface design

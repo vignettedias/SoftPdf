@@ -133,10 +133,6 @@ Natural language is expressive, intuitive, and universal. It is also potentially
 4. Do not assume that readers understand technical software engineering language. Avoid jargon, abbreviations, and acronyms.
 5. Whenever possible, associate a rationale with each requirement. The rationale explains why the requirement has been included, and it is particularly useful when requirements are changed, because it helps to decide what changes would be undesirable.
 
-### 4.3.2 Structured specifications
-
-Structured natural language is a way of writing system requirements in which the freedom of the writer is limited and all requirements are written in a standard way. A structured specification of a requirement typically records: a description of the function or entity being specified; its inputs and where they come from; its outputs and where they go to; the information needed for the computation; the action to be taken; the precondition that must be true before the function is called and the postcondition that is true afterwards; and the side effects, if any, of the operation. Templates of this kind reduce variability and make requirements easier to check for completeness.
-
 ::: example ex-rewrite | Rewriting requirements so that they can be verified
 The following statements were collected for an online store. Explain what is wrong with each and rewrite it. (a) 'The system should be easy to use.' (b) 'The site must be fast and must be available at all times.' (c) 'The system shall store customer details and should allow them to be changed.'
 --- solution
