@@ -279,13 +279,13 @@ Refactor (a) a UserManager with the operations login, sendWelcomeEmail, calculat
 --- solution
 (a) UserManager has *coincidental* cohesion: authentication, e-mail, pricing, and reporting have nothing in common, so a change to discount rules risks breaking login. It is split into AuthenticationService, EmailService, PricingService, and ReportGenerator, each *functionally* cohesive and each using User ([[fig:refactor-user]]).
 
-@fig refactor-user
-
 (b) Order is tightly coupled to one payment provider and one database: neither can be replaced, and Order cannot be tested without them. This is *external* coupling to concrete classes, since the order depends on a particular provider and storage technology. Two interfaces are introduced, PaymentProcessor and OrderRepository, and the implementations are passed to the constructor ([[fig:refactor-order]]). Order now knows only the interfaces and exchanges only an amount or an order with them, which is *data* coupling; PayPal can be replaced by Stripe, or MySQL by PostgreSQL, without changing Order, and tests can use mock implementations.
 
-@fig refactor-order
+@fig refactor-user
 
 (c) CheckoutManager has *coincidental* cohesion (validation, payment, inventory, and messaging) and *external* coupling to three concrete services. It becomes a CheckoutOrchestrator that performs the four steps in order through OrderValidator, a PaymentGateway interface, an InventoryService (which uses an InventoryRepository interface), and a Notifier interface, each injected ([[fig:refactor-checkout]]).
+
+@fig refactor-order
 
 @fig refactor-checkout
 --- answer
@@ -357,6 +357,33 @@ Other elements are forms (input fields for collecting data) and navigation (the 
 
 Shneiderman's *eight golden rules* are also widely used: strive for consistency (the same button styles on every page); enable frequent users to use shortcuts (keyboard shortcuts); offer informative feedback (loading indicators, success messages); design dialogs to yield closure (progress indicators and a final confirmation); prevent errors (input validation, confirmation dialogs); permit easy reversal of actions (undo and redo); support an internal locus of control (users initiate actions and can customize settings); and reduce short-term memory load (on-screen hints). To these, many designers add keeping interfaces simple and natural, providing clear navigation (breadcrumbs, persistent menus), being forgiving (editable forms, helpful error messages), focusing on accessibility (high contrast, alternative text), and testing and iterating (usability and A/B testing).
 
+::: example ex-ui-aspects | Key aspects of user interface design
+User interface design creates the visual layout and interactive elements of a product so that using it is intuitive, efficient, and enjoyable. List four key aspects of UI design, covering its principles, its design process, and its elements.
+--- answer
+1. *Principles* Clarity (every element has an obvious purpose), consistency (the same colors, fonts, icons, and controls throughout), familiarity (known patterns and metaphors), efficiency, responsiveness, aesthetics, forgiveness (easy recovery from errors), and accessibility.
+2. *Design process* User research, information architecture (organizing content and navigation), wireframing, prototyping, visual design, and usability testing, repeated in iterations ([[fig:ui-spiral]]).
+3. *Visual and structural elements* Layout, typography, color, icons, and a visual hierarchy that makes the most important information most prominent.
+4. *Interaction elements* Buttons and other controls, forms for input, navigation between parts of the interface, and feedback such as progress indicators and micro-interactions.
+:::
+
+::: example ex-wx-dashboard | A dashboard for a weather sensing system
+(a) Design a user interface dashboard for the weather sensing and alert system of [[ex:ex-wx-activity]], showing its layout structure, visual hierarchy, navigation elements, widget placement, and interaction components. (b) Annotate the areas where user familiarity, consistency, recoverability, user diversity, and user guidance are applied, with a brief justification for each.
+--- solution
+(a) The dashboard ([[fig:wx-dashboard]]) has a *header bar* with the station name, a live-data indicator and clock, settings, and help. A *navigation panel* on the left gives Dashboard, Alerts (with a count), History, Thresholds, Sensors, and Help. The *content area* follows a visual hierarchy from top to bottom: three reading tiles (temperature, humidity, pressure), each with a large current value and its status; an alert banner, shown only when a threshold is violated, with Acknowledge and Undo buttons; a 24-hour chart with the threshold drawn as a line and toggle buttons for the variable; and, at the bottom, a table of recent alerts and a form for editing a threshold. The most urgent information, the current readings and any alert, is largest and highest.
+
+(b) The annotations A to E in the figure mark where each principle is applied:
+
+- A *User familiarity* The tiles use the units and terms meteorologists know (°C, %, hPa) and the conventions of other dashboards: a warning triangle for alerts and a left-hand navigation menu.
+- B *Consistency* Every reading tile has the same structure, red always means a violated threshold, and all buttons look and behave alike, so learning one part teaches the rest.
+- C *Recoverability* An acknowledged alert can be undone, and a threshold change takes effect only when it is saved, with the default shown so that it can be restored.
+- D *User diversity* Status is shown by text as well as color, for color-blind users; the chart can be switched between variables for analysts, while casual users read the tiles; and alerts reach users by SMS or e-mail as they prefer.
+- E *User guidance* The threshold form states the valid range and default, the alert banner explains what was exceeded and for how long, and Help is always available in the navigation and header.
+--- answer
+A dashboard with a header, left navigation, reading tiles, an alert banner, a trend chart, an alert table, and a threshold form, arranged by urgency, with the five principles applied as annotated in [[fig:wx-dashboard]].
+:::
+
+@fig wx-dashboard
+
 ::: example ex-ui-fd | Screen layouts for an order processing and delivery system
 For a food-delivery company's order processing and delivery management system: (a) design user interface layouts for (i) the restaurant order management screen, (ii) the delivery partner assignment screen, and (iii) the real-time order tracking screen; (b) show in a table how key user interface design principles are applied and satisfied in these screens.
 --- solution
@@ -377,24 +404,6 @@ Each screen is designed for the user who will use it and the task they perform m
 (b) The principles and their application are summarized in [[fig:ui-principles-table]].
 
 @fig ui-principles-table
-:::
-
-::: example ex-wx-dashboard | A dashboard for a weather sensing system
-(a) Design a user interface dashboard for the weather sensing and alert system of [[ex:ex-wx-activity]], showing its layout structure, visual hierarchy, navigation elements, widget placement, and interaction components. (b) Annotate the areas where user familiarity, consistency, recoverability, user diversity, and user guidance are applied, with a brief justification for each.
---- solution
-(a) The dashboard ([[fig:wx-dashboard]]) has a *header bar* with the station name, a live-data indicator and clock, settings, and help. A *navigation panel* on the left gives Dashboard, Alerts (with a count), History, Thresholds, Sensors, and Help. The *content area* follows a visual hierarchy from top to bottom: three reading tiles (temperature, humidity, pressure), each with a large current value and its status; an alert banner, shown only when a threshold is violated, with Acknowledge and Undo buttons; a 24-hour chart with the threshold drawn as a line and toggle buttons for the variable; and, at the bottom, a table of recent alerts and a form for editing a threshold. The most urgent information, the current readings and any alert, is largest and highest.
-
-@fig wx-dashboard
-
-(b) The annotations A to E in the figure mark where each principle is applied:
-
-- A *User familiarity* The tiles use the units and terms meteorologists know (°C, %, hPa) and the conventions of other dashboards: a warning triangle for alerts and a left-hand navigation menu.
-- B *Consistency* Every reading tile has the same structure, red always means a violated threshold, and all buttons look and behave alike, so learning one part teaches the rest.
-- C *Recoverability* An acknowledged alert can be undone, and a threshold change takes effect only when it is saved, with the default shown so that it can be restored.
-- D *User diversity* Status is shown by text as well as color, for color-blind users; the chart can be switched between variables for analysts, while casual users read the tiles; and alerts reach users by SMS or e-mail as they prefer.
-- E *User guidance* The threshold form states the valid range and default, the alert banner explains what was exceeded and for how long, and Help is always available in the navigation and header.
---- answer
-A dashboard with a header, left navigation, reading tiles, an alert banner, a trend chart, an alert table, and a threshold form, arranged by urgency, with the five principles applied as annotated in [[fig:wx-dashboard]].
 :::
 
 ::: keypoints

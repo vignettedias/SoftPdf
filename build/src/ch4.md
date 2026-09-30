@@ -18,9 +18,7 @@ Software requirements can be divided into two groups ([[fig:req-kinds]]). The fi
 
 @fig req-kinds
 
-Both groups sit inside a third, higher-level kind of requirement. *Business requirements* are the high-level goals and objectives that a system must achieve to support an organization's strategic business needs. They explain *why* the system is being built and what impact it should have on the business, for example 'reduce the time taken to settle an insurance claim from ten days to two'. Business requirements are not implemented directly; they are refined into the functional and non-functional requirements that together achieve them ([[fig:req-nesting]]). Every functional requirement should therefore be traceable to a business requirement. A function that supports no business goal is a candidate for removal.
-
-@fig req-nesting
+Both groups sit inside a third, higher-level kind of requirement. *Business requirements* are the high-level goals and objectives that a system must achieve to support an organization's strategic business needs. They explain *why* the system is being built and what impact it should have on the business, for example 'reduce the time taken to settle an insurance claim from ten days to two'. Business requirements are not implemented directly; they are refined into the functional and non-functional requirements that together achieve them. Every functional requirement should therefore be traceable to a business requirement. A function that supports no business goal is a candidate for removal.
 
 The two main categories of software requirement are:
 
@@ -64,9 +62,9 @@ Non-functional requirements are often more critical than individual functional r
 
 3. *External requirements* This broad heading covers all requirements that are derived from factors external to the system and its development process. These may include regulatory requirements that set out what must be done for the system to be approved for use by a regulator, such as a central bank; legislative requirements that must be followed to ensure that the system operates within the law; and ethical requirements that ensure that the system will be acceptable to its users and the general public.
 
-@fig nfr-types
-
 The difference between the two kinds of requirement can be summarized by asking what each one describes. A functional requirement names a behavior: it can be demonstrated by giving the system an input and observing the output. A non-functional requirement names a property: it is observed by measuring the system over many inputs, many users, or a long period of time.
+
+@fig nfr-types
 
 ::: example ex-antivirus-req | Classifying the requirements for an antivirus product
 A company has asked for antivirus software with the following requirements: (1) core detection capabilities, using signature-based, heuristic, and machine-learning detection; (2) real-time monitoring and protection of both the file system and web traffic; (3) automatic malware removal; (4) low resource consumption; (5) daily updates from the vendor's server; (6) an attractive user interface; (7) code security; (8) compliance with legal requirements. Classify each requirement.
@@ -185,11 +183,11 @@ The following statements were collected for an online store. Explain what is wro
 
 The requirements engineering process is the systematic process of discovering, analyzing, documenting, and checking the services that a system should provide and the constraints under which it must operate. [[fig:re-process]] shows its main activities and the documents they produce. A feasibility study produces a feasibility report; elicitation and analysis produce system models; specification produces the user and system requirements; and validation checks them before they are collected into the requirements document. Management of requirements runs through all of these stages, because requirements change throughout.
 
-@fig re-process
-
 The stages, their purposes, and the techniques used in each are as follows:
 
 1. *Feasibility study* The purpose is to assess the technical, economic, and operational feasibility of the proposed system: can it be built with available technology, will its benefits outweigh its costs, and will it fit the way the organization works? Activities include market analysis, technology assessment, risk analysis, and cost–benefit analysis. The result is a recommendation on whether to continue.
+
+@fig re-process
 
 2. *Requirements elicitation* The purpose is to gather information about the needs and expectations of stakeholders: users, customers, and domain experts. Techniques include interviews, surveys, observation, focus groups, workshops, and prototyping (Section 4.5).
 
@@ -215,9 +213,7 @@ A team is to build a monitoring system for elderly patients with chronic illness
 7. *Management* Requirements are given identifiers and traced to design and tests, and changes, such as a new vital sign, pass through change control.
 :::
 
-These activities are not carried out once in strict sequence. In practice, requirements engineering is an iterative process in which the activities are interleaved. [[fig:re-spiral]] shows this as a spiral. The amount of time and effort devoted to each activity in each iteration depends on the stage of the overall process and on the type of system being developed. Early in the process, most effort is spent on understanding high-level business and non-functional requirements and the user requirements for the system. Later, in the outer rings of the spiral, more effort is devoted to eliciting and understanding the detailed system requirements.
-
-@fig re-spiral
+These activities are not carried out once in strict sequence. In practice, requirements engineering is an iterative process in which the activities are interleaved. The amount of time and effort devoted to each activity in each iteration depends on the stage of the overall process and on the type of system being developed. Early in the process, most effort is spent on understanding high-level business and non-functional requirements and the user requirements for the system. Later, in the outer rings of the spiral, more effort is devoted to eliciting and understanding the detailed system requirements.
 
 ## 4.5 Requirements elicitation and analysis
 
@@ -325,9 +321,7 @@ Yes. Because the changed requirements come from many stakeholders, validation is
 
 ## 4.7 Requirements management
 
-The requirements for large software systems are always changing. One reason for this is that these systems are usually developed to address 'wicked' problems, that is, problems that cannot be completely defined. Because the problem cannot be fully defined, the software requirements are bound to be incomplete. During the software process, the stakeholders' understanding of the problem is constantly changing ([[fig:req-evolution]]). The system requirements must then also evolve to reflect this changed problem view.
-
-@fig req-evolution
+The requirements for large software systems are always changing. One reason for this is that these systems are usually developed to address 'wicked' problems, that is, problems that cannot be completely defined. Because the problem cannot be fully defined, the software requirements are bound to be incomplete. During the software process, the stakeholders' understanding of the problem is constantly changing. The system requirements must then also evolve to reflect this changed problem view.
 
 Once a system has been installed and is regularly used, new requirements inevitably emerge. It is hard for users and system customers to anticipate what effects the new system will have on their business processes and the way that work is done. Once end-users have experience of a system, they will discover new needs and priorities.
 

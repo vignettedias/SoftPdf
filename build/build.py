@@ -8,6 +8,7 @@ chapter openers, cover).
 import os, re, sys, json, html
 import markdown
 import pymupdf
+FIG_SCALE = float(os.environ.get('FIG_SCALE', 0.87))  # global figure reduction for a compact printout
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, 'lib'))
@@ -71,8 +72,8 @@ class Chapter:
         num = self.fig_no[fid]
         cls = 'fig' + (' wide' if opts.get('wide') else '') + (' top' if opts.get('top') else '') + (' tbl' if '<table' in art else '')
         caph = f'<div class="cap"><b>Figure {num}</b>&ensp;{md_inline(cap)}</div>'
-        if opts.get('scale'):
-            sc = opts['scale']
+        sc = opts.get('scale', 1) * (1 if '<table' in art else FIG_SCALE)
+        if sc != 1:
             art = re.sub(r'width="([\d.]+)pt" height="([\d.]+)pt"', lambda m: f'width="{float(m.group(1))*sc:.1f}pt" height="{float(m.group(2))*sc:.1f}pt"', art, count=1)
             art = re.sub(r'style="width:([\d.]+)pt;height:([\d.]+)pt"', lambda m: f'style="width:{float(m.group(1))*sc:.1f}pt;height:{float(m.group(2))*sc:.1f}pt"', art, count=1)
         arth = f'<div class="art">{art}</div>'

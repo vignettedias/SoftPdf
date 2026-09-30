@@ -4,9 +4,7 @@ Testing has five objectives: to detect defects before users do; to validate that
 
 It is useful to distinguish three terms. An *error* (mistake) is a human action that produces an incorrect result; it leads to a *fault* (defect, bug) in the code; executing the fault may cause a *failure*, an observable deviation from the expected behavior. Testing observes failures in order to locate faults; debugging removes them.
 
-Testing proceeds from the small to the large ([[fig:test-strategy]]). Development moves inward from system engineering through requirements and design to code; testing moves outward. *Unit testing* verifies individual components as coded; *integration testing* verifies the assembled components against the design; *validation testing* confirms the software against its requirements; and *system testing* verifies the software together with the other elements of the system (hardware, people, and databases). Other testing strategies include requirement-based, functional, performance, security, usability, regression, user acceptance, and maintenance testing.
-
-@fig test-strategy
+Testing proceeds from the small to the large. Development moves inward from system engineering through requirements and design to code; testing moves outward. *Unit testing* verifies individual components as coded; *integration testing* verifies the assembled components against the design; *validation testing* confirms the software against its requirements; and *system testing* verifies the software together with the other elements of the system (hardware, people, and databases). Other testing strategies include requirement-based, functional, performance, security, usability, regression, user acceptance, and maintenance testing.
 
 Testing may be classified in three independent ways: by how it is executed (*manual* or *automated*), by what is tested (*functional* testing of what the system does, or *non-functional* testing of how well it does it), and by what the tester knows (*white-box* testing from the code, or *black-box* testing from the specification). A further distinction is between *static* techniques, which examine work products without executing them (reviews, walkthroughs, inspections, and static analysis), and *dynamic* techniques, which execute the software.
 
@@ -69,9 +67,9 @@ The levels correspond as follows:
 4. *Module design ↔ unit testing* The detailed design of each module is the basis of its unit tests, which check each component in isolation.
 5. *Coding* sits at the bottom of the V; it is verified by code reviews, inspections, and static analysis before unit testing begins.
 
-@fig v-model
-
 The left side is the *verification phase*. Its activities are static: each work product is checked by reviews, walkthroughs, inspections, and audits (Section 8.3) before the next one is built on it. The right side is the *validation phase*. Its activities are dynamic: the software is executed at five levels, component (unit) testing, component integration testing, system integration testing, system testing, and acceptance testing ([[fig:val-levels]]), described in Sections 8.4 and 8.5.
+
+@fig v-model
 
 @fig val-levels
 
@@ -103,9 +101,7 @@ Software inspections and reviews analyze and check the system requirements, desi
 
 Inspections cannot, however, check non-functional characteristics such as performance and usability, or show that the software behaves correctly when running with real data. Both inspection and testing are therefore needed.
 
-The review process ([[fig:review-process]]) has three phases. In *pre-review activities*, the review is planned, a team is chosen, and each reviewer prepares individually, reading the work product and the relevant standards. The *review meeting* is short (two hours at most); the author 'walks through' the document with the team, and a chair records the problems found. In *post-review activities*, the problems raised are addressed: defects are corrected, the software may be refactored, and follow-up checks confirm that every comment has been dealt with.
-
-@fig review-process
+The review process has three phases. In *pre-review activities*, the review is planned, a team is chosen, and each reviewer prepares individually, reading the work product and the relevant standards. The *review meeting* is short (two hours at most); the author 'walks through' the document with the team, and a chair records the problems found. In *post-review activities*, the problems raised are addressed: defects are corrected, the software may be refactored, and follow-up checks confirm that every comment has been dealt with.
 
 An *audit* is an independent, objective examination of a work product or process, carried out by people external to the development team (often an internal audit department or a third-party organization). Instead of looking for technical defects, auditors check for compliance with standards (such as ISO 9001 or CMMI), legal regulations, and internal policies. The scope is broad: management records, security protocols, and licensing agreements are examined as well as the code. The outcome is a formal *audit report* that lists the non-compliances and recommends corrective actions. Where a review asks whether the product is correct, an audit also asks whether it was produced properly: whether it complies with legal and licensing requirements, is traceable to its requirements, is documented well enough to be maintained, and respects ethical constraints such as privacy and fairness.
 
@@ -208,9 +204,9 @@ In *big bang* integration, all components are combined at once and then tested. 
 2. *Bottom-up* integration starts with the lowest-level modules and integrates upward, replacing higher modules that are not ready by drivers. Low-level modules are often combined into *clusters* (builds) that perform a sub-function, each tested with a driver. Its advantage is that the foundation services are tested thoroughly and early, and no stubs are needed; its disadvantage is that the program does not exist as a whole until the last module is added.
 3. *Sandwich* (hybrid) integration combines the two: top-down for the upper levels and bottom-up for the lower levels, meeting at a middle layer. It uses both stubs and drivers and suits medium and large systems.
 
-@fig integ-orders
-
 With the modules of [[ex:ex-stubdriver]], top-down integration first tests A with a stub for B, then replaces the stub by B and tests A with B, using a stub for C, and finally adds C. Bottom-up integration first tests C with a driver, then adds B and tests B with C through a driver that replaces A, and finally adds A.
+
+@fig integ-orders
 
 @fig integ-strategies
 
@@ -370,9 +366,9 @@ def factorial(n):
 --- solution
 Number the nodes: 1 the test n == 0; 2 return 1; 3 result = 1 (with the loop initialization i = 1); 4 the loop test i ≤ n; 5 result *= i (with the increment of i); 6 return result; 7 exit. The flow graph is [[fig:cfg-fact]].
 
-@fig cfg-fact
-
 The edges are 1→2, 1→3, 3→4, 4→5, 5→4 (the back edge of the loop), 4→6, 2→7, and 6→7, so E = 8 and N = 7.
+
+@fig cfg-fact
 
 V(G) = E − N + 2 = 8 − 7 + 2 = 3.
 
@@ -434,14 +430,14 @@ void selectionSort(int a[]) {
 --- solution
 Number the nodes: 1 size = a.length and i = 0; 2 the outer test i < size; 3 minIndex = i and j = i + 1; 4 the inner test j < size; 5 the test a[j] < a[minIndex]; 6 minIndex = j; 7 j++; 8 the swap and i++; 9 exit ([[fig:cfg-sort]]).
 
-@fig cfg-sort
-
 The edges are 1→2, 2→3, 2→9, 3→4, 4→5, 4→8, 5→6, 5→7, 6→7, 7→4, and 8→2, so E = 11 and N = 9: V(G) = 11 − 9 + 2 = 4. The predicate nodes are 2, 4, and 5, giving 3 + 1 = 4.
 
 Because of the loops, the number of complete paths is unbounded, so path coverage is achieved in practice by the basis paths together with loop tests (zero, one, and several iterations of each loop).
 --- answer
 V(G) = 4. Basis tests: P1 1–2–9 with a = [] (no change); P2 1–2–3–4–8–2–9 with a = [5] (outer loop once, inner loop zero times); P3 …4–5–7–4… with a = [1, 2] (comparison false, already sorted); P4 …4–5–6–7–4… with a = [2, 1] (comparison true, result [1, 2]). Adding a = [3, 1, 2] (result [1, 2, 3]) exercises several iterations of both loops.
 :::
+
+@fig cfg-sort
 
 ::: example ex-discount-cfg | Basis paths of a discount function
 For the following function, (a) calculate the cyclomatic complexity, (b) identify the independent paths, and (c) write test cases that cover them.

@@ -58,9 +58,9 @@ A use case diagram focuses on user goals, the system boundary, and high-level fu
 
 [[fig:lib-usecase]] shows the use cases of a library system. A member searches for, borrows, and returns books and views their account; a librarian adds books and manages members. Borrowing a book always includes checking that the book is available and that the member's account is in good standing, so these are «include» relationships. A fine is generated only when a book is returned late, so 'Generate fine' extends 'Return book'.
 
-@fig lib-usecase
-
 Each use case should also be documented in more detail, as a text description (actors, preconditions, main and alternative flows, postconditions) or as a sequence diagram.
+
+@fig lib-usecase
 
 ### 5.2.2 Sequence diagrams
 
@@ -216,17 +216,15 @@ A DFD is created top-down. Start with level 0 by identifying the external entiti
 
 The lemonade stand is a simple example. The system has four activities: a customer places an order for lemonade; the stand owner makes the lemonade; the customer pays; and the owner serves the lemonade. [[fig:lemon-l0]] is its context diagram. The customer, the employee, and the vendor who supplies the ingredients are the external entities.
 
-@fig lemon-l0
-
 At level 1 ([[fig:lemon-l1]]), the single process is decomposed into four processes: 1.0 Sale, 2.0 Production, 3.0 Procurement, and 4.0 Payroll. Every flow on the context diagram appears again, now connected to the process that handles it: the customer's order and payment go to Sale, the served product comes from Production, and so on. New internal flows, such as the product ordered passing from Sale to Production, appear for the first time.
+
+@fig lemon-l0
 
 @fig lemon-l1
 
-At level 2, each process is decomposed again. [[fig:lemon-l2]] shows process 1.0, Sale, as three processes that record the order, receive the payment, and produce the sales forecast from the stored orders and payments. Its external flows (customer order and payment in; product ordered and sales forecast out) are exactly those of process 1.0 at level 1, so the diagrams balance. [[fig:lemon-tree]] summarizes the whole decomposition.
+At level 2, each process is decomposed again. [[fig:lemon-l2]] shows process 1.0, Sale, as three processes that record the order, receive the payment, and produce the sales forecast from the stored orders and payments. Its external flows (customer order and payment in; product ordered and sales forecast out) are exactly those of process 1.0 at level 1, so the diagrams balance.
 
 @fig lemon-l2
-
-@fig lemon-tree
 
 ::: example ex-records | Data and data-flow models of an academic record system
 In an academic record system, courses are created with a course number, credits, and a syllabus. Students (roll number, address, semester) are admitted and register for courses. The marks for each subject are keyed in, the semester weighted average (SWA) is calculated from the credits, the marks are combined with previous marks into a cumulative weighted average, and the marks and SWA are formatted and printed. A student with an SWA of 85 or higher is placed on the Vice-Chancellor's list; a student with an SWA below 50 is placed on conditional standing. (a) Draw an entity–relationship diagram. (b) Draw the context diagram and the level-1 DFD.
@@ -294,11 +292,11 @@ The requirements are first classified (see [[ex:ex-antivirus-req]] in Chapter 4)
 
 *Class-based element.* A ScanEngine uses one or more Detectors. Detector is an interface, realized by SignatureDetector, HeuristicDetector, and MLDetector, so that a new detection technique can be added without changing the engine. Infected files are passed to the Quarantine ([[fig:av-class]]).
 
+*Behavioral element.* The engine monitors file and web events, scans each one, and returns to monitoring or, if the file is malicious, quarantines it and notifies the user; updates are installed in a separate state, so scans never use half-installed definitions ([[fig:av-state]]).
+
 @fig av-usecase
 
 @fig av-class
-
-*Behavioral element.* The engine monitors file and web events, scans each one, and returns to monitoring or, if the file is malicious, quarantines it and notifies the user; updates are installed in a separate state, so scans never use half-installed definitions ([[fig:av-state]]).
 
 *Flow-oriented element.* Scanning is decomposed into intercepting the file, analyzing it against the signature store, and taking action, which quarantines infected files and reports to the user ([[fig:av-dfd]]).
 

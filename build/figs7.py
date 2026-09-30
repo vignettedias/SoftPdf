@@ -137,7 +137,7 @@ def _():
     return f.svg()
 
 
-@fig('ui-spiral', 'The user interface design process')
+@fig('ui-spiral', 'The user interface design process', scale=0.85)
 def _():
     f = Fig(250, 160, fs=6.6)
     import math
@@ -175,7 +175,7 @@ def chip(f, x, y, t, fill='#EAF7FD'):
     return w
 
 
-@fig('scr-restaurant', 'Layout of the restaurant order management screen', wide=True)
+@fig('scr-restaurant', 'Layout of the restaurant order management screen', wide=True, scale=0.9)
 def _():
     f = Fig(420, 214, fs=6.4)
     screen(f, 4, 4, 412, 206, 'Spice Garden — Orders')
@@ -204,7 +204,7 @@ def _():
     return f.svg()
 
 
-@fig('scr-assign', 'Layout of the delivery partner assignment screen', wide=True)
+@fig('scr-assign', 'Layout of the delivery partner assignment screen', wide=True, scale=0.9)
 def _():
     f = Fig(420, 196, fs=6.4)
     screen(f, 4, 4, 412, 188, 'Dispatch — Assign delivery partner')
@@ -234,7 +234,7 @@ def _():
     return f.svg()
 
 
-@fig('scr-track', 'Layout of the real-time order tracking screen')
+@fig('scr-track', 'Layout of the real-time order tracking screen', scale=0.85)
 def _():
     f = Fig(336, 236, fs=6.4)
     screen(f, 90, 4, 156, 228, 'Track order #4821')
@@ -294,7 +294,7 @@ def _():
     return f.svg()
 
 
-@fig('wx-dashboard', 'Annotated dashboard for the weather sensing and alert system', wide=True)
+@fig('wx-dashboard', 'Annotated dashboard for the weather sensing and alert system', wide=True, scale=0.88)
 def _():
     f = Fig(420, 250, fs=6.2)
     screen(f, 4, 4, 330, 242, 'Weather Monitor — Station WS-12')
@@ -400,7 +400,7 @@ def _():
     return f.svg()
 
 
-@fig('refactor-user', 'Refactoring a coincidentally cohesive class', wide=True)
+@fig('refactor-user', 'Refactoring a coincidentally cohesive class', wide=True, scale=0.9)
 def _():
     f = Fig(420, 150, fs=6)
     f.text(64, 6, 'Before', weight=600, size=6.4); f.text(300, 6, 'After', weight=600, size=6.4)
@@ -417,7 +417,7 @@ def _():
     return f.svg()
 
 
-@fig('refactor-order', 'Replacing concrete dependencies by interfaces', wide=True)
+@fig('refactor-order', 'Replacing concrete dependencies by interfaces', wide=True, scale=0.9)
 def _():
     f = Fig(420, 150, fs=6)
     f.text(64, 6, 'Before', weight=600, size=6.4); f.text(300, 6, 'After', weight=600, size=6.4)
@@ -438,7 +438,7 @@ def _():
     return f.svg()
 
 
-@fig('refactor-checkout', 'Refactoring a checkout manager into an orchestrator of services', wide=True)
+@fig('refactor-checkout', 'Refactoring a checkout manager into an orchestrator of services', wide=True, scale=0.9)
 def _():
     f = Fig(420, 176, fs=6)
     f.text(64, 6, 'Before', weight=600, size=6.4); f.text(300, 6, 'After', weight=600, size=6.4)

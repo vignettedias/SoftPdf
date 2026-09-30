@@ -107,12 +107,12 @@ A weather sensing and alert system periodically collects raw temperature, humidi
 
 (b) The activity diagram ([[fig:wx-activity]]) turns each action into an action node. The three preprocessing chains are independent, so a fork starts them concurrently and a join waits for all three before synchronization, which needs complete data. The decision node after evaluation has the guards [within limits] and [threshold violated]. The three alert actions are also independent, so a second fork runs them in parallel, and a join precedes the return to idle. Both branches end at the final node, which stands for the return to idle until the next sampling period.
 
-@fig wx-activity
-
 (c) A *fork* node splits one flow into concurrent flows. Here it shows that temperature, humidity, and pressure are preprocessed at the same time rather than one after another, and that storing the alert, notifying users, and updating the admin panel also proceed together; the matching *join* marks the point at which all the parallel flows must have finished. *Swimlanes* partition the actions by the component responsible for them (sensors and API, preprocessing, synchronizer and evaluator, and alert services), so the diagram shows who performs each action as well as the order, and each lane later becomes a component of the architecture ([[ex:ex-wx-repo]]).
 --- answer
 (a) States Idle, Acquiring, Preprocessing, Evaluating, and Alerting, with the events and actions of [[fig:wx-activity-table]]. (b) An activity diagram with four swimlanes, a fork–join pair around preprocessing, a decision on the thresholds, and a fork–join pair around the alert actions. (c) Forks show concurrency (and joins the synchronization that follows it); swimlanes show responsibility.
 :::
+
+@fig wx-activity
 
 ## 6.3 Architectural patterns
 
@@ -216,12 +216,12 @@ A food-delivery system follows this workflow: a customer places an order by sele
 --- solution
 The DFD of the workflow ([[fig:fd-flow-dfd]]) is a single chain. Every order enters by the same path, is converted from the customer's selection into a confirmed internal order when payment is verified (the incoming boundary), is processed by preparation and agent assignment (the transform centre), and leaves as a delivery to the customer (after the outgoing boundary). Control passes from each process to the next in a fixed sequence, and no process selects one of several alternative paths according to the type of input.
 
-@fig fd-flow-dfd
-
 That the system handles many orders at once does not make the flow a transaction flow, and neither do the success checks in payment verification: a transaction flow requires a transaction centre that dispatches each input to a *different* action path, as the menu choice does at an ATM ([[ex:ex-atm]]). If the same system accepted several request types (place order, cancel order, track order, rate restaurant) through one entry point, that entry point would be a transaction centre.
 --- answer
 Transform flow. The data follows one linear path, input → transformation → output, with incoming and outgoing boundaries after payment verification and before delivery; there is no transaction centre that routes different inputs along different paths.
 :::
+
+@fig fd-flow-dfd
 
 ### 6.4.1 Transform mapping
 
@@ -289,9 +289,9 @@ An online shopping platform lets customers browse a product catalogue, add items
 
 At level 1 the system is decomposed into six processes and four data stores ([[fig:shop-l1]]). The customer's flows are shared among processes 1.0 to 5.0, and each flow on the context diagram reappears, so the levels balance.
 
-@fig shop-l1
-
 (b) Each customer or administrator request (browse, update cart, order, pay, account, admin) is one input that is routed to one of several alternative processes, so the top level of the system has *transaction flow*. Transaction mapping gives a reception branch that reads and validates the request and a dispatcher with one module per transaction ([[fig:shop-structure]]). The Place order path is itself a transform flow (read cart → compute total → pay → record order), so it is factored further beneath its module.
+
+@fig shop-l1
 
 @fig shop-structure
 --- answer
