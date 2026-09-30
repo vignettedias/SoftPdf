@@ -1,5 +1,5 @@
 from svg import Fig, anchor, CYAN, DARK, GREY, FILL
-from figs5 import proc, ext, store, Seq
+from figs5 import proc, ext, store, Seq, lab
 from figs4 import table_html
 
 FIGS = {}
@@ -294,4 +294,86 @@ def _():
     for t, cx in kids:
         f.line(cx, 72, cx, 80); f.box(cx - 28, 80, 56, 22, t, shadow=False)
     f.text(300, 116, 'transaction modules (one per action path)', size=6.2, italic=True)
+    return f.svg()
+
+
+@fig('shop-context', 'Context diagram of an online shopping system')
+def _():
+    from figs5 import edge_pt
+    f = Fig(336, 160, fs=6.2)
+    cx, cy, r = 176, 80, 32
+    f.circle(cx, cy, r, shadow=True); f.text(cx, cy - 8, '0.0', weight=500, size=6.6); f.text(cx, cy + 6, 'Online\nshopping system', size=6.2)
+    ext(f, 4, 44, 50, 72, 'Customer', size=6.6)
+    ext(f, 268, 20, 64, 26, 'Administrator', size=6.4)
+    ext(f, 268, 116, 64, 26, 'Payment\ngateway', size=6.4)
+    for y, t, out in [(56, 'browse request, cart items', False), (72, 'order and payment details', False), (88, 'account updates', False), (104, 'product list, confirmation,\norder history', True)]:
+        ex = cx - (r * r - (y - cy) ** 2) ** 0.5
+        if out:
+            f.arrow([(ex, y), (54, y)], size=3.5); lab(f, 96, y + 9, t, size=5.4)
+        else:
+            f.arrow([(54, y), (ex, y)], size=3.5); lab(f, 96, y - 4, t, size=5.4)
+    f.arrow([(268, 30), (cx + r - 8, cy - 22)], size=3.5); lab(f, 236, 12, 'product, user, and\norder-status updates', size=5.4)
+    f.arrow([(cx + r - 2, cy - 10), (268, 42)], size=3.5); lab(f, 250, 58, 'reports', size=5.4)
+    f.arrow([(cx + r - 2, cy + 12), (268, 122)], size=3.5); lab(f, 226, 96, 'payment request', size=5.4)
+    f.arrow([(268, 136), (cx + r - 8, cy + 22)], size=3.5); lab(f, 226, 142, 'payment status', size=5.4)
+    return f.svg()
+
+
+@fig('shop-l1', 'Level-1 DFD of the online shopping system', wide=True)
+def _():
+    f = Fig(420, 214, fs=6)
+    r = 21
+    P = {'1': (110, 26), '2': (110, 88), '3': (206, 118), '4': (304, 150), '5': (110, 176), '6': (304, 44)}
+    names = {'1': 'Browse\ncatalogue', '2': 'Manage\ncart', '3': 'Place\norder', '4': 'Process\npayment', '5': 'Manage\naccount', '6': 'Administer\nplatform'}
+    for k, (x, y) in P.items():
+        proc(f, x, y, r, f'{k}.0', names[k], size=5.8)
+    ext(f, 2, 100, 54, 22, 'Customer', size=6)
+    ext(f, 360, 8, 58, 22, 'Admin', size=6)
+    ext(f, 360, 180, 58, 26, 'Payment\ngateway', size=5.8)
+    store(f, 170, 8, 76, 'D1', 'Products', size=5.8)
+    store(f, 160, 64, 66, 'D4', 'Carts', size=5.8)
+    store(f, 214, 176, 70, 'D3', 'Orders', size=5.8)
+    store(f, 292, 196, 60, 'D2', 'Users', size=5.8)
+    A = lambda pts, **k: f.arrow(pts, size=3.4, **k)
+    A([(40, 100), (40, 30), (89, 30)]); lab(f, 60, 24, 'browse req.', size=5.2)
+    A([(89, 22), (30, 22), (30, 100)]); lab(f, 60, 16, 'product list', size=5.2)
+    A([(56, 104), (89, 92)]); lab(f, 66, 92, 'cart items', size=5.2)
+    A([(56, 114), (185, 118)]); lab(f, 150, 112, 'order details', size=5.2)
+    A([(56, 120), (70, 150), (284, 150)]); lab(f, 170, 145, 'payment details', size=5.2)
+    A([(185, 126), (56, 122)], kind='fill') if False else None
+    A([(189, 132), (70, 132), (56, 118)]); lab(f, 150, 137, 'confirmation', size=5.2)
+    A([(40, 122), (40, 176), (89, 176)]); lab(f, 62, 170, 'account upd.', size=5.2)
+    A([(89, 186), (30, 186), (30, 122)]); lab(f, 60, 194, 'order history', size=5.2)
+    A([(170, 15), (131, 22)])
+    A([(131, 84), (160, 72)])
+    A([(200, 77), (204, 97)])
+    A([(222, 132), (240, 176)])
+    A([(223, 124), (284, 144)]); lab(f, 262, 128, 'amount', size=5.2)
+    A([(286, 158), (226, 128)]); lab(f, 254, 160, 'status', size=5.2)
+    A([(325, 154), (380, 180)]); lab(f, 350, 158, 'request', size=5.2)
+    A([(372, 180), (322, 162)]); lab(f, 336, 178, 'status', size=5.2)
+    A([(214, 186), (131, 180)])
+    A([(292, 202), (130, 186)]); A([(128, 192), (292, 207)])
+    A([(322, 62), (340, 196)]); lab(f, 350, 110, 'user\nupdates', size=5.2)
+    A([(360, 20), (325, 36)]); lab(f, 356, 40, 'updates', size=5.2)
+    A([(318, 28), (360, 26)]); lab(f, 340, 18, 'reports', size=5.2)
+    A([(283, 40), (246, 18)])
+    A([(300, 65), (260, 176)]); lab(f, 292, 100, 'order status', size=5.2)
+    return f.svg()
+
+
+@fig('shop-structure', 'Program structure of the online shopping system after transaction mapping', wide=True)
+def _():
+    f = Fig(420, 132, fs=6.2)
+    f.box(165, 4, 90, 20, 'Online shopping system', weight=500)
+    f.line(210, 24, 210, 32); f.line(60, 32, 300, 32)
+    f.line(60, 32, 60, 40); f.box(8, 40, 104, 24, 'Read and validate\nrequest (reception)')
+    f.line(300, 32, 300, 40); f.box(236, 40, 128, 24, 'Request dispatcher\n(transaction centre)', weight=500)
+    kids = [('Browse\ncatalogue', 44), ('Manage\ncart', 112), ('Place\norder', 180), ('Manage\naccount', 248), ('Administer\nplatform', 316), ('Process\npayment', 384)]
+    f.line(300, 64, 300, 72); f.line(44, 72, 384, 72)
+    for t, cx in kids:
+        f.line(cx, 72, cx, 80); f.box(cx - 30, 80, 60, 24, t, shadow=False, size=6)
+    f.line(180, 104, 180, 110); f.line(150, 110, 210, 110)
+    for x, t in [(150, 'Compute\ntotal'), (210, 'Record\norder')]:
+        f.line(x, 110, x, 114); f.box(x - 26, 114, 52, 18, t, shadow=False, size=5.4)
     return f.svg()

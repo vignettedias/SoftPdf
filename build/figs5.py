@@ -135,7 +135,7 @@ def _():
     return f.svg()
 
 
-@fig('lemon-l1', 'Level-1 DFD of the lemonade stand system', wide=True)
+@fig('lemon-l1', 'Level-1 DFD of the lemonade stand system', wide=True, scale=0.88)
 def _():
     f = Fig(420, 230)
     r = 26
@@ -269,7 +269,7 @@ class Seq:
         self.f.text(x + 22, y + 4, label, size=6.2, anchor='start')
 
 
-@fig('lib-sequence', 'Sequence diagram for borrowing a book', wide=True, scale=0.88)
+@fig('lib-sequence', 'Sequence diagram for borrowing a book', wide=True, scale=0.8)
 def _():
     f = Fig(420, 262)
     s = Seq(f, ['Student member', ':Library', ':Book', ':Loan'], 40, 112, 14, 256, actors=('Student member',))
@@ -313,7 +313,7 @@ def _():
     return f.svg()
 
 
-@fig('swiggy-seq', 'Sequence diagram for payment processing in a food-delivery system', wide=True, scale=0.9)
+@fig('swiggy-seq', 'Sequence diagram for payment processing in a food-delivery system', wide=True, scale=0.82)
 def _():
     f = Fig(420, 300)
     s = Seq(f, ['Customer', ':App', ':OrderSystem', ':PaymentGateway', ':BankServer', ':OrderDB'], 22, 76, 14, 294, actors=('Customer',))
@@ -363,7 +363,7 @@ def _():
     return f.svg()
 
 
-@fig('lib-class', 'Class diagram of a library system', wide=True, scale=0.9)
+@fig('lib-class', 'Class diagram of a library system', wide=True, scale=0.84)
 def _():
     f = Fig(420, 235, fs=6.8)
     lib = f.uclass(4, 96, 86, 'Library', ['-name: String', '-address: String'], ['+addBook()', '+registerMember()'])
@@ -447,7 +447,7 @@ def lollipop(f, x1, y1, x2, y2, name, anch='middle', dx=0, dy=-8):
     f.text(x2 + dx, y2 + dy, name, size=6.2, anchor=anch)
 
 
-@fig('lib-component', 'Component diagram of a library system', wide=True)
+@fig('lib-component', 'Component diagram of a library system', wide=True, scale=0.88)
 def _():
     f = Fig(420, 190)
     ui = component(f, 10, 80, 66, 26, 'Web UI')
@@ -502,7 +502,7 @@ def _():
 
 
 # ------------------------------------------------------------------ activity & state
-@fig('lib-activity', 'Activity diagram with swimlanes for borrowing a book', wide=True)
+@fig('lib-activity', 'Activity diagram with swimlanes for borrowing a book', wide=True, scale=0.85)
 def _():
     f = Fig(420, 270, fs=6.8)
     lanes = [('Student member', 4), ('Library system', 144), ('Librarian', 284)]
@@ -633,4 +633,173 @@ def _():
     f.arrow([(190, 17), (190, 34)]); f.text(194, 26, 'signatures, model', size=6.2, anchor='start')
     f.arrow([(280, 78), (280, 102)]); f.text(284, 92, 'infected file', size=6.2, anchor='start')
     f.arrow([(270, 78), (270, 92), (30, 92), (30, 68)]); f.text(150, 99, 'alert, report', size=6.2)
+    return f.svg()
+
+
+# ------------------------------------------------------------------ additional past-paper models
+@fig('ticket-usecase', 'Use cases of a ticket reservation system')
+def _():
+    f = Fig(336, 200, fs=6.8)
+    f.rect(64, 4, 230, 192, stroke=GREY, sw=0.6)
+    f.text(179, 13, 'Ticket reservation system', size=7, weight=500)
+    f.actor(24, 70, 'Passenger')
+    f.actor(318, 104, 'Payment\ngateway')
+    f.actor(318, 150, 'Admin')
+    u = {}
+    u['search'] = f.usecase(120, 32, 'Search seats', rx=40)
+    u['book'] = f.usecase(120, 76, 'Book ticket', rx=40)
+    u['cancel'] = f.usecase(120, 120, 'Cancel ticket', rx=40)
+    u['view'] = f.usecase(120, 162, 'View booking', rx=40)
+    u['fare'] = f.usecase(222, 34, 'Calculate fare', rx=40)
+    u['pay'] = f.usecase(222, 124, 'Make payment', rx=40)
+    u['conc'] = f.usecase(222, 80, 'Apply concession /\npeak pricing', rx=44, ry=14)
+    u['fares'] = f.usecase(222, 180, 'Manage fares', rx=38, ry=11)
+    for k in ('search', 'book', 'cancel', 'view'):
+        cx, cy, rx, ry = u[k]
+        f.line(34, 84, cx - rx, cy, w=0.5)
+    f.line(308, 118, 262, 124, w=0.5); f.line(308, 164, 260, 178, w=0.5)
+    f.arrow([(152, 68), (190, 40)], kind='open', dash='3,2', size=4); f.text(160, 46, '«include»', size=5.8)
+    f.arrow([(150, 86), (190, 118)], kind='open', dash='3,2', size=4); f.text(158, 110, '«include»', size=5.8)
+    f.arrow([(240, 66), (240, 46)], kind='open', dash='3,2', size=4); f.text(244, 52, '«extend»', size=5.2, anchor='start'); f.text(244, 60, '[child, senior, peak]', size=5.2, anchor='start')
+    return f.svg()
+
+
+@fig('ticket-seq', 'Sequence diagram for booking a ticket', wide=True, scale=0.8)
+def _():
+    f = Fig(420, 290)
+    s = Seq(f, ['Passenger', ':BookingUI', ':Reservation', ':SeatInventory', ':FareCalc', ':PayGateway'], 24, 74, 14, 286, actors=('Passenger',))
+    s.act('Passenger', 46, 280)
+    s.act(':BookingUI', 50, 276)
+    s.msg('Passenger', ':BookingUI', 54, '1: search(route, date)')
+    s.act(':Reservation', 66, 270)
+    s.msg(':BookingUI', ':Reservation', 70, '2: findSeats(route, date)')
+    s.msg(':Reservation', ':SeatInventory', 86, '3: checkAvailability()')
+    s.msg(':SeatInventory', ':Reservation', 100, '4: free seats', ret=True)
+    s.msg(':Reservation', ':BookingUI', 114, '5: seat map', ret=True)
+    s.msg('Passenger', ':BookingUI', 130, '6: select seat, enter details')
+    s.msg(':BookingUI', ':Reservation', 146, '7: book(seat, passenger)')
+    s.msg(':Reservation', ':SeatInventory', 160, '8: holdSeat(seat)')
+    s.msg(':Reservation', ':FareCalc', 176, '9: fare(distance, type, time)')
+    s.act(':FareCalc', 180, 208)
+    f.rect(296, 184, 110, 20, stroke=GREY, sw=0.5, fill='none'); f.text(299, 190, 'opt [peak hour]', size=5.4, anchor='start', weight=500)
+    s.self_msg(':FareCalc', 194, 'addPeakRate()')
+    s.msg(':FareCalc', ':Reservation', 214, '10: fare', ret=True)
+    s.msg(':Reservation', ':PayGateway', 230, '11: pay(fare)')
+    s.msg(':PayGateway', ':Reservation', 244, '12: payment status', ret=True)
+    s.msg(':Reservation', ':SeatInventory', 258, '13: confirmSeat(seat)')
+    s.msg(':Reservation', ':BookingUI', 270, '14: ticket', ret=True)
+    s.msg(':BookingUI', 'Passenger', 282, '15: show ticket', ret=True)
+    return f.svg()
+
+
+@fig('uni-class', 'Class diagram of a university account system', wide=True, scale=0.9)
+def _():
+    f = Fig(420, 200, fs=6.6)
+    ua = f.uclass(4, 4, 104, 'UniversityAccount', ['-accountId: String', '-studentName: String'], [])
+    la = f.uclass(4, 86, 104, 'LinkAccount', ['-email: String {readOnly}', '-password: String'], ['+resetPassword()'])
+    bb = f.uclass(158, 4, 104, 'Blackboard', [], ['+addCourse()', '+downloadHomework()', '+uploadHomework()'])
+    zm = f.uclass(158, 118, 104, 'Zoom', [], ['+createMeeting()', '+deleteMeeting()'])
+    co = f.uclass(310, 4, 106, 'Course', ['-courseId: String', '-courseName: String'], [])
+    hw = f.uclass(310, 70, 106, 'Homework', ['-courseId: String', '-homeworkNo: int', '-questions: List'], [])
+    me = f.uclass(310, 140, 106, 'Meeting', ['-meetingId: String', '-invitationLink: URL'], ['+join(id, password)'])
+    f.arrow([(56, 86), (56, 49)], kind='fdiamond', size=4.5)
+    f.text(60, 81, '1', anchor='start', size=6); f.text(60, 60, '1', anchor='start', size=6)
+    f.arrow([(108, 104), (158, 30)], kind='open', dash='3,2', size=4); f.text(128, 58, 'uses', size=6)
+    f.arrow([(108, 118), (158, 140)], kind='open', dash='3,2', size=4); f.text(124, 138, 'uses', size=6)
+    f.arrow([(310, 22), (262, 22)], kind='fdiamond', size=4.5); f.text(306, 17, '*', anchor='end', size=6)
+    f.arrow([(310, 158), (262, 140)], kind='fdiamond', size=4.5); f.text(304, 152, '*', anchor='end', size=6)
+    f.line(363, 40, 363, 70); f.text(367, 45, '1', anchor='start', size=6); f.text(367, 66, '1..*', anchor='start', size=6)
+    f.line(404, 40, 412, 40); f.line(412, 40, 412, 140); f.text(408, 46, '1', anchor='end', size=6); f.text(408, 136, '1..*', anchor='end', size=6)
+    return f.svg()
+
+
+@fig('zoom-seq', 'Sequence diagram for joining an online lecture')
+def _():
+    f = Fig(336, 214)
+    s = Seq(f, ['Student', ':ZoomApp', ':UniAccount', ':ZoomServer'], 20, 94, 14, 210, actors=('Student',))
+    s.act('Student', 46, 204)
+    s.msg('Student', ':ZoomApp', 52, '1: join(meetingId)')
+    s.act(':ZoomApp', 48, 200)
+    s.msg(':ZoomApp', ':UniAccount', 68, '2: authenticate(email, pwd)')
+    s.act(':UniAccount', 64, 86)
+    s.msg(':UniAccount', ':ZoomApp', 82, '3: token', ret=True)
+    s.msg(':ZoomApp', ':ZoomServer', 98, '4: joinMeeting(id, pwd, token)')
+    s.act(':ZoomServer', 94, 190)
+    f.rect(114, 128, 218, 70, stroke=GREY, sw=0.6); f.rect(114, 128, 20, 10, stroke=GREY, sw=0.6); f.text(124, 133, 'alt', size=6, weight=500)
+    f.text(144, 146, '[valid]', size=6, anchor='start')
+    s.msg(':ZoomServer', ':ZoomApp', 156, '5: admit, stream', ret=True)
+    f.line(114, 166, 332, 166, dash='4,2', color=GREY)
+    f.text(144, 176, '[invalid]', size=6, anchor='start')
+    s.msg(':ZoomServer', ':ZoomApp', 188, '6: error message', ret=True)
+    s.msg(':ZoomApp', 'Student', 200, '7: lecture or error', ret=True)
+    return f.svg()
+
+
+def entity(f, x, y, w, name, attrs):
+    return f.uclass(x, y, w, name, attrs, [])
+
+
+@fig('rec-er', 'Entity–relationship diagram of an academic record system', wide=True)
+def _():
+    f = Fig(420, 112, fs=6.4)
+    st = entity(f, 4, 4, 92, 'Student', ['RollNo (PK)', 'Name', 'Address', 'Semester'])
+    en = entity(f, 150, 4, 110, 'Enrollment', ['RollNo (FK)', 'CourseNo (FK)', 'Semester', 'Marks'])
+    co = entity(f, 316, 4, 100, 'Course', ['CourseNo (PK)', 'Credits', 'Syllabus'])
+    tr = entity(f, 150, 64 - 0, 110, 'Transcript', ['RollNo, Semester (PK)', 'SWA'])
+    f.line(96, 30, 150, 30); f.text(100, 25, '1', anchor='start', size=6); f.text(146, 25, 'N', anchor='end', size=6)
+    f.line(260, 30, 316, 30); f.text(264, 25, 'N', anchor='start', size=6); f.text(312, 25, '1', anchor='end', size=6)
+    f.poly([(50, 62), (50, 78), (150, 78)]); f.text(54, 72, '1', anchor='start', size=6); f.text(146, 73, 'N', anchor='end', size=6)
+    return f.svg()
+
+
+@fig('rec-context', 'Context diagram of the academic record system')
+def _():
+    f = Fig(336, 150, fs=6.4)
+    cx, cy, r = 168, 74, 32
+    f.circle(cx, cy, r, shadow=True); f.text(cx, cy - 8, '0.0', weight=500); f.text(cx, cy + 6, 'Academic\nrecord system', size=6.4)
+    ext(f, 4, 10, 70, 24, 'Registrar', size=6.6)
+    ext(f, 4, 116, 70, 24, 'Faculty', size=6.6)
+    ext(f, 262, 10, 70, 24, 'Student', size=6.6)
+    ext(f, 262, 116, 70, 24, 'Academic\noffice', size=6.4)
+    f.arrow([(74, 20), (cx - r + 6, cy - 20)], size=4); lab(f, 100, 16, 'course details,\nadmission details', size=5.8)
+    f.arrow([(74, 128), (cx - r + 6, cy + 20)], size=4); lab(f, 100, 118, 'marks', size=5.8)
+    f.arrow([(cx + r - 6, cy - 20), (262, 22)], size=4); lab(f, 236, 38, 'grade report\nwith SWA', size=5.8)
+    f.arrow([(cx + r - 6, cy + 20), (262, 128)], size=4); lab(f, 232, 118, "VC's list,\nconditional\nstanding list", size=5.8)
+    return f.svg()
+
+
+@fig('rec-l1', 'Level-1 DFD of the academic record system', wide=True, scale=0.9)
+def _():
+    f = Fig(420, 196, fs=6.2)
+    r = 21
+    P = {'1': (96, 30), '2': (96, 98), '3': (96, 166), '4': (236, 132), '5': (340, 78), '6': (348, 166)}
+    proc(f, *P['1'], r, '1.0', 'Maintain\ncourses', size=6)
+    proc(f, *P['2'], r, '2.0', 'Admit and\nregister', size=6)
+    proc(f, *P['3'], r, '3.0', 'Record\nmarks', size=6)
+    proc(f, *P['4'], r, '4.0', 'Compute\nSWA', size=6)
+    proc(f, *P['5'], r, '5.0', 'Print grade\nreport', size=6)
+    proc(f, *P['6'], r, '6.0', 'Determine\nstanding', size=6)
+    store(f, 170, 16, 84, 'D1', 'Courses', size=6)
+    store(f, 170, 80, 84, 'D2', 'Students', size=6)
+    store(f, 150, 176, 84, 'D3', 'Enrollments', size=6)
+    store(f, 290, 118, 84, 'D4', 'Transcripts', size=6)
+    ext(f, 2, 50, 50, 20, 'Registrar', size=6)
+    ext(f, 2, 156, 50, 20, 'Faculty', size=6)
+    ext(f, 370, 14, 48, 20, 'Student', size=6)
+    ext(f, 388, 106 + 80, 30, 0.01, '', size=1) if False else None
+    ext(f, 370, 180, 48, 16, 'Acad. office', size=5.6)
+    f.arrow([(40, 50), (78, 38)], size=3.5); lab(f, 40, 36, 'course\ndetails', size=5.4)
+    f.arrow([(40, 70), (76, 92)], size=3.5); lab(f, 36, 86, 'admission\ndetails', size=5.4)
+    f.arrow([(52, 166), (75, 166)], size=3.5); lab(f, 62, 160, 'marks', size=5.4)
+    f.arrow([(117, 30), (170, 22)], size=3.5)
+    f.arrow([(117, 98), (170, 86)], size=3.5)
+    f.arrow([(110, 114), (160, 176)], size=3.5)
+    f.arrow([(117, 170), (150, 180)], size=3.5)
+    f.arrow([(200, 189), (225, 148)], size=3.5); lab(f, 222, 172, 'marks', size=5.4, anchor='start')
+    f.arrow([(212, 29), (232, 111)], size=3.5); lab(f, 226, 60, 'credits', size=5.4, anchor='start')
+    f.arrow([(257, 128), (290, 125)], size=3.5)
+    f.arrow([(332, 118), (338, 99)], size=3.5)
+    f.arrow([(340, 131), (346, 145)], size=3.5); lab(f, 356, 138, 'SWA', size=5.4, anchor='start')
+    f.arrow([(352, 57), (380, 34)], size=3.5); lab(f, 380, 48, 'grade\nreport', size=5.4, anchor='start')
+    f.arrow([(368, 176), (380, 182)], size=3.5)
     return f.svg()

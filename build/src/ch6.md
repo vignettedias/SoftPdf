@@ -126,6 +126,16 @@ The system is a client–server system whose server side is layered and whose re
 @fig fd-layered
 :::
 
+### 6.3.4 Event-driven control
+
+Call-and-return is a *centralized* control style: one component calls others and waits for them. In an *event-driven* control style, components respond to events that are generated externally and may occur at any time. There are two forms. In a *broadcast* model, an event is sent to all components, and any component that can handle it does so. In an *interrupt-driven* model, which is used in real-time and embedded systems, each type of interrupt is associated with a handler that is started as soon as the interrupt occurs, so the system responds quickly without continuously checking for work.
+
+::: example ex-iot | A control style for sensor firmware
+Firmware for a microcontroller-based device monitors temperature, humidity, and air quality in a smart home. It samples the sensors continuously and sends periodic updates to a central server. It must handle asynchronous events efficiently and minimize CPU overhead. Identify the appropriate control style and justify it.
+--- answer
+An *event-driven, interrupt-driven* control style is appropriate. A timer interrupt triggers each sensor sample and each periodic upload; a sensor 'data ready' interrupt and a network 'message received' interrupt start their own handlers. Between interrupts the processor sleeps. This is justified because (1) events are asynchronous and must be handled when they happen, not when a polling loop reaches them; (2) the CPU does no work while it waits, which minimizes overhead and power consumption; (3) each handler is small and independent, so a new sensor adds a new handler without changing the others; and (4) a threshold alarm, such as poor air quality, can be given a higher interrupt priority and served at once. A centralized polling loop would waste CPU cycles and could miss or delay events.
+:::
+
 ## 6.4 Architectural mapping using data flow
 
 Requirements models for many systems include data-flow diagrams. Architectural mapping is the method that converts a DFD into a program structure with a call-and-return architecture. It has six steps:
@@ -196,6 +206,24 @@ One input triggers one of several mutually exclusive paths, so the flow is trans
 Each transaction module is then factored into its own action path. Withdraw controls Get amount, Check balance, Dispense cash, and Update account; Deposit controls Accept cash, Verify amount, and Update account. The shared module Update account then has fan-in 2, which is good reuse. An action path may itself have transform flow (Withdraw reads an amount, computes a new balance, and dispenses cash), in which case it is mapped by transform mapping beneath the dispatcher.
 --- answer
 ATM system → {Read menu selection (reception); Menu selection process (dispatcher) → Withdraw, Deposit, Balance enquiry}. A new transaction such as Transfer funds is added as one more subordinate of the dispatcher, without changing the existing modules.
+:::
+
+::: example ex-shop | DFDs and a structure chart for an online shopping system
+An online shopping platform lets customers browse a product catalogue, add items to a cart, place orders, pay through trusted payment gateways, and manage their accounts (personal details and order history). Administrators manage product listings, user accounts, and order processing. Products, users, and orders are kept in databases. (a) Draw the level-0 and level-1 DFDs. (b) Convert the DFD into a structure chart.
+--- solution
+(a) The context (level-0) diagram shows the three external entities and the data that crosses the boundary ([[fig:shop-context]]).
+
+@fig shop-context
+
+At level 1 the system is decomposed into six processes and four data stores ([[fig:shop-l1]]). The customer's flows are shared among processes 1.0 to 5.0, and each flow on the context diagram reappears, so the levels balance.
+
+@fig shop-l1
+
+(b) Each customer or administrator request (browse, update cart, order, pay, account, admin) is one input that is routed to one of several alternative processes, so the top level of the system has *transaction flow*. Transaction mapping gives a reception branch that reads and validates the request and a dispatcher with one module per transaction ([[fig:shop-structure]]). The Place order path is itself a transform flow (read cart → compute total → pay → record order), so it is factored further beneath its module.
+
+@fig shop-structure
+--- answer
+Level 0: Customer, Administrator, and Payment gateway around process 0.0. Level 1: 1.0 Browse catalogue, 2.0 Manage cart, 3.0 Place order, 4.0 Process payment, 5.0 Manage account, 6.0 Administer platform, with stores D1 Products, D2 Users, D3 Orders, D4 Carts. Structure chart: Online shopping system → {Read and validate request; Request dispatcher → Browse catalogue, Manage cart, Place order (→ Compute total, Record order), Manage account, Administer platform, Process payment}.
 :::
 
 The two mappings differ in their key element (a transform centre or a transaction centre), in their top structure (input, transform, and output controllers, or a reception branch and a dispatcher), and in the way a feature is added (usually a new module in one domain, or a new module under the dispatcher). A student-records processor that reads scores, validates them, computes grades, and prints grade reports has transform flow; a library kiosk that offers Issue, Return, Renew, and Search has transaction flow.

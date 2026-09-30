@@ -136,20 +136,26 @@ The measure within a module is cohesion (the measure between modules is coupling
 ::: example ex-coh-fd | Cohesion in the modules of a food-delivery system
 Classify the cohesion of each of the following modules of a food-delivery order system.
 
-1. The Order Validation module performs a single purpose: checking that an order is valid.
-2. An order-placement module whose steps form a chain: it validates the order, passes the validated order to its pricing step, and passes the priced order to its submission step.
-3. A module processes the order ID, the items, and the restaurant ID, all using the same order record.
-4. A module performs its tasks in a fixed order: check the restaurant is open, then lock the cart, then start the payment.
-5. GPS updates and ETA calculation are grouped together because they belong to the same category of 'location functions', and a parameter selects which is performed.
-6. Notifications to the customer, the restaurant, and the delivery partner are grouped because they are all triggered at the same moment, when the order status is updated.
-7. Database operations are grouped because they all work on the same shared order data.
-8. Unrelated tasks (applying a coupon, rotating log files, and refreshing the banner images) are placed together.
-9. The Payment Gateway module has one responsibility: obtaining payment authorization.
-10. Start-up tasks (loading configuration, connecting to the database, warming the menu cache) are executed at the same time.
+1. The Order Validation module performs a single, unified purpose.
+2. Order handling passes validated order details on to restaurant processing in a chained workflow, the output of each step being the input of the next.
+3. The Restaurant Manager processes the order id, the items, and the restaurant id, all operating on the same data.
+4. The Delivery Partner Allocator's tasks (select rider → check location → assign order) follow a fixed execution order.
+5. The Real-Time Tracker groups GPS updates and ETA calculations because they fall under the same category of work.
+6. Notification generation (SMS, e-mail, push) is triggered together when the order is updated.
+7. The Central Order Database module groups orders, riders, restaurants, payments, and tracking because they share data.
+8. Unrelated tasks such as analytics, rider assignment, and GPS tracking are placed in one module.
+9. The Payment Gateway module has only one responsibility: authorizing transactions.
+10. Start-up tasks such as syncing restaurant data, refreshing rider availability, and preloading menus are grouped together.
 --- solution
 Ask for each module why its elements are together: one task (functional), a data chain (sequential), shared data (communicational), fixed order (procedural), same time or event (temporal), same category chosen by a flag (logical), or no reason (coincidental).
 --- answer
 1. Functional. 2. Sequential. 3. Communicational. 4. Procedural. 5. Logical. 6. Temporal. 7. Communicational. 8. Coincidental. 9. Functional. 10. Temporal.
+:::
+
+::: example ex-temporal | The contribution of temporal cohesion
+How does temporal cohesion contribute to the organization of a module's functionality? Give an example from a real application.
+--- answer
+Temporal cohesion groups actions that must happen at the same time or in response to the same event. Its contribution is organizational: all the actions for one moment are in one place, so they are guaranteed to run together, the sequence of start-up (or shutdown) is easy to read and check, and nothing is forgotten when the event occurs. For example, when a mobile banking app starts, one start-up module loads the configuration, restores the session, checks for updates, and preloads the account summary. Its weakness is that the actions are otherwise unrelated, so each must be changed without disturbing the others. It lies low on the cohesion scale, and the best designs keep such a module as a thin coordinator that *calls* functionally cohesive modules (loadConfig(), restoreSession(), and so on) rather than containing their logic.
 :::
 
 ### 7.3.2 Coupling
@@ -169,6 +175,27 @@ Coupling is the degree of interdependence between modules: how closely one modul
 Classify each fragment. (1) end_of_day() closes the database, backs up the logs, and sends a summary e-mail. (2) shipping_cost(order) uses only order.weight from an Order record with twenty fields. (3) render(report, fmt), with fmt in {"pdf", "csv", "html"} and a separate branch for each. (4) Two modules both read and write a global variable current_user. (5) greet_user(name, age) is called with just the two values it prints.
 --- answer
 (1) Temporal cohesion: the tasks are grouped only because they run at the end of the day. (2) Stamp coupling: a whole record is passed where one field is needed; passing order.weight would give data coupling. (3) Inside render, logical cohesion; between the caller and render, control coupling, since fmt selects the behavior. (4) Common coupling through shared global data. (5) Data coupling, the weakest and best form.
+:::
+
+::: example ex-doceditor | Architecture, coupling, and cohesion for a collaborative editor
+A cloud-based document editor lets many users edit a document simultaneously, track changes, and chat. It must be scalable and allow later additions such as AI writing assistance and advanced versioning. (a) Identify an appropriate architectural style and justify it. (b) State design assumptions for three types of coupling and two types of cohesion that give good modularity.
+--- solution
+(a) A *layered* architecture, deployed client–server, is appropriate: a presentation layer (editor, change view, and chat in the browser), a collaboration and business-logic layer (session management, merging concurrent edits, change tracking, versioning, and chat), a service-integration layer (cloud storage and, later, AI services), and a data layer (documents, versions, messages). Each layer uses only the one below, so the user interface, the collaboration logic, and the storage can be changed or scaled independently, and a new AI assistant is added in the service layer without touching the editor. Because the modules are only data coupled (below), individual services, such as chat, can later be scaled out on their own servers.
+
+(b) *Coupling* (choose the weak forms and control the strong ones):
+
+1. *Data coupling* between most modules: the editor passes only an edit operation (position, inserted text, user id) to the collaboration module, and chat passes only a message and a channel id.
+2. *Stamp coupling*, used deliberately only where the whole record is needed: the versioning module receives a complete ChangeSet record because it stores all its fields.
+3. *External coupling* confined to adapter modules: only a StorageAdapter depends on the cloud storage API and only an AIAdapter on the future AI service, so a change of provider affects one module.
+
+Content and common coupling are avoided: no module writes another's internal data, and there is no shared global document state.
+
+*Cohesion*:
+
+1. *Functional cohesion* for each module: Merge concurrent edits, Record version, and Deliver chat message each do one thing.
+2. *Communicational cohesion* for the change-tracking module, whose functions (record change, list changes, accept or reject change) all operate on the same document-change data.
+--- answer
+(a) Layered architecture (with client–server deployment), justified by modularity, independent scaling, and easy extension. (b) Coupling: data (edit operations and messages), controlled stamp (whole change records for versioning), and external coupling isolated in adapters. Cohesion: functional (single-task modules) and communicational (change tracking on shared change data).
 :::
 
 The two properties reinforce each other. When related elements are placed together (high cohesion), fewer connections are needed to other modules (low coupling); when modules communicate through a few simple parameters, each can be understood in isolation. The results are concrete: a requirement change affects one module (modular continuity); a fault is unlikely to propagate (modular protection); each module can be unit-tested with simple stubs and drivers; functionally cohesive, data-coupled modules can be reused elsewhere; and teams can work in parallel. Note the difference between communicational cohesion (functions *inside one module* sharing data, which is acceptable) and common coupling (*different modules* sharing global data, which is not).
@@ -236,9 +263,9 @@ Each screen is designed for the user who will use it and the task they perform m
 
 (ii) *Delivery partner assignment* ([[fig:scr-assign]]) is used by a dispatcher. A live map shows the restaurant and nearby partners; beside it, suggested partners are ranked nearest first with distance, time, rating, and status. A partner who is still on a delivery can only be queued. Automatic assignment counts down visibly and can be overridden or undone.
 
-@fig scr-assign
-
 (iii) *Real-time order tracking* ([[fig:scr-track]]) is used by the customer on a phone. The estimated arrival time is the most prominent element, above a five-step progress bar and a map with the rider's location, updated every ten seconds. The rider's name and rating are shown with a Call button, and delays are explained in plain language.
+
+@fig scr-assign
 
 @fig scr-track
 --- answer

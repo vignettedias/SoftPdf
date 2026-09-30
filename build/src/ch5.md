@@ -1,6 +1,6 @@
 System modeling is the process of creating abstract, visual representations of a system to understand, define, and communicate its requirements before implementation. Each model presents a different view or perspective of that system, and the models act as a bridge between vague user needs and precise technical specifications. They ensure that stakeholders and developers share a common understanding of what is to be built.
 
-Models are used for several reasons. They simplify complex systems into diagrams that make structure, behavior, and interactions easier to understand than text alone. They clarify vague or incomplete requirements by making system behavior, user interactions, and data flow explicit, which reduces ambiguity and miscommunication. They provide a common visual language for developers, designers, clients, and testers. They support traceability, because a requirement can be followed from its first statement to the model elements that implement it. They expose design flaws, risks, and missing requirements early, during analysis and design, rather than during costly implementation. Models can also be used to generate test cases and documentation. Above all, a model is an abstraction: it deliberately leaves out detail so that the engineer can concentrate on one perspective at a time.
+Models make structure, behavior, and interactions easier to understand than text alone; they clarify vague requirements and reduce miscommunication; they give developers, clients, and testers a common visual language; they support traceability and the generation of test cases and documentation; and they expose missing requirements and design flaws early, when they are cheap to fix. Above all, a model is an abstraction: it deliberately leaves out detail so that the engineer can concentrate on one perspective at a time.
 
 A system may be modeled from five perspectives:
 
@@ -10,7 +10,7 @@ A system may be modeled from five perspectives:
 4. A *behavioral* perspective, which models how the system behaves in response to inputs and events.
 5. A *data* perspective, which models the structure and organization of the data within the system.
 
-Three families of notation are used. Data-flow diagrams (DFDs) model context and the flow of data; entity–relationship diagrams model the structure of data; and the Unified Modeling Language (UML) covers all five perspectives. The UML is a standardized, general-purpose modeling language used to visualize, specify, construct, and document the artifacts of a software-intensive system. It is essentially a blueprint language for software. A UML model is more than a drawing: it is a collection of diagrams and model elements that together form a formal representation of the system's architecture, structure, and behavior, so that developers, technical writers, and business analysts can each understand the system at the level of detail relevant to them.
+Three families of notation are used. Data-flow diagrams (DFDs) model context and the flow of data; entity–relationship (ER) diagrams model the structure of data (entities, their attributes, and the relationships between them); and the Unified Modeling Language (UML) covers all five perspectives. The UML is a standardized, general-purpose modeling language used to visualize, specify, construct, and document the artifacts of a software-intensive system. It is essentially a blueprint language for software. A UML model is more than a drawing: it is a collection of diagrams and model elements that together form a formal representation of the system's architecture, structure, and behavior, so that developers, technical writers, and business analysts can each understand the system at the level of detail relevant to them.
 
 UML diagrams fall into two categories ([[fig:uml-types]]). *Structural diagrams* show the static elements of a system and their relationships, irrespective of time. They represent the 'nouns' of the system (classes, objects, components) and are used for planning and documenting architecture. *Behavioral diagrams* show the dynamic behavior of the system and its interactions over time. They represent the 'verbs' (actions and events) and are used to analyze user interactions and run-time behavior.
 
@@ -35,13 +35,13 @@ The usual form of context model is the *context diagram*, which is the top level
 
 In the context diagram the whole system is a single process. [[fig:sales-context]] is the context diagram of a sales order system. It shows at once who uses the system (managers, employees, and customers) and what data crosses the boundary in each direction. In requirements engineering this gives a broad, stakeholder-friendly view that is used to clarify requirements, identify the interfaces that must be specified, and prevent scope creep: any proposed function that does not correspond to one of the flows on the context diagram is outside the agreed scope.
 
-Context diagrams do not show the relationships between the other systems in the environment and the system being specified, and they say nothing about how the system works internally. The internal processes are revealed by decomposing the single process into lower-level DFDs, as described in Section 5.4.1.
+A context diagram says nothing about how the system works internally; its processes are revealed by decomposing it into lower-level DFDs (Section 5.4.1).
 
 @fig sales-context
 
 ## 5.2 Interaction models
 
-All systems involve interaction of some kind: user interaction, which involves user inputs and outputs; interaction between the system being developed and other systems; or interaction between the components of the system. Modeling user interaction helps to identify user requirements. Modeling component interaction helps us understand whether a proposed system structure is likely to deliver the required system performance and dependability. This section covers use case diagrams, sequence diagrams, and communication diagrams.
+Interaction models show how users interact with the system, how the system interacts with other systems, and how its components interact. Modeling user interaction helps to identify user requirements; modeling component interaction shows whether a proposed structure can deliver the required performance and dependability.
 
 ### 5.2.1 Use case modeling
 
@@ -60,7 +60,7 @@ A use case diagram focuses on user goals, the system boundary, and high-level fu
 
 @fig lib-usecase
 
-A use case diagram gives only a simple overview. Each use case should also be documented in more detail, either as a structured text description (actors, preconditions, the main flow of events, alternative flows, and postconditions) or as a sequence diagram.
+Each use case should also be documented in more detail, as a text description (actors, preconditions, main and alternative flows, postconditions) or as a sequence diagram.
 
 ### 5.2.2 Sequence diagrams
 
@@ -85,6 +85,20 @@ The participants are the Customer (an actor), the App, the Order System, the Pay
 The message sequence is: 1 placeOrder (Customer→App); 2 createOrder (App→Order System); 3 save order as PENDING (Order System→Order DB); 4 requestPayment (Order System→Payment Gateway); 5 authorize (Gateway→Bank); 6 approved or rejected (Bank→Gateway); 7 payment status (Gateway→Order System); then, in the *alt* fragment, either 8 update status to PAID and 9 confirm to the app, or 10 update status to FAILED and 11 report failure so that the customer can retry; finally 12 the app shows the result to the customer.
 :::
 
+::: example ex-ticket | Use cases and a booking sequence for a ticket reservation system
+A ticket reservation system for a public transport network integrates real-time seat availability, fare calculation, passenger details, and payment. The fare depends on the distance, the ticket type (adult, child, senior), and peak-hour pricing. (a) Model the interaction between users and the system. (b) Model the ticket booking scenario.
+--- solution
+(a) The interaction between users and the system is modeled by a use case diagram ([[fig:ticket-usecase]]). The actors are the Passenger, the Admin who maintains the fare rules, and the external Payment gateway. Booking always includes calculating the fare and making the payment. Concessions and peak-hour surcharges apply only under a condition, so they extend 'Calculate fare'.
+
+@fig ticket-usecase
+
+(b) A scenario, which is an ordered set of interactions, is modeled by a sequence diagram ([[fig:ticket-seq]]). Every fare parameter appears as an argument of the fare message (distance, ticket type, and time of travel), and the peak-hour surcharge is placed in an *opt* fragment. The seat is held while the fare is calculated and paid for, and is confirmed only after payment succeeds.
+
+@fig ticket-seq
+--- answer
+(a) A use case diagram with actors Passenger, Admin, and Payment gateway, and use cases Search seats, Book ticket («include» Calculate fare and Make payment), Cancel ticket, View booking, and Manage fares, with 'Apply concession / peak pricing' «extend» 'Calculate fare'. (b) A sequence diagram whose messages run: search, find seats, check availability, select seat and enter passenger details, hold seat, fare(distance, type, time) with an optional peak-hour surcharge, pay, confirm seat, and issue the ticket.
+:::
+
 ### 5.2.3 Communication diagrams
 
 A communication diagram (also known as a collaboration diagram) is another type of interaction diagram. It emphasizes the relationships between objects and shows how messages are exchanged within a particular context. Unlike a sequence diagram, it does not show time as a separate dimension; instead it shows the structural organization of the objects and their connections. Its elements are:
@@ -100,7 +114,7 @@ A communication diagram (also known as a collaboration diagram) is another type 
 
 ## 5.3 Structural models
 
-Structural models of software display the organization of a system in terms of the components that make up that system and their relationships. Structural models may be static models, which show the structure of the system design, or dynamic models, which show the organization of the system when it is executing.
+Structural models show the organization of a system in terms of its components and their relationships.
 
 ### 5.3.1 Class diagrams
 
@@ -115,15 +129,15 @@ A class is drawn as a rectangle with three compartments: the name, the attribute
 5. *Dependency* A temporary 'uses' relationship in which one class uses another, for example as a parameter; drawn as a dashed arrow. Example: ReportGenerator uses Data.
 6. *Realization* A class implements an interface; drawn as a dashed line with a hollow triangle pointing to the interface.
 
-@fig class-rels
-
 Generalization and realization are easily confused because both use a hollow triangle. The difference is the line: a *solid* line means that the subclass inherits the structure and behavior of a superclass; a *dashed* line means that a class promises to implement the operations declared by an interface.
+
+@fig class-rels
 
 *Multiplicity* (cardinality) is written at each end of an association to say how many objects take part: 1 (exactly one), 0..1 (zero or one), \* or 0..\* (any number), 1..\* (at least one), or a range such as 1..4.
 
-@fig lib-class
-
 [[fig:lib-class]] is a class diagram of a library system. A Library is composed of Books and Loans: if the library is deleted, its books and loan records are deleted too. Members and Librarians are aggregated by the library, because a person can exist independently of it (a student might graduate but still exist as a person). Each Loan links exactly one Book to exactly one Member, while a book or a member may have many loans over time. Faculty and Student are types of Member that have different borrowing rules, so they are subclasses connected by generalization, each overriding getMaxBooks().
+
+@fig lib-class
 
 ::: example ex-crc | Principal and collaborating classes of a food-delivery system
 A food-delivery system processes orders placed with restaurants, takes payments, assigns delivery partners, and tracks deliveries in real time. Identify the principal classes of the system and the classes each one collaborates with.
@@ -149,6 +163,20 @@ Multiplicity determines three things in the implementation:
 1. *Database design* A one-to-many association (Customer 1 — 0..\* Order) becomes a foreign key in the 'many' table (Order.customerId); a many-to-many association needs a separate link table; a composition (Order ◆— OrderItem) means that item rows are deleted with their order.
 2. *Object and memory structure* An end with multiplicity 1 or 0..1 becomes a single reference (order.payment); an end with \* becomes a collection (customer.orders). A lower bound of 0 means that the reference may be null and the code must handle that case.
 3. *Constraint enforcement* Bounds are business rules that the code must check: exactly one payment per order, at least one item per order, and at most one delivery partner per order.
+:::
+
+::: example ex-uni | A class model and a sequence diagram for university accounts
+Each student has a University Account with an account id and a student name. Based on this account the student has a Link Account with an e-mail address and a password; the password can be reset, but the e-mail address cannot be changed. The link account is used to access Blackboard and Zoom. Blackboard holds a list of courses and supports adding courses and downloading and uploading homework. Zoom holds a list of meetings and can create and delete meetings. Each Course has a course id and name and has at least one meeting and one homework. A Meeting has a unique meeting id and an invitation link, and joining it by id requires the password. Each Homework has a course id, a homework number, and a list of questions. (a) Draw the class diagram. (b) Model the interaction among the objects when a student joins the online lecture of a course.
+--- solution
+(a) The nouns give the classes, their properties give the attributes, and the verbs give the operations ([[fig:uni-class]]). A Link Account cannot exist without its University Account, so the relationship is a composition. Blackboard and Zoom own their lists of courses and meetings, which are also compositions. Blackboard and Zoom *use* the link account for access, which is a dependency. The multiplicity 1..\* records that each course has at least one meeting and at least one homework, and {readOnly} records that the e-mail address cannot be changed.
+
+@fig uni-class
+
+(b) The interaction involves the Student, the Zoom application, the University account server, and the Zoom server ([[fig:zoom-seq]]). The link account is authenticated first; the meeting password is then checked by the Zoom server, and the two outcomes are shown in an *alt* fragment.
+
+@fig zoom-seq
+--- answer
+(a) Classes UniversityAccount, LinkAccount, Blackboard, Zoom, Course, Meeting, and Homework with the attributes and operations shown, composition from UniversityAccount to LinkAccount, from Blackboard to Course, and from Zoom to Meeting, and Course associated with 1..\* Homework and 1..\* Meeting. (b) Messages: join(meetingId); authenticate(email, password); token; joinMeeting(id, password, token); then either admit and stream, or an error message.
 :::
 
 ### 5.3.2 Component and deployment diagrams
@@ -200,6 +228,24 @@ At level 2, each process is decomposed again. [[fig:lemon-l2]] shows process 1.0
 
 @fig lemon-tree
 
+::: example ex-records | Data and data-flow models of an academic record system
+In an academic record system, courses are created with a course number, credits, and a syllabus. Students (roll number, address, semester) are admitted and register for courses. The marks for each subject are keyed in, the semester weighted average (SWA) is calculated from the credits, the marks are combined with previous marks into a cumulative weighted average, and the marks and SWA are formatted and printed. A student with an SWA of 85 or higher is placed on the Vice-Chancellor's list; a student with an SWA below 50 is placed on conditional standing. (a) Draw an entity–relationship diagram. (b) Draw the context diagram and the level-1 DFD.
+--- solution
+(a) An entity–relationship (ER) diagram models the data perspective: entities (things about which data is kept), their attributes, and the relationships between them with their cardinalities. A student registers for many courses and a course has many students, so the many-to-many relationship is resolved by an Enrollment entity that also holds the marks. A student has one transcript *per semester*, so Student to Transcript is one-to-many ([[fig:rec-er]]).
+
+(b) The context diagram shows the whole system as one process and the four external entities that exchange data with it ([[fig:rec-context]]). A context diagram has exactly one process; a list of the system's functions belongs to level 1, not level 0.
+
+@fig rec-er
+
+@fig rec-context
+
+At level 1 the process is decomposed into six processes with four data stores ([[fig:rec-l1]]). Every flow on the context diagram appears on the level-1 diagram, so the two diagrams balance.
+
+@fig rec-l1
+--- answer
+(a) Entities Student, Course, Enrollment (RollNo, CourseNo, Semester, Marks), and Transcript (RollNo, Semester, SWA), with Student 1–N Enrollment N–1 Course and Student 1–N Transcript. (b) Context: Registrar, Faculty, Student, and Academic office around process 0.0. Level 1: 1.0 Maintain courses, 2.0 Admit and register, 3.0 Record marks, 4.0 Compute SWA, 5.0 Print grade report, and 6.0 Determine standing (SWA ≥ 85 → Vice-Chancellor's list; SWA < 50 → conditional standing), with stores D1 Courses, D2 Students, D3 Enrollments, and D4 Transcripts.
+:::
+
 Activity diagrams are the UML's notation for data-driven and workflow models. An activity diagram represents the flow of activities or actions within a system. It is used to model workflows, business processes, algorithms, and the steps of use cases, showing how tasks are performed sequentially or concurrently. Its notation is:
 
 1. *Start node*, a solid circle marking the beginning of the activity; *end node*, a solid circle with a border marking its termination.
@@ -246,17 +292,17 @@ The requirements are first classified (see [[ex:ex-antivirus-req]] in Chapter 4)
 
 *Scenario-based element.* The actors are the User and the vendor's Update Server. The use cases are Run scan, Configure real-time protection, Quarantine or remove malware, View threat report, and Update definitions. Removal happens only when a threat is found, so it extends scanning ([[fig:av-usecase]]).
 
-@fig av-usecase
-
 *Class-based element.* A ScanEngine uses one or more Detectors. Detector is an interface, realized by SignatureDetector, HeuristicDetector, and MLDetector, so that a new detection technique can be added without changing the engine. Infected files are passed to the Quarantine ([[fig:av-class]]).
+
+@fig av-usecase
 
 @fig av-class
 
 *Behavioral element.* The real-time protection engine monitors file and web events, scans each one, and either returns to monitoring or, if the file is malicious, quarantines it and notifies the user. Updates are installed in a separate state so that scanning never uses half-installed definitions ([[fig:av-state]]).
 
-@fig av-state
-
 *Flow-oriented element.* Scanning a file is decomposed into intercepting the file, analyzing it against the signature and model store, and taking action, which writes infected files to the quarantine store and reports to the user ([[fig:av-dfd]]).
+
+@fig av-state
 
 @fig av-dfd
 --- answer
