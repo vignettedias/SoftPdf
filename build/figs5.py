@@ -803,3 +803,32 @@ def _():
     f.arrow([(352, 57), (380, 34)], size=3.5); lab(f, 380, 48, 'grade\nreport', size=5.4, anchor='start')
     f.arrow([(368, 176), (380, 182)], size=3.5)
     return f.svg()
+
+
+@fig('bank-usecase', 'Use cases of an online banking system', scale=0.88)
+def _():
+    f = Fig(336, 232, fs=6.6)
+    f.rect(64, 4, 230, 224, stroke=GREY, sw=0.6)
+    f.text(179, 13, 'Online banking system', size=7, weight=500)
+    f.actor(24, 84, 'Customer')
+    f.actor(318, 70, 'Payment\ngateway')
+    f.actor(318, 172, 'Admin')
+    u = {}
+    for i, (k, t) in enumerate([('reg', 'Register'), ('login', 'Log in'), ('bal', 'View balance'), ('xfer', 'Transfer funds'),
+                                ('bill', 'Pay utility bill'), ('hist', 'View transaction\nhistory')]):
+        u[k] = f.usecase(116, 32 + i * 34, t, rx=38, ry=12 if k != 'hist' else 14)
+    u['otp'] = f.usecase(232, 34, 'Verify OTP', rx=34, ry=11)
+    u['proc'] = f.usecase(232, 82, 'Process bill\npayment', rx=36, ry=14)
+    u['appr'] = f.usecase(232, 138, 'Approve\nregistration', rx=36, ry=14)
+    u['acct'] = f.usecase(232, 176, 'Manage accounts', rx=38, ry=11)
+    u['rep'] = f.usecase(232, 208, 'Generate reports', rx=38, ry=11)
+    for k in ('reg', 'login', 'bal', 'xfer', 'bill', 'hist'):
+        cx, cy, rx, ry = u[k]
+        f.line(34, 98, cx - rx, cy, w=0.5)
+    f.line(308, 84, 268, 84, w=0.5)
+    for k in ('appr', 'acct', 'rep'):
+        cx, cy, rx, ry = u[k]
+        f.line(308, 186, cx + rx, cy, w=0.5)
+    f.arrow([(148, 126), (206, 42)], kind='open', dash='3,2', size=4); f.text(160, 76, '«include»', size=5.6, anchor='start')
+    f.arrow([(152, 162), (200, 90)], kind='open', dash='3,2', size=4); f.text(160, 134, '«include»', size=5.6, anchor='start')
+    return f.svg()

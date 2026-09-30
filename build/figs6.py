@@ -518,3 +518,97 @@ def _():
         f.line(x, 14, x, 90, dash='4,2', color=CYAN, w=0.8)
         f.text(x, 8, t, size=6, italic=True)
     return f.svg()
+
+
+# ------------------------------------------------------------------ electricity billing
+def pk_entity(f, x, y, w, name, attrs, npk=1):
+    """Entity box whose first npk attributes (the primary key) are underlined."""
+    box = f.uclass(x, y, w, name, attrs, [])
+    lh = f.fs * 1.28
+    hn = lh + 6
+    for i in range(npk):
+        cy = y + hn + 3 + lh * (i + 0.5) + f.fs * 0.55
+        f.line(x + 4, cy, x + 4 + f.tw(attrs[i]) * 0.98, cy, w=0.5, color=DARK)
+    return box
+
+
+@fig('tneb-l0', 'Context (level-0) diagram of the electricity billing system')
+def _():
+    f = Fig(336, 140, fs=6.4)
+    cx, cy, r = 168, 70, 32
+    f.circle(cx, cy, r, shadow=True); f.text(cx, cy - 8, '0.0', weight=500); f.text(cx, cy + 6, 'EB billing\nsystem', size=6.4)
+    ext(f, 4, 58, 64, 24, 'Customer', size=6.6)
+    ext(f, 268, 10, 64, 24, 'EB staff', size=6.6)
+    ext(f, 268, 108, 64, 24, 'EB manager', size=6.6)
+    f.arrow([(68, 62), (cx - r + 2, cy - 12)], size=4); lab(f, 96, 44, 'connection application,\npayment (cash/card)', size=5.8)
+    f.arrow([(cx - r + 2, cy + 12), (68, 78)], size=4); lab(f, 100, 98, 'connection number,\nbill', size=5.8)
+    f.arrow([(268, 24), (cx + r - 6, cy - 20)], size=4); lab(f, 246, 40, 'meter\nreading', size=5.8)
+    f.arrow([(cx + r - 6, cy + 20), (268, 118)], size=4); lab(f, 244, 104, 'monthly\nreport', size=5.8)
+    return f.svg()
+
+
+@fig('tneb-l1', 'Level-1 DFD of the electricity billing system', wide=True, scale=0.9)
+def _():
+    f = Fig(420, 214, fs=6.2)
+    r = 22
+    P = {1: (84, 62), 2: (84, 170), 3: (214, 118), 4: (330, 62), 5: (330, 172)}
+    proc(f, *P[1], r, '1.0', 'Register\nconnection', size=6)
+    proc(f, *P[2], r, '2.0', 'Record meter\nreading', size=6)
+    proc(f, *P[3], r, '3.0', 'Receive\npayment', size=6)
+    proc(f, *P[4], r, '4.0', 'Generate\nbill', size=6)
+    proc(f, *P[5], r, '5.0', 'Produce\nmonthly report', size=5.8)
+    ext(f, 170, 4, 80, 20, 'Customer', size=6.4)
+    ext(f, 2, 118, 52, 20, 'EB staff', size=6.2)
+    ext(f, 362, 192, 56, 18, 'EB manager', size=6)
+    store(f, 118, 104, 70, 'D1', 'Connections', size=6)
+    store(f, 128, 196, 76, 'D2', 'Readings', size=6)
+    store(f, 236, 176, 64, 'D3', 'Payments', size=6)
+    store(f, 346, 104, 70, 'D4', 'Bills', size=6)
+    # customer flows
+    f.arrow([(180, 24), (104, 50)], size=3.5); lab(f, 56, 24, 'application\n(domestic/commercial)', size=5.4)
+    f.arrow([(98, 44), (172, 24)], size=3.5); lab(f, 150, 44, 'connection no.', size=5.4)
+    f.arrow([(210, 24), (212, 96)], size=3.5); lab(f, 218, 62, 'payment\n(cash/card)', size=5.4, anchor='start')
+    f.arrow([(310, 52), (250, 20)], size=3.5); lab(f, 290, 26, 'bill', size=5.4)
+    # staff and manager
+    f.arrow([(28, 138), (64, 160)], size=3.5); lab(f, 26, 158, 'meter\nreading', size=5.4)
+    f.arrow([(352, 178), (366, 192)], size=3.5); lab(f, 380, 168, 'monthly\nreport', size=5.4)
+    # stores
+    f.arrow([(96, 81), (130, 104)], size=3.5)                    # 1 -> D1
+    f.arrow([(134, 117), (100, 154)], size=3.5)                   # D1 -> 2
+    f.arrow([(188, 110), (193, 112)], size=3.5)                   # D1 -> 3
+    f.arrow([(104, 180), (140, 196)], size=3.5)                   # 2 -> D2
+    f.arrow([(180, 196), (204, 139)], size=3.5); lab(f, 186, 164, 'units', size=5.4, anchor='end')  # D2 -> 3
+    f.arrow([(230, 135), (254, 176)], size=3.5)                   # 3 -> D3
+    f.arrow([(234, 104), (310, 72)], size=3.5); lab(f, 276, 96, 'payment\ndetails', size=5.4)  # 3 -> 4
+    f.arrow([(344, 80), (360, 104)], size=3.5)                   # 4 -> D4
+    f.arrow([(370, 117), (344, 154)], size=3.5)                   # D4 -> 5
+    f.arrow([(300, 184), (309, 180)], size=3.5)                   # D3 -> 5
+    return f.svg()
+
+
+@fig('tneb-er', 'Entity–relationship diagram of the electricity billing system', wide=True)
+def _():
+    f = Fig(420, 236, fs=6.2)
+    cu = pk_entity(f, 4, 4, 86, 'Customer', ['CustomerID', 'Name', 'Address', 'Phone'])
+    co = pk_entity(f, 164, 4, 96, 'Connection', ['ConnectionNo', 'CustomerID (FK)', 'Type', 'SanctionedLoad'])
+    st = pk_entity(f, 4, 116, 86, 'EB staff', ['StaffID', 'Name', 'Designation'])
+    mr = pk_entity(f, 164, 110, 96, 'Meter reading', ['ReadingID', 'ConnectionNo (FK)', 'StaffID (FK)', 'Units'])
+    bi = pk_entity(f, 330, 4, 86, 'Bill', ['BillNo', 'ConnectionNo (FK)', 'ReadingID (FK)', 'Amount', 'BillDate'])
+    pa = pk_entity(f, 330, 110, 86, 'Payment', ['PaymentID', 'BillNo (FK)', 'Mode', 'Amount'])
+    rp = pk_entity(f, 164, 178, 96, 'Monthly report', ['ReportID', 'Month', 'TotalUnits', 'Revenue'])
+    def rel(pts, a, b, name, desc=None, lpos=None):
+        f.poly(pts)
+        (x1, y1), (x2, y2) = pts[0], pts[-1]
+        f.text(*a[0], a[1], size=6, anchor=a[2]); f.text(*b[0], b[1], size=6, anchor=b[2])
+        lx, ly = lpos
+        f.text(lx, ly, name, size=5.6, italic=True)
+        if desc:
+            f.text(lx, ly + 8, '{' + desc + '}', size=5.2, color=GREY)
+    rel([(90, 28), (164, 28)], ((94, 23), '1', 'start'), ((160, 23), 'N', 'end'), 'applies for', 'ApplicationDate', (127, 36))
+    rel([(212, 55), (212, 110)], ((216, 62), '1', 'start'), ((216, 106), 'N', 'start'), 'has', None, (228, 84))
+    rel([(90, 138), (164, 138)], ((94, 133), '1', 'start'), ((160, 133), 'N', 'end'), 'records', 'ReadingDate', (127, 146))
+    rel([(260, 28), (330, 28)], ((264, 23), '1', 'start'), ((326, 23), 'N', 'end'), 'is billed', None, (295, 36))
+    rel([(260, 134), (296, 134), (296, 44), (330, 44)], ((264, 129), '1', 'start'), ((326, 39), '1', 'end'), 'produces', None, (284, 98))
+    rel([(372, 63), (372, 110)], ((376, 70), '1', 'start'), ((376, 106), '1', 'start'), 'settled by', 'PaidOn', (396, 86))
+    rel([(260, 200), (312, 200), (312, 56), (330, 56)], ((264, 195), '1', 'start'), ((326, 51), 'N', 'end'), 'summarizes', None, (286, 208))
+    return f.svg()

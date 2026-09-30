@@ -10,6 +10,8 @@ It helps to separate two levels of description:
 
 Different levels of requirement are needed because they are read by different people. A client manager wants to check that the system will support the business; a software developer needs to know precisely what each function must do with each input.
 
+The people whose needs the requirements must meet are the system *stakeholders*: anyone who is affected by the system or who has a legitimate interest in it. *Direct* stakeholders use the system or operate it themselves, such as end-users, operators, and administrators. *Indirect* stakeholders do not use it but are affected by its results or have an influence over its requirements, such as managers, customers of the organization, regulators, and auditors.
+
 ## 4.1 Functional and non-functional requirements
 
 Software requirements can be divided into two groups ([[fig:req-kinds]]). The first group states what the software should do: it should process user inputs, store and retrieve data, generate reports, or control external devices. The second group states the constraints under which it does these things: how fast it must respond, how secure it must be, how easy it must be to use, and which other systems it must work with.
@@ -81,6 +83,36 @@ A requirement is functional if it names a service that the product performs on a
 8. *Legal considerations* is a non-functional external requirement of the legislative type: data protection law on the handling of scanned user files, and licensing of any third-party detection engines.
 --- answer
 Requirements 1, 2, 3, and 5 are functional. Requirements 4 (efficiency), 6 (usability), and 7 (security) are non-functional product requirements, and requirement 8 is a non-functional external (legislative) requirement. Requirements 4 and 6 must be rewritten in measurable form before they can be verified.
+:::
+
+::: example ex-erp-req | Requirement types for a university ERP system
+A university plans an enterprise resource planning (ERP) system to streamline its operations: admissions, course registration, examinations and grades, fees, and staff administration. Explain and identify (i) the user requirements, (ii) the system requirements, (iii) the direct and indirect stakeholders, (iv) two functional requirements, and (v) two non-functional requirements.
+--- solution
+(i) *User requirements* are high-level statements, in the language of the users, of the services the ERP must provide: 'Students shall be able to register for courses and see their grades online'; 'Staff shall be able to record fee payments and issue receipts'; 'Faculty shall be able to enter marks for the courses they teach'.
+
+(ii) *System requirements* refine each user requirement into a precise statement of what is to be implemented: 'The system shall allow a student to register for a course only if the prerequisites are satisfied, the seat limit has not been reached, and the registration window is open; it shall record the registration with a timestamp and e-mail a confirmation.' Quality attributes such as speed or availability are not user or system requirements in themselves; they are non-functional requirements, which appear at both levels.
+
+(iii) *Direct stakeholders* are students, faculty, administrative staff (admissions, examinations, accounts), and the IT staff who operate the system. *Indirect stakeholders* are the university management, parents, regulators and accreditation bodies, external auditors, and banks that process fee payments.
+
+(iv) *Functional requirements*: FR1, a student shall be able to register for the courses offered in the coming semester; FR2, the system shall compute each student's grade point average from the marks entered and generate a grade sheet.
+
+(v) *Non-functional requirements*: NFR1 (performance), the system shall respond to 95% of requests within 3 seconds with 5,000 concurrent users during registration week; NFR2 (security), students shall be able to view only their own records, and all access to marks shall be logged.
+--- answer
+User requirements: natural-language service statements for students, faculty, and staff. System requirements: detailed, implementable refinements of them. Direct stakeholders: students, faculty, administrative and IT staff; indirect: management, parents, regulators, auditors, banks. FRs: course registration and grade computation. NFRs: measurable performance and security.
+:::
+
+::: example ex-fr-nfr | Functional and non-functional requirements from a scenario
+Identify the functional and non-functional requirements for each system. (a) An online examination system in which students register, log in, attend examinations, and view results; faculty create question papers, schedule examinations, and evaluate answers; and the system must support many simultaneous users, evaluate accurately, process results quickly, and maintain data integrity. (b) A project management tool for teams distributed across time zones and continents, for planning projects, assigning tasks, tracking progress, and collaborating (three functional and two non-functional requirements). (c) An online event-ticketing platform on which users find events, buy tickets, and enter the venue with a QR code, and organizers create and manage events (five functional requirements and one non-functional requirement for each of security, usability, reliability, recoverability, and portability).
+--- solution
+Functional requirements are found from the verbs in the scenario (what each actor does with the system); non-functional requirements are found from the qualities it must have, which are then made measurable.
+
+(a) *Functional*: students register and log in; take an examination within its scheduled time; view their results. Faculty create question papers from a question bank; schedule examinations; evaluate answers, with objective questions marked automatically. The system publishes the results. *Non-functional*: *performance and scalability*, 2,000 students can take an examination at once with page responses under 2 seconds; *accuracy*, automatic marking agrees with the answer key in 100% of objective questions; *timeliness*, results are available within 24 hours of the examination; *integrity and security*, answers are saved every 30 seconds and cannot be changed after submission, and question papers are encrypted until the start time.
+
+(b) *Functional*: create a project plan with milestones and dependencies; assign tasks to members with due dates; update and track task status on a shared board. *Non-functional*: *availability*, 99.9% uptime, because some team is always working; *usability across locales*, all times shown in each user's local time zone and the interface usable in the team's languages.
+
+(c) *Functional*: register and log in; search events by location, date, and category; buy tickets with a card or digital wallet; receive a confirmation with a QR code; organizers create events and track ticket sales. *Non-functional*: *security*, payment data is encrypted in transit and never stored in full; *usability*, a ticket can be bought in at most three steps on a phone; *reliability*, 99.9% availability and no double-selling of a seat during peak sales; *recoverability*, data is backed up hourly and service is restored within one hour of a failure; *portability*, the platform works on current desktop and mobile browsers and on Android and iOS.
+--- answer
+Each answer lists the actions of each actor as functional requirements and states each quality as a measurable non-functional requirement: performance, accuracy, timeliness, and integrity for (a); availability and locale usability for (b); security, usability, reliability, recoverability, and portability for (c).
 :::
 
 ## 4.2 The software requirements document
@@ -171,9 +203,21 @@ The stages, their purposes, and the techniques used in each are as follows:
 
 The same work is sometimes described as seven overlapping tasks: *inception* (establishing a basic understanding of the problem, the stakeholders, and the nature of the solution), *elicitation*, *elaboration* (refining the information into an analysis model), *negotiation* (reconciling conflicting requirements), *specification*, *validation*, and *management*. The list is different, but the idea is the same: the requirements move from vague business needs to a precise, checked, and controlled description.
 
-@fig re-spiral
+::: example ex-re-tasks | Requirements engineering tasks for a health-monitoring system
+A team is to build a monitoring system for elderly patients with chronic illnesses: real-time health monitoring, emergency alerts, medication reminders, and doctor–patient communication. The hospital management has given only broad objectives. Evaluate how the tasks of requirements engineering apply to this system.
+--- answer
+1. *Inception* The team establishes the problem, the stakeholders (patients, carers, doctors, nurses, hospital management, emergency services, and regulators), and the scope: which illnesses and which vital signs are monitored.
+2. *Elicitation* Interviews with doctors, observation of nurses on the wards, workshops with management, and prototypes of the reminder screens shown to patients reveal detailed needs, such as the heart-rate limits that trigger an alert.
+3. *Elaboration* The information is refined into models: use cases (raise emergency alert), scenarios, and data models of patients, readings, and prescriptions.
+4. *Negotiation* Conflicts are resolved and requirements prioritized. Doctors want frequent readings; patients want long battery life. Emergency alerts are given the highest priority.
+5. *Specification* The agreed requirements are written into an SRS, with measurable non-functional requirements, such as 'an emergency alert reaches the duty doctor within 10 seconds', and privacy constraints.
+6. *Validation* A review team of clinicians and engineers checks the SRS for correctness, completeness, consistency, and feasibility, and a prototype confirms that elderly users can respond to reminders.
+7. *Management* Requirements are given identifiers and traced to design and tests, and changes, such as a new vital sign, pass through change control.
+:::
 
 These activities are not carried out once in strict sequence. In practice, requirements engineering is an iterative process in which the activities are interleaved. [[fig:re-spiral]] shows this as a spiral. The amount of time and effort devoted to each activity in each iteration depends on the stage of the overall process and on the type of system being developed. Early in the process, most effort is spent on understanding high-level business and non-functional requirements and the user requirements for the system. Later, in the outer rings of the spiral, more effort is devoted to eliciting and understanding the detailed system requirements.
+
+@fig re-spiral
 
 ## 4.5 Requirements elicitation and analysis
 
@@ -211,6 +255,23 @@ No single technique is sufficient for every system. The following techniques are
 10. *Facilitated application specification technique (FAST)* A structured meeting of customers and developers, run by a neutral facilitator with agreed rules and an agenda. Before the meeting each participant lists objects, services, constraints, and performance criteria; the lists are combined, conflicts are discussed, and a joint specification is drafted.
 
 The choice depends on the stakeholders and the system. Interviews and document analysis are nearly always used; observation is valuable where work practices are complex or tacit; prototyping and storyboarding are most useful for interactive systems whose users have difficulty describing what they need.
+
+::: example ex-bank-uc | Use cases of an online banking system
+Customers of an online banking system register, log in, view their balance, transfer funds, pay utility bills through an external payment gateway, and view their transaction history; an administrator manages accounts, approves registrations, and generates reports. Draw a use case diagram.
+--- answer
+Using the notation of Section 5.2.1, the actors are the Customer and the Admin (primary actors) and the Payment gateway (a secondary actor, an external system) ([[fig:bank-usecase]]). The Customer is associated with Register, Log in, View balance, Transfer funds, Pay utility bill, and View transaction history; the Admin with Approve registration, Manage accounts, and Generate reports. Pay utility bill always «include»s Process bill payment, which is associated with the Payment gateway, and Transfer funds always «include»s Verify OTP. Log in is a precondition of the other use cases, not a step inside them, so it is not «include»d by each of them.
+
+@fig bank-usecase
+:::
+
+::: example ex-busy | Eliciting requirements from a busy customer
+A customer says they are too busy to meet the analyst. Identify two suitable elicitation techniques and justify them, with the process and an example.
+--- answer
+1. *Document analysis* needs none of the customer's time at first. The analyst studies the customer's existing forms, reports, procedures, and the current system, and drafts the requirements from them. For an order-processing system, the order forms, invoices, and returns policy give the data fields, the business rules (discount limits, credit checks), and the reports required.
+2. *Questionnaires* (or a short, structured e-mail interview) let the customer answer at a convenient time, in a few minutes. The analyst sends focused, closed questions derived from the document analysis ('Must an order over ₹50,000 be approved by a manager?'), and follows up only on the answers that are unclear.
+
+Observation of the customer's staff at work, and a prototype sent for comment, are also suitable, because they use the time of the staff or only a few minutes of the customer's. The drafted requirements are then validated in one short review meeting, which is the only meeting the customer has to attend.
+:::
 
 ## 4.6 Requirements validation
 
@@ -364,6 +425,17 @@ The epic states the goal: 'As a library member, I want to reserve books online s
 2. As a member, I want to reserve a book that is on loan so that I get it when it is returned. *Accepted when* a reservation is recorded and shown in 'My reservations'.
 3. As a member, I want to be notified when a reserved book is ready so that I can collect it. *Accepted when* an e-mail is sent within 10 minutes of the book being returned.
 4. As a member, I want to cancel a reservation so that the book goes to the next person. *Accepted when* the reservation disappears and the next member in the queue is promoted.
+:::
+
+::: example ex-stories | User stories for a language-learning app
+A language-learning app lets learners browse and enrol in courses, track their progress, take quizzes, and review completed courses. Write user stories with acceptance criteria for these features.
+--- answer
+1. As a learner, I want to browse the courses offered next semester so that I can choose ones that fit my goals and schedule. *Accepted when* the list shows each course's title, level, instructor, schedule, and free seats.
+2. As a learner, I want to enrol in the courses I select so that my place is secured. *Accepted when* I can review my selection before confirming, and a full course cannot be selected.
+3. As a learner, I want to see my progress so that I stay motivated. *Accepted when* a dashboard shows lessons completed, quiz scores, and words learned.
+4. As a learner, I want to set a goal with a target date so that I can work towards it. *Accepted when* the dashboard shows my progress towards the goal.
+5. As a learner, I want to take a proficiency quiz so that I know which skills to improve. *Accepted when* the result reports a score for vocabulary, grammar, listening, and reading.
+6. As a learner, I want to rate and review a course I have completed so that other learners can benefit. *Accepted when* I am prompted on completion and my rating appears on the course page.
 :::
 
 ::: keypoints

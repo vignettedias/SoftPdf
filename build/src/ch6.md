@@ -300,6 +300,26 @@ Level 0: Customer, Administrator, and Payment gateway around process 0.0. Level 
 
 The two mappings differ in their key element (a transform centre or a transaction centre), in their top structure (input, transform, and output controllers, or a reception branch and a dispatcher), and in the way a feature is added (usually a new module in one domain, or a new module under the dispatcher). A student-records processor that reads scores, validates them, computes grades, and prints grade reports has transform flow; a library kiosk that offers Issue, Return, Renew, and Search has transaction flow.
 
+The DFDs from which a mapping starts are drawn by the rules of Section 5.4.1, usually together with a data model of the stores.
+
+::: example ex-tneb | DFDs and an ER diagram for an electricity billing system
+An electricity board wants to automate its billing. Customers apply for a connection (domestic or commercial); EB staff take meter readings and update the system; each customer can choose to pay by cash or card; a bill is generated on payment; and monthly reports are provided to the EB manager. (a) Draw the level-0 and level-1 DFDs. (b) Design an ER diagram showing the entities Customer, Connection, Meter reading, Bill, Payment, EB staff, and Monthly report, with their primary attributes (primary keys underlined), and the relationships with their cardinalities and descriptive attributes.
+--- solution
+(a) The context (level-0) diagram ([[fig:tneb-l0]]) has one process, 0.0, and three external entities. The Customer sends a connection application and payments and receives a connection number and bills; EB staff send meter readings; the EB manager receives the monthly report.
+
+@fig tneb-l0
+
+At level 1 ([[fig:tneb-l1]]) the process is decomposed into five processes with four data stores. 1.0 Register connection records the application in D1 Connections and returns the connection number; 2.0 Record meter reading checks the connection and writes the units to D2 Readings; 3.0 Receive payment reads the connection type (for the tariff) and the units consumed, and records the cash or card payment in D3 Payments; 4.0 Generate bill issues the bill once the payment is made, as the scenario requires, and stores it in D4 Bills; and 5.0 Produce monthly report summarizes the bills and payments for the manager. The five flows of the context diagram reappear, each connected to the process that handles it, so the two levels balance.
+
+(b) In the ER diagram ([[fig:tneb-er]]) a customer may hold several connections (1:N), a connection has many meter readings and many bills (1:N), and each reading is taken by one member of staff, who takes many (1:N). Each reading produces one bill (1:1), each bill is settled by one payment (1:1), and a monthly report summarizes many bills (1:N). The *descriptive attributes* belong to relationships, not to either entity: the ApplicationDate of 'applies for', the ReadingDate of 'records', and the PaidOn date of 'settled by'. The mode of payment (cash or card) is an attribute of Payment, and the type (domestic or commercial) an attribute of Connection.
+
+@fig tneb-l1
+
+@fig tneb-er
+--- answer
+(a) Level 0: process 0.0 with Customer (application, payment in; connection number, bill out), EB staff (meter reading in), and EB manager (monthly report out). Level 1: 1.0 Register connection, 2.0 Record meter reading, 3.0 Receive payment, 4.0 Generate bill, 5.0 Produce monthly report, with stores D1 Connections, D2 Readings, D3 Payments, and D4 Bills. (b) Customer 1–N Connection; Connection 1–N Meter reading and 1–N Bill; EB staff 1–N Meter reading; Meter reading 1–1 Bill; Bill 1–1 Payment; Monthly report 1–N Bill.
+:::
+
 ::: keypoints
 - A software architecture describes the components of a system and how they interact. An architectural design must specify structural properties, extra-functional properties, and families of related systems.
 - A control hierarchy is described by its depth, width, fan-in, and fan-out and by superordinate and subordinate modules. The sum of fan-outs equals the sum of fan-ins.

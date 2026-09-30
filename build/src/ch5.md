@@ -131,11 +131,11 @@ A class is drawn as a rectangle with three compartments: the name, the attribute
 
 Generalization and realization are easily confused because both use a hollow triangle. The difference is the line: a *solid* line means that the subclass inherits the structure and behavior of a superclass; a *dashed* line means that a class promises to implement the operations declared by an interface.
 
-@fig class-rels
-
 *Multiplicity* (cardinality) is written at each end of an association to say how many objects take part: 1 (exactly one), 0..1 (zero or one), \* or 0..\* (any number), 1..\* (at least one), or a range such as 1..4.
 
 [[fig:lib-class]] is a class diagram of a library system. A Library is composed of Books and Loans: if the library is deleted, its books and loan records are deleted too. Members and Librarians are aggregated by the library, because a person can exist independently of it (a student might graduate but still exist as a person). Each Loan links exactly one Book to exactly one Member, while a book or a member may have many loans over time. Faculty and Student are types of Member that have different borrowing rules, so they are subclasses connected by generalization, each overriding getMaxBooks().
+
+@fig class-rels
 
 @fig lib-class
 
@@ -298,15 +298,15 @@ The requirements are first classified (see [[ex:ex-antivirus-req]] in Chapter 4)
 
 @fig av-class
 
-*Behavioral element.* The real-time protection engine monitors file and web events, scans each one, and either returns to monitoring or, if the file is malicious, quarantines it and notifies the user. Updates are installed in a separate state so that scanning never uses half-installed definitions ([[fig:av-state]]).
+*Behavioral element.* The engine monitors file and web events, scans each one, and returns to monitoring or, if the file is malicious, quarantines it and notifies the user; updates are installed in a separate state, so scans never use half-installed definitions ([[fig:av-state]]).
 
-*Flow-oriented element.* Scanning a file is decomposed into intercepting the file, analyzing it against the signature and model store, and taking action, which writes infected files to the quarantine store and reports to the user ([[fig:av-dfd]]).
+*Flow-oriented element.* Scanning is decomposed into intercepting the file, analyzing it against the signature store, and taking action, which quarantines infected files and reports to the user ([[fig:av-dfd]]).
 
 @fig av-state
 
 @fig av-dfd
 --- answer
-The requirements model consists of the use case diagram (scenario-based), the class diagram (class-based), the state diagram of the protection engine (behavioral), and the level-1 DFD of scanning (flow-oriented), together with the non-functional constraints: CPU below 5% and memory below 150 MB in the background (efficiency), a first-time user can start a scan within 30 seconds (usability), signed update packages (security), and compliance with data-protection law for scanned files (legal).
+The model consists of the use case diagram (scenario-based), the class diagram (class-based), the state diagram of the engine (behavioral), and the level-1 DFD of scanning (flow-oriented), with the measurable non-functional constraints of [[ex:ex-antivirus-req]].
 :::
 
 ::: keypoints
