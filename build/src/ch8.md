@@ -24,6 +24,8 @@ The review process ([[fig:review-process]]) has three phases. In *pre-review act
 
 @fig review-process
 
+An *audit* is an independent examination of a work product or process against standards, regulations, and the organization's own guidelines, carried out by people who are not its authors. Where a review asks whether the product is correct, an audit also asks whether it was produced properly: whether it complies with legal and licensing requirements, is traceable to its requirements, is documented well enough to be maintained, and respects ethical constraints such as privacy and fairness.
+
 Program inspections are peer reviews in which team members collaborate to find bugs in the program being developed. The inspection process is driven by a *checklist* of common programming errors ([[fig:inspection-checklist]]). The checklist should be established by discussion with experienced staff and regularly updated as more experience is gained, and it varies from one programming language to another. Different organizations may develop their own checklists based on local standards and practices.
 
 @fig inspection-checklist
@@ -36,6 +38,26 @@ A financial company that used to hold structured peer reviews now generates much
 (b) Removing inspections has advantages: development is faster, review time is saved, and automated checks run quickly and consistently on every change. Its disadvantages are more serious. Logical errors that tests do not happen to exercise remain unnoticed; readability and structure degrade, so maintainability falls; technical debt accumulates, which raises the long-term risk; and human insight into whether the code is the right solution is lost. Generated code is particularly likely to be plausible but subtly wrong, so the loss matters more, not less.
 --- answer
 (c) A *structured inspection checklist* is the most suitable tool. It makes reviewers check systematically for coding-standard compliance, documentation, design consistency, and the classes of fault in [[fig:inspection-checklist]], so that quality is maintained even for generated code and even when inspections are made shorter and lighter-weight rather than removed.
+:::
+
+::: example ex-audit | Audits for AI-generated code
+Teams now generate much of their code with AI-assisted tools, yet structured audits are still used for verification. (a) List the benefits of audits for compliance gaps, ethical concerns, and maintainability, with an example use case for each. (b) A cybersecurity company develops mostly AI-generated code that is functional but poorly documented and difficult to interpret. Management cancels all audits and relies solely on test design. Propose a test design. (c) Give two reasons why testing cannot fully replace audits.
+--- solution
+(a) *Compliance gaps.* Audits check the code against regulations, security standards, and licences, which a working program may still violate. Use case: generated code that logs full card numbers breaches PCI DSS; generated code copied from a GPL-licensed source creates a licensing obligation.
+
+*Ethical concerns.* Audits check how data is collected and used and whether decisions are fair and explainable. Use case: a generated loan-scoring function uses postcode as an input, which acts as a proxy for a protected attribute; generated analytics code keeps personal data longer than the privacy policy allows.
+
+*Maintainability.* Audits check readability, structure, documentation, and technical debt, which no functional test measures. Use case: generated code duplicates the same validation logic in ten places with no comments, so a later change to the rule is missed in some of them.
+
+(b) Because the code is hard to read, the test design must be driven by the requirements and threats rather than by the code:
+
+1. *Requirements-based black-box tests* with equivalence partitioning and boundary value analysis for every input.
+2. *White-box coverage* measured by a tool, with a minimum of branch coverage and basis paths for the critical functions, so that untested generated logic is visible.
+3. *Security tests*: static analysis (SAST), dependency and secret scanning, fuzzing of every input parser, and penetration tests against the OWASP Top 10.
+4. *Negative and abuse-case tests*: malformed, oversized, and malicious inputs, and authentication and authorization bypass attempts.
+5. *Regression and mutation tests*: an automated regression suite run on every change, with mutation testing to show that the tests actually detect faults.
+--- answer
+(c) Testing cannot replace audits because (1) testing shows only that the software behaves correctly for the cases tested, while an audit examines whether it *should* behave that way and whether it meets regulations, licences, and ethical standards, which no test oracle states; and (2) testing does not assess the qualities that audits examine without executing the code, such as documentation, readability, design structure, and traceability, so poorly understood generated code would pass its tests and still be unmaintainable and insecure.
 :::
 
 ## 8.2 White-box testing
@@ -201,14 +223,54 @@ Because of the loops, the number of complete paths is unbounded, so path coverag
 V(G) = 4. Basis tests: P1 1–2–9 with a = [] (no change); P2 1–2–3–4–8–2–9 with a = [5] (outer loop once, inner loop zero times); P3 …4–5–7–4… with a = [1, 2] (comparison false, already sorted); P4 …4–5–6–7–4… with a = [2, 1] (comparison true, result [1, 2]). Adding a = [3, 1, 2] (result [1, 2, 3]) exercises several iterations of both loops.
 :::
 
+::: example ex-discount-cfg | Basis paths of a discount function
+For the following function, (a) calculate the cyclomatic complexity, (b) identify the independent paths, and (c) write test cases that cover them.
+
+```
+float calculate_discount(float total_amount, int is_member,
+                         char coupon_code[]) {
+    if (total_amount <= 0) { return 0; }
+    float discount = 0;
+    if (is_member) { discount += total_amount * 0.1; }
+    if (strcmp(coupon_code, "SAVE20") == 0)
+        { discount += total_amount * 0.2; }
+    else if (strcmp(coupon_code, "SAVE10") == 0)
+        { discount += total_amount * 0.1; }
+    float max_discount = total_amount * 0.3;
+    if (discount > max_discount) { discount = max_discount; }
+    float final_amount = total_amount - discount;
+    return final_amount;
+}
+```
+--- solution
+Number the nodes: 1 total_amount <= 0?; 2 return 0; 3 discount = 0 and is_member?; 4 member discount; 5 SAVE20?; 6 add 20%; 7 SAVE10?; 8 add 10%; 9 max_discount = 30% and discount > max_discount?; 10 cap the discount; 11 compute and return final_amount; 12 exit ([[fig:cfg-discount]]).
+
+(a) The edges are 1→2, 1→3, 3→4, 3→5, 4→5, 5→6, 5→7, 6→9, 7→8, 7→9, 8→9, 9→10, 9→11, 10→11, 2→12, and 11→12, so E = 16 and N = 12: V(G) = 16 − 12 + 2 = 6. The predicate nodes are 1, 3, 5, 7, and 9 (the else-if is a separate decision), so V(G) = 5 + 1 = 6.
+
+(b) Six independent paths, each adding at least one new edge:
+
+- P1 1–2–12
+- P2 1–3–5–7–9–11–12
+- P3 1–3–4–5–7–9–11–12
+- P4 1–3–4–5–6–9–11–12
+- P5 1–3–4–5–7–8–9–11–12
+- P6 1–3–…–9–10–11–12
+
+@fig cfg-discount
+
+(c) Path P6 requires discount > 0.3 × total_amount, but the largest possible discount is 10% + 20% = 30%, which equals the cap and never exceeds it. P6 is therefore an *infeasible path* in exact arithmetic, and the cap is dead code. The test (200, 1, "SAVE20") gives a discount of 60 and a cap of 60, so it follows P4, not P6, and returns 140. In floating-point arithmetic, rounding can occasionally make the sum of the two discounts exceed the computed cap (for total_amount = 3 the cap is taken and the result is 2.1), so the path is reachable only by accident. The infeasibility is recorded, and the designer is asked whether the cap was intended for a combination that the code does not yet allow.
+--- answer
+V(G) = 6. Tests: P1 (0, 0, "NONE") → 0; P2 (100, 0, "NONE") → 100; P3 (100, 1, "NONE") → 90; P4 (100, 1, "SAVE20") → 70; P5 (100, 1, "SAVE10") → 80; P6 infeasible, since the combined discount can never exceed the 30% cap (the test (200, 1, "SAVE20") → 140 follows P4).
+:::
+
 ::: example ex-flowchart | A flowchart with two decisions
 In the following flowchart, b and c are inputs: Start; a = 10; if a > b then a = b; otherwise, if a > c then b = c, else c = a; then print a, b, c; Stop. Compute V(G) by all three methods and design the basis path tests.
 --- solution
 Number the boxes: 1 Start; 2 a = 10; 3 a > b?; 4 a = b; 5 a > c?; 6 b = c; 7 c = a; 8 print a, b, c; 9 Stop ([[fig:cfg-flowchart]]).
 
-@fig cfg-flowchart
-
 *Method 1.* The edges are 1→2, 2→3, 3→4, 3→5, 5→6, 5→7, 4→8, 6→8, 7→8, 8→9, so E = 10 and N = 9: V(G) = 10 − 9 + 2 = 3.
+
+@fig cfg-flowchart
 
 *Method 2.* The predicate nodes are 3 and 5, so V(G) = 2 + 1 = 3.
 
@@ -222,12 +284,12 @@ Find V(G) and the basis path tests for: 1 sum = 0; 2 i = 1; 3 while (i <= 5); 4 
 --- solution
 From [[fig:cfg-sumloop]], the edges are 1→2, 2→3, 3→4, 4→5, 5→3, 3→6, 6→7: E = 7 and N = 7, so V(G) = 7 − 7 + 2 = 2, and the single predicate node (3) gives 1 + 1 = 2.
 
-@fig cfg-sumloop
-
 The basis paths are P1: 1–2–3–6–7 (loop not entered) and P2: 1–2–3–4–5–3–6–7 (loop entered). Because the bounds are constants, the test i ≤ 5 is always true the first time, so no input can make P1 happen: it is an *infeasible path*. An infeasible path is recorded as such and not forced.
 --- answer
 V(G) = 2. P2 is tested by running the program: it iterates five times and prints 'The sum is: 15'; this single run also traverses the exit edge 3→6, so all seven edges are covered. P1 is infeasible. If the bound were an input n, P1 would be tested with n = 0 (expected output 'The sum is: 0').
 :::
+
+@fig cfg-sumloop
 
 A compound condition is split into one predicate node per simple condition. For if (x > 0 AND y > 0) the graph has two predicate nodes and V(G) = 3, and the tests (x = −1, y = 7), (x = 2, y = −3), and (x = 2, y = 3) exercise both simple conditions as false. Treating the compound condition as one node would give V(G) = 2 and would miss an error such as OR written for AND. Similarly, a switch with four outgoing edges counts as 4 − 1 = 3 decisions, so a switch with three cases and a default has V(G) = 4.
 
@@ -395,7 +457,7 @@ A clothing store's website lets users browse and buy items online. Describe how 
 
 ::: keypoints
 - Testing executes software with the intent of finding errors. It proceeds from unit to integration, validation, and system testing, and may be manual or automated, functional or non-functional, white-box or black-box.
-- Reviews and inspections are static techniques. Errors do not mask one another, incomplete systems can be inspected, and broader quality attributes can be checked. Inspections are driven by checklists of common errors.
+- Reviews and inspections are static techniques. Errors do not mask one another, incomplete systems can be inspected, and broader quality attributes can be checked. Inspections are driven by checklists of common errors. Audits add independent checks of compliance, ethics, and maintainability that testing cannot provide.
 - Statement, branch, and path coverage measure how much of the code is exercised; path coverage implies branch coverage, which implies statement coverage.
 - Basis path testing draws a flow graph, computes V(G) = E − N + 2 = D + 1 = R, and designs one test for each independent path. Every decision, including loop tests and each simple part of a compound condition, is a predicate node.
 - Equivalence partitioning tests one value from each valid and invalid class; boundary value analysis tests just below, on, and just above each boundary, which must be derived from the specification.

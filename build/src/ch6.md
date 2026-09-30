@@ -80,9 +80,43 @@ For the library system, the structural view divides the system into user managem
 
 @fig lms-dynamic
 
+::: example ex-atc | Structural and dynamic views of an air traffic control system
+An air traffic control (ATC) system is a hard real-time system in which delays or failures could be catastrophic. Radar continuously tracks the position, altitude, speed, and heading of every aircraft in an airspace. The system displays the traffic to controllers, calculates collision risks against minimum-separation thresholds, raises an alert with a recommended corrective action (a change of altitude or heading) when a conflict is detected, and sends instructions to pilots by radio or automated messaging. If hardware or the network fails, it must switch to a backup server within milliseconds. (a) Model the structural blueprint of the system: its key entities and their interconnections. (b) Model the temporal ordering of messages between the objects when a conflict is detected.
+--- solution
+The two parts are the structural and dynamic models of this section, each drawn in the UML.
+
+(a) The structural view is a component diagram ([[fig:atc-component]]); a class diagram with the same entities is an acceptable alternative. The components are the Radar interface, which receives the radar feed through a provided interface; the Track manager, which keeps the current track of each aircraft; the Conflict detector, which compares pairs of tracks with the separation thresholds; the Alert manager, which raises alerts and recommends corrective actions; the Controller display; Pilot comms, which sends instructions; the Flight data store, which holds flight plans and tracks; and a Failover monitor. Dashed dependency arrows show which component uses which. The availability requirement is met structurally: the whole configuration is replicated on a backup server that runs as a *hot standby* and is kept up to date continuously. The failover monitor checks a heartbeat from the primary and switches to the backup as soon as the heartbeat stops, so the switch-over takes milliseconds rather than a restart.
+
+(b) The dynamic view is a sequence diagram ([[fig:atc-seq]]). Each radar update refreshes the track and the display and triggers a separation check. The alert, the recommendation, and the instruction to the pilot happen only if a conflict is found, so they are enclosed in an opt fragment with the guard [conflict]. A communication or state diagram could also show the dynamics, but a sequence diagram shows the time ordering most directly.
+
+@fig atc-component
+
+@fig atc-seq
+--- answer
+(a) Component diagram: Radar interface → Track manager → Conflict detector → Alert manager → Controller display and Pilot comms, with a Flight data store and a Failover monitor that switches to a hot-standby backup server. (b) Sequence diagram: positionUpdate, updateTrack, refresh, checkSeparation, then opt [conflict]: raiseAlert, recommendAction, showAlert, sendInstruction, acknowledged.
+:::
+
+The *process model* of a system is usually drawn as an activity diagram (Section 5.4.1), which shows the order of the actions, the actions that run concurrently, and the component responsible for each.
+
+::: example ex-wx-activity | A process model of a weather sensing and alert system
+A weather sensing and alert system periodically collects raw temperature, humidity, and pressure data from local sensors, and remote pressure data from an external API. Each input is preprocessed independently: temperature is calibrated, humidity normalized, and pressure values prepared and formatted. A multi-sensor synchronizer then aligns the timestamps, verifies completeness, and produces a unified fused weather record, which an alert threshold evaluator compares with the configured thresholds. If no limit is exceeded, the record is logged; if any threshold is violated, the system generates an alert, stores it, notifies users, updates the admin panel, and returns to idle. (a) Create an activity table of the events, states, and actions. (b) Draw the activity diagram for the states and transitions in the table. (c) What is the purpose of the fork nodes and swimlanes in the diagram?
+--- solution
+(a) Each row of the activity table ([[fig:wx-activity-table]]) records a state of the system, an event that occurs in that state, the actions performed in response, and the resulting state. The system starts and ends in Idle, because it runs periodically.
+
+@fig wx-activity-table
+
+(b) The activity diagram ([[fig:wx-activity]]) turns each action into an action node. The three preprocessing chains are independent, so a fork starts them concurrently and a join waits for all three before synchronization, which needs complete data. The decision node after evaluation has the guards [within limits] and [threshold violated]. The three alert actions are also independent, so a second fork runs them in parallel, and a join precedes the return to idle. Both branches end at the final node, which stands for the return to idle until the next sampling period.
+
+@fig wx-activity
+
+(c) A *fork* node splits one flow into concurrent flows. Here it shows that temperature, humidity, and pressure are preprocessed at the same time rather than one after another, and that storing the alert, notifying users, and updating the admin panel also proceed together; the matching *join* marks the point at which all the parallel flows must have finished. *Swimlanes* partition the actions by the component responsible for them (sensors and API, preprocessing, synchronizer and evaluator, and alert services), so the diagram shows who performs each action as well as the order, and each lane later becomes a component of the architecture ([[ex:ex-wx-repo]]).
+--- answer
+(a) States Idle, Acquiring, Preprocessing, Evaluating, and Alerting, with the events and actions of [[fig:wx-activity-table]]. (b) An activity diagram with four swimlanes, a fork–join pair around preprocessing, a decision on the thresholds, and a fork–join pair around the alert actions. (c) Forks show concurrency (and joins the synchronization that follows it); swimlanes show responsibility.
+:::
+
 ## 6.3 Architectural patterns
 
-An architectural pattern (or style) is a stylized description of good design practice, which has been tried and tested in different environments. Patterns include information about when they are and when they are not useful, and a pattern gives a designer a starting point with known strengths and weaknesses. Three patterns are described here.
+An architectural pattern (or style) is a stylized description of good design practice, which has been tried and tested in different environments. Patterns include information about when they are and when they are not useful, and a pattern gives a designer a starting point with known strengths and weaknesses. The most widely used patterns are described here.
 
 ### 6.3.1 Layered architecture
 
@@ -90,9 +124,9 @@ The layered architecture pattern organizes the system into layers, each of which
 
 @fig layered-pattern
 
-@fig layered-generic
-
 The layered approach supports the incremental development of systems. As a layer is developed, some of the services provided by that layer may be made available to users. The architecture is also changeable and portable: as long as its interface is unchanged, a layer can be replaced by another, equivalent layer, and when layer interfaces change only the adjacent layer is affected.
+
+@fig layered-generic
 
 ### 6.3.2 Client–server architecture
 
@@ -126,7 +160,33 @@ The system is a client–server system whose server side is layered and whose re
 @fig fd-layered
 :::
 
-### 6.3.4 Event-driven control
+### 6.3.4 Repository architecture
+
+In the repository pattern ([[fig:repo-pattern]]), all data in a system is managed in a central repository that is accessible to all system components, and components do not interact directly, only through the repository. The majority of systems that use large amounts of data are organized around a shared database or repository, so the pattern suits applications in which data is generated by one component and used by another. The repository may be *passive*, with components reading it when they need data, or *active*, notifying the interested components when data that concerns them changes; an active repository is often called a *blackboard*.
+
+@fig repo-pattern
+
+::: example ex-wx-repo | A repository architecture for a weather sensing system
+For the weather sensing and alert system of [[ex:ex-wx-activity]], (a) identify the components, (b) construct a repository-based architecture, and (c) state the disadvantages of a repository architecture for this real-time system.
+--- solution
+(a) The components are the parts of the description that perform actions or hold data. The inputs are the temperature probe, humidity sensor, and pressure transducer, and the external weather API. The processing components are the temperature collector, which calibrates temperature; the humidity and pressure packager, which normalizes humidity and formats pressure; the external API poller, which fetches remote pressure; the multi-sensor synchronizer, which fuses the three inputs into one record; the alert threshold evaluator; the notification service, which sends SMS or e-mail; and the admin panel. The shared data consists of the raw readings, the fused weather records, the configured thresholds, and the alert log.
+
+(b) In a repository architecture ([[fig:wx-repo]]) the shared data is placed in one weather data repository, and every processing component reads from and writes to it. The collectors write calibrated readings; the synchronizer reads them and writes fused records; the evaluator reads records and thresholds and writes alerts; the notification service and the admin panel read the alerts. No component calls another, so a new consumer, such as a forecasting module, can be added without changing the existing components.
+
+(c) The disadvantages for a real-time alerting system are:
+
+1. The repository is a *single point of failure*: if it fails, no data flows and no alerts are raised, so it must be replicated.
+2. All communication passes through the repository, which adds *latency* and makes it a *bottleneck* when many sensors write at once.
+3. With a passive repository, consumers learn of new data only when they next read it, so *polling delays alerts*; an active (notifying) repository is needed for timely alerts.
+4. A repository is *difficult to distribute*, whereas sensing stations are naturally distributed.
+5. All components must agree on one *data model*, so a change to the record format affects every component.
+--- answer
+(a) Temperature collector, humidity and pressure packager, external API poller, multi-sensor synchronizer, alert threshold evaluator, notification service, admin panel, and the shared weather data. (b) [[fig:wx-repo]]. (c) Single point of failure, latency and bottleneck, delayed alerts under polling, poor distribution, and a shared data model that is hard to change.
+:::
+
+@fig wx-repo
+
+### 6.3.5 Event-driven control
 
 Call-and-return is a *centralized* control style: one component calls others and waits for them. In an *event-driven* control style, components respond to events that are generated externally and may occur at any time. There are two forms. In a *broadcast* model, an event is sent to all components, and any component that can handle it does so. In an *interrupt-driven* model, which is used in real-time and embedded systems, each type of interrupt is associated with a handler that is started as soon as the interrupt occurs, so the system responds quickly without continuously checking for work.
 
@@ -150,6 +210,18 @@ Requirements models for many systems include data-flow diagrams. Architectural m
 Two kinds of information flow determine the detailed procedure ([[fig:flow-types]]). In *transform flow*, data enters the system along incoming paths, is converted from an external form to an internal representation, is processed at a *transform centre*, and leaves along outgoing paths after conversion back to an external form. The overall flow is linear. In *transaction flow*, a single data item, the transaction, triggers one of several alternative flows of processing. A *transaction centre* evaluates the transaction and routes it to the appropriate action path.
 
 @fig flow-types
+
+::: example ex-fd-flow | Transform or transaction flow?
+A food-delivery system follows this workflow: a customer places an order by selecting items from a menu; the system verifies the payment and generates an order confirmation; the order is sent to the restaurant for preparation; once it is prepared, a delivery agent is assigned; the agent picks up the order and delivers it to the customer. Does the system exhibit transaction flow or transform flow? Justify the answer by explaining how control flows through the processes.
+--- solution
+The DFD of the workflow ([[fig:fd-flow-dfd]]) is a single chain. Every order enters by the same path, is converted from the customer's selection into a confirmed internal order when payment is verified (the incoming boundary), is processed by preparation and agent assignment (the transform centre), and leaves as a delivery to the customer (after the outgoing boundary). Control passes from each process to the next in a fixed sequence, and no process selects one of several alternative paths according to the type of input.
+
+@fig fd-flow-dfd
+
+That the system handles many orders at once does not make the flow a transaction flow, and neither do the success checks in payment verification: a transaction flow requires a transaction centre that dispatches each input to a *different* action path, as the menu choice does at an ATM ([[ex:ex-atm]]). If the same system accepted several request types (place order, cancel order, track order, rate restaurant) through one entry point, that entry point would be a transaction centre.
+--- answer
+Transform flow. The data follows one linear path, input → transformation → output, with incoming and outgoing boundaries after payment verification and before delivery; there is no transaction centre that routes different inputs along different paths.
+:::
 
 ### 6.4.1 Transform mapping
 
@@ -234,5 +306,6 @@ The two mappings differ in their key element (a transform centre or a transactio
 - Horizontal partitioning divides the program into branches or layers by major function; vertical partitioning (factoring) puts control at the top and workers at the bottom, so that most changes affect only workers.
 - An architecture can be described by structural, framework, dynamic, process, and functional models.
 - The layered, client–server, and call-and-return patterns are frequently combined: clients request services from servers whose software is layered and whose requests are handled by calls and returns.
+- In a repository architecture, components share data only through a central repository. It decouples producers from consumers but is a single point of failure and a possible bottleneck.
 - Architectural mapping converts a DFD into a program structure. Transform mapping identifies incoming and outgoing boundaries and a transform centre and factors the structure into input, transform, and output branches; transaction mapping identifies a transaction centre and builds a dispatcher with one module per action path.
 :::

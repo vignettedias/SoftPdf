@@ -377,3 +377,144 @@ def _():
     for x, t in [(150, 'Compute\ntotal'), (210, 'Record\norder')]:
         f.line(x, 110, x, 114); f.box(x - 26, 114, 52, 18, t, shadow=False, size=5.4)
     return f.svg()
+
+
+# ------------------------------------------------------------------ air traffic control
+from figs5 import component, lollipop
+
+
+@fig('atc-component', 'Component diagram of an air traffic control system', wide=True, scale=0.92)
+def _():
+    f = Fig(420, 190, fs=6.4)
+    rad = component(f, 8, 20, 80, 24, 'Radar interface')
+    trk = component(f, 130, 20, 84, 24, 'Track manager')
+    col = component(f, 256, 20, 92, 24, 'Conflict detector')
+    alr = component(f, 256, 80, 92, 24, 'Alert manager')
+    dsp = component(f, 130, 80, 84, 24, 'Controller display')
+    com = component(f, 256, 140, 92, 24, 'Pilot comms')
+    fo = component(f, 8, 140, 80, 24, 'Failover monitor')
+    db = component(f, 130, 140, 84, 24, 'Flight data store')
+    lollipop(f, 88, 32, 108, 32, '', 'start'); f.text(98, 24, 'RadarFeed', size=5.6)
+    for a, b in [((130, 32), (112, 32)), ((256, 32), (214, 32)), ((302, 80), (302, 44)), ((214, 92), (256, 92)), ((302, 140), (302, 104)),
+                 ((172, 80), (172, 44)), ((172, 140), (172, 104))]:
+        f.arrow([a, b], kind='open', dash='3,2', size=4)
+    f.rect(360, 60, 56, 110, stroke=GREY, sw=0.6, dash='3,2', fill='none'); f.text(388, 70, 'Backup\nserver', size=6, weight=500)
+    f.text(388, 110, 'hot standby;\nswitch-over in\nmilliseconds', size=5.6, italic=True)
+    f.arrow([(48, 164), (48, 178), (388, 178), (388, 170)], kind='open', dash='3,2', size=4); f.text(226, 186, 'heartbeat; switches to backup on failure', size=5.6, italic=True)
+    f.text(214, 12, 'track updates', size=5.6); f.text(306, 62, 'conflict', size=5.6, anchor='start'); f.text(235, 86, 'alert', size=5.6)
+    f.text(306, 124, 'instructions', size=5.6, anchor='start'); f.text(176, 62, 'tracks', size=5.6, anchor='start')
+    return f.svg()
+
+
+@fig('atc-seq', 'Sequence diagram for detecting and resolving a conflict', wide=True, scale=0.9)
+def _():
+    f = Fig(420, 232)
+    s = Seq(f, [':Radar', ':TrackManager', ':ConflictDetector', ':AlertManager', ':Display', ':PilotComms'], 34, 72, 12, 228)
+    s.msg(':Radar', ':TrackManager', 44, '1: positionUpdate(id, pos, alt, speed, hdg)')
+    s.act(':TrackManager', 40, 100)
+    s.self_msg(':TrackManager', 52, 'updateTrack()')
+    s.msg(':TrackManager', ':Display', 74, '2: refresh(tracks)')
+    s.msg(':TrackManager', ':ConflictDetector', 94, '3: checkSeparation(tracks)')
+    s.act(':ConflictDetector', 90, 200)
+    f.rect(170, 106, 246, 110, stroke=GREY, sw=0.6); f.rect(170, 106, 60, 10, stroke=GREY, sw=0.6); f.text(200, 111, 'opt [conflict]', size=5.6, weight=500)
+    s.msg(':ConflictDetector', ':AlertManager', 130, '4: raiseAlert(a1, a2)')
+    s.act(':AlertManager', 126, 196)
+    s.self_msg(':AlertManager', 138, 'recommendAction()')
+    s.msg(':AlertManager', ':Display', 164, '5: showAlert(advice)')
+    s.msg(':AlertManager', ':PilotComms', 184, '6: sendInstruction(id, newAlt)')
+    s.msg(':PilotComms', ':AlertManager', 206, '7: acknowledged', ret=True)
+    return f.svg()
+
+
+# ------------------------------------------------------------------ weather sensing
+@fig('wx-activity', 'Activity diagram with swimlanes for the weather sensing and alert system', wide=True, scale=0.9)
+def _():
+    f = Fig(420, 300, fs=6.2)
+    lanes = [('Sensors and API', 4, 110), ('Preprocessing', 114, 100), ('Synchronizer and evaluator', 214, 120), ('Alert services', 334, 82)]
+    for n, x, w in lanes:
+        f.rect(x, 4, w, 292, stroke=GREY, sw=0.6); f.rect(x, 4, w, 14, stroke=GREY, sw=0.6, fill='#EAF7FD'); f.text(x + w / 2, 11, n, weight=500)
+    f.start(58, 30)
+    f.bar(14, 44, 90, 3); f.arrow([(58, 35), (58, 44)], size=3.5)
+    for i, (t, p) in enumerate([('Read temp.\nsensor', 'Calibrate\ntemperature'), ('Read humidity\nsensor', 'Normalize\nhumidity'), ('Poll pressure\nAPI', 'Format\npressure')]):
+        y = 60 + i * 40
+        f.rbox(14, y, 88, 26, t, shadow=False)
+        f.rbox(122, y, 86, 26, p, shadow=False)
+        f.arrow([(58, 47), (58, 60)] if i == 0 else [(100 - i * 2, 47), (100 - i * 2, 52), (100, 52), (100, 52)], kind=None) if False else None
+        f.arrow([(102, y + 13), (122, y + 13)], size=3.5)
+        f.arrow([(208, y + 13), (226 + i * 8, y + 13), (226 + i * 8, 186)], kind=None)
+    f.arrow([(30, 47), (30, 60)], size=3.5); f.poly([(58, 47), (58, 52), (10, 52), (10, 113), (14, 113)]); f.head(10, 113, 14, 113, 'fill', 3.5)
+    f.poly([(86, 47), (86, 50), (6, 50), (6, 150), (14, 150)]); f.head(6, 150, 14, 150, 'fill', 3.5)
+    f.bar(220, 186, 100, 3)
+    f.rbox(222, 198, 96, 22, 'Synchronize and fuse\nweather record', shadow=False); f.arrow([(270, 189), (270, 198)], size=3.5)
+    f.rbox(222, 230, 96, 20, 'Evaluate thresholds', shadow=False); f.arrow([(270, 220), (270, 230)], size=3.5)
+    f.diamond(270, 262); f.arrow([(270, 250), (270, 256)], size=3.5)
+    f.rbox(222, 274, 60, 16, 'Log record', shadow=False, size=5.8); f.arrow([(264, 262), (250, 262), (250, 274)], size=3.5); f.text(236, 268, '[within\nlimits]', size=5.2)
+    f.bar(340, 216, 70, 3); f.arrow([(276, 262), (374, 262), (374, 219)], size=3.5); f.text(316, 256, '[threshold violated]', size=5.2)
+    for i, t in enumerate(['Store\nalert', 'Notify\nusers', 'Update\nadmin panel']):
+        x = 338 + i * 26
+        f.rbox(x - 0, 150, 24, 30, '', shadow=False); f.text(x + 12, 165, t, size=4.8)
+        f.arrow([(x + 12, 216), (x + 12, 180)], size=3)
+    f.bar(340, 138, 70, 3)
+    for i in range(3):
+        f.line(350 + i * 26, 150, 350 + i * 26, 141)
+    f.end(375, 110); f.arrow([(375, 138), (375, 116)], size=3.5); f.text(375, 98, 'return to idle', size=5.4)
+    f.arrow([(252, 290), (252, 294), (410, 294), (410, 116), (381, 110)], size=3.5)
+    return f.svg()
+
+
+FIGS['wx-activity-table'] = ('Events, states, and actions of the weather sensing and alert system', table_html(
+    ['State', 'Event', 'Action', 'Next state'],
+    [['Idle', 'Sampling timer fires', 'Read sensors; poll external API', 'Acquiring'],
+     ['Acquiring', 'Raw readings received', 'Calibrate temperature, normalize humidity, format pressure (in parallel)', 'Preprocessing'],
+     ['Preprocessing', 'All three inputs ready', 'Align timestamps, check completeness, fuse record', 'Evaluating'],
+     ['Evaluating', 'Record within limits', 'Log record', 'Idle'],
+     ['Evaluating', 'Threshold violated', 'Generate alert', 'Alerting'],
+     ['Alerting', 'Alert generated', 'Store alert, notify users, update admin panel (in parallel)', 'Idle']],
+    ['18%', '24%', '40%', '18%']), {'wide': True})
+
+
+FIGS['repo-pattern'] = ('The repository pattern', table_html(['Name', 'Repository'], [
+    ['Description', 'All data in a system is managed in a central repository that is accessible to all system components. Components do not interact directly, only through the repository.'],
+    ['Example', 'An integrated development environment whose tools share a repository of design information; the weather sensing system of this section.'],
+    ['When used', 'When large volumes of information are generated and must be stored for a long time; in data-driven systems where adding data to the repository triggers an action.'],
+    ['Advantages', 'Components are independent and need not know of each other. Changes made by one component are available to all. All data is managed consistently (for example, backed up together) because it is in one place.'],
+    ['Disadvantages', 'The repository is a single point of failure. Routing all communication through the repository can be inefficient. Distributing the repository across several computers may be difficult.']], ['22%', '78%']), {'wide': True})
+
+
+@fig('wx-repo', 'Repository architecture for the weather sensing and alert system', wide=True, scale=0.92)
+def _():
+    f = Fig(420, 170, fs=6.4)
+    f.raw(f'<ellipse cx="210" cy="84" rx="62" ry="10" fill="white" stroke="{CYAN}" stroke-width="1"/>')
+    f.rect(148, 84, 124, 40, stroke='none', fill='white')
+    f.line(148, 84, 148, 124, color=CYAN, w=1); f.line(272, 84, 272, 124, color=CYAN, w=1)
+    f.raw(f'<path d="M 148 124 A 62 10 0 0 0 272 124" fill="white" stroke="{CYAN}" stroke-width="1"/>')
+    f.text(210, 106, 'Weather data repository\n(raw readings, fused records,\nthresholds, alert log)', size=6.2, weight=500)
+    comps = [('Temperature\ncollector', 8, 8), ('Humidity &\npressure packager', 8, 62), ('External API\npoller', 8, 118),
+             ('Multi-sensor\nsynchronizer', 150, 8), ('Alert threshold\nevaluator', 308, 8), ('Notification\nservice', 308, 62), ('Admin panel', 308, 118)]
+    for t, x, y in comps:
+        b = f.box(x, y, 104, 34, t)
+        cx, cy = x + 52, y + 17
+        tx = 148 if x < 150 else (272 if x > 200 else 210)
+        ty = 104 if x != 150 else 76
+        f.arrow([(cx + (52 if x < 150 else -52 if x > 200 else 0), cy + (17 if x == 150 else 0)), (tx, ty)], start='fill', size=3.5)
+    f.text(210, 156, 'components never call each other; they read and write the repository', size=5.8, italic=True)
+    return f.svg()
+
+
+@fig('fd-flow-dfd', 'DFD of the food-delivery workflow', wide=True)
+def _():
+    f = Fig(420, 130, fs=6.6)
+    xs = [70, 142, 214, 286, 358]
+    names = [('1', 'Place\norder'), ('2', 'Verify payment,\nconfirm'), ('3', 'Prepare\norder'), ('4', 'Assign\nagent'), ('5', 'Deliver\norder')]
+    for x, (n, t) in zip(xs, names):
+        proc(f, x, 64, 25, n, t, size=6)
+    ext(f, 4, 14, 52, 20, 'Customer', size=6.6)
+    ext(f, 364, 106, 52, 20, 'Customer', size=6.6)
+    f.arrow([(30, 34), (52, 46)]); f.text(18, 46, 'items', size=6)
+    f.arrow([(376, 88), (384, 106)]); f.text(398, 96, 'food', size=6, anchor='start')
+    for a, b, t in [(95, 117, 'order'), (167, 189, 'confirmed\norder'), (239, 261, 'prepared\norder'), (311, 333, 'assignment')]:
+        f.arrow([(a, 64), (b, 64)], size=3.5); f.text((a + b) / 2, 100 if '\n' not in t else 104, t, size=5.8)
+    for x, t in [(178, 'incoming boundary'), (322, 'outgoing boundary')]:
+        f.line(x, 14, x, 90, dash='4,2', color=CYAN, w=0.8)
+        f.text(x, 8, t, size=6, italic=True)
+    return f.svg()

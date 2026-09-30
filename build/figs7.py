@@ -271,3 +271,72 @@ FIGS['ui-principles-table'] = ('User interface design principles and how the thr
      ['Error prevention and handling', 'Designs prevent mistakes and explain problems.', 'Partners who are busy are shown “Queue” not “Assign”; out-of-stock toggle prevents orders that cannot be met; delays are explained on the tracking screen.'],
      ['Efficiency of use', 'Frequent tasks need few actions.', 'One-tap Accept and Mark ready; partners ranked nearest first; sound alert on new orders; Call rider directly from the order.']],
     ['20%', '28%', '52%']), {'wide': True})
+
+
+@fig('wx-arch', 'Module interactions in the weather sensing and alert system', wide=True, scale=0.92)
+def _():
+    from svg import anchor
+    f = Fig(420, 150, fs=6.2)
+    s = [f.box(4, 6 + i * 44, 70, 26, t, shadow=False) for i, t in enumerate(['Temperature\nprobe', 'Humidity\nsensor', 'Pressure\ntransducer'])]
+    t = f.box(104, 6, 92, 26, 'Temperature data\ncollection & refinement')
+    h = f.box(104, 50, 92, 26, 'Humidity & pressure\npackager')
+    p = f.box(104, 94, 92, 26, 'External API poller')
+    sy = f.box(226, 40, 80, 40, 'Multi-sensor\nsynchronizer', weight=500)
+    ev = f.box(336, 40, 80, 40, 'Alert threshold\nevaluator & tracker', weight=500)
+    lg = f.box(336, 104, 80, 26, 'Global alert log\n(shared store)')
+    f.arrow([(74, 19), (104, 19)], size=3.5); f.text(89, 14, 'a', weight=600, color=CYAN)
+    f.arrow([(74, 63), (104, 63)], size=3.5); f.arrow([(74, 107), (104, 107)], size=3.5)
+    f.arrow([(196, 19), (240, 19), (240, 40)], size=3.5); f.text(218, 14, 'b', weight=600, color=CYAN)
+    f.arrow([(196, 63), (226, 63)], size=3.5); f.text(211, 58, 'c', weight=600, color=CYAN)
+    f.arrow([(196, 107), (266, 107), (266, 80)], size=3.5); f.text(230, 102, 'd', weight=600, color=CYAN)
+    f.arrow([(306, 60), (336, 60)], size=3.5)
+    f.arrow([(376, 80), (376, 104)], start='fill', size=3.5); f.text(384, 92, 'e', weight=600, color=CYAN)
+    f.text(116, 140, 'remote weather service (third-party API) feeds the poller', size=5.6, italic=True)
+    return f.svg()
+
+
+@fig('wx-dashboard', 'Annotated dashboard for the weather sensing and alert system', wide=True)
+def _():
+    f = Fig(420, 250, fs=6.2)
+    screen(f, 4, 4, 330, 242, 'Weather Monitor — Station WS-12')
+    f.text(328, 12, 'Live ● 12:41   ⚙  ?', anchor='end', size=5.8, color='white')
+    # nav
+    f.rect(4, 20, 58, 226, stroke=GREY, sw=0.5, fill='#F2FAFD')
+    for i, t in enumerate(['Dashboard', 'Alerts (2)', 'History', 'Thresholds', 'Sensors', 'Help']):
+        f.rect(8, 28 + i * 20, 50, 15, stroke=CYAN if i == 0 else GREY, sw=0.5, fill=CYAN if i == 0 else 'white')
+        f.text(33, 35.5 + i * 20, t, size=5.6, color='white' if i == 0 else DARK, weight=500 if i == 0 else 400)
+    # tiles
+    for i, (n, v, st) in enumerate([('Temperature', '31.4 °C', 'normal'), ('Humidity', '88 %', 'HIGH'), ('Pressure', '1002 hPa', 'normal')]):
+        x = 70 + i * 86
+        f.rect(x, 26, 80, 44, stroke=CYAN, sw=0.8, fill='#FFF4F2' if st == 'HIGH' else 'white')
+        f.text(x + 6, 34, n, anchor='start', size=5.8, color=GREY)
+        f.text(x + 6, 50, v, anchor='start', size=10, weight=600)
+        f.text(x + 6, 63, st, anchor='start', size=5.6, weight=600, color='#D0342C' if st == 'HIGH' else '#1B8A3C')
+    # alert banner
+    f.rect(70, 76, 252, 26, stroke='#D0342C', sw=0.8, fill='#FFF4F2')
+    f.text(76, 84, '⚠ Humidity above 85 % for 10 min (threshold 85 %)', anchor='start', size=5.8, weight=600)
+    f.text(76, 95, 'Users notified by SMS and e-mail.', anchor='start', size=5.4)
+    btn(f, 244, 82, 36, 'Acknowledge', True, 12); btn(f, 284, 82, 34, 'Undo', False, 12)
+    # chart
+    f.rect(70, 108, 252, 86, stroke=GREY, sw=0.5, fill='white')
+    f.text(76, 116, 'Last 24 hours', anchor='start', size=5.8, weight=500)
+    import math
+    pts = [(80 + k * 6, 170 - 20 * math.sin(k / 5) - k * 0.4) for k in range(40)]
+    f.poly(pts, color=CYAN, w=1)
+    f.line(80, 142, 318, 142, dash='3,2', color='#D0342C', w=0.6); f.text(318, 138, 'threshold', anchor='end', size=5.2, color='#D0342C')
+    for i, t in enumerate(['Temp', 'Humidity', 'Pressure']):
+        f.rect(210 + i * 38, 111, 34, 10, stroke=CYAN, sw=0.5, fill=CYAN if i == 1 else 'white'); f.text(227 + i * 38, 116, t, size=5, color='white' if i == 1 else DARK)
+    # table & threshold form
+    f.rect(70, 200, 150, 42, stroke=GREY, sw=0.5, fill='white'); f.text(76, 208, 'Recent alerts', anchor='start', size=5.8, weight=500)
+    f.text(76, 220, '12:31  Humidity high   open', anchor='start', size=5.4); f.text(76, 230, '09:05  Pressure low    closed', anchor='start', size=5.4)
+    f.rect(226, 200, 96, 42, stroke=GREY, sw=0.5, fill='white'); f.text(232, 208, 'Humidity threshold', anchor='start', size=5.8, weight=500)
+    f.rect(232, 214, 40, 11, stroke=GREY, sw=0.5); f.text(236, 219.5, '85  %', anchor='start', size=5.4)
+    btn(f, 278, 213, 38, 'Save', True, 12); f.text(232, 236, 'range 0–100; default 85', anchor='start', size=4.8, color=GREY)
+    # annotations
+    notes = [(38, 'A', 'User familiarity'), (86, 'B', 'Consistency'), (126, 'C', 'Recoverability'), (166, 'D', 'User diversity'), (214, 'E', 'User guidance')]
+    for y, k, t in notes:
+        f.circle(346, y, 6, fill=CYAN, stroke=CYAN); f.text(346, y, k, size=6, color='white', weight=600)
+        f.text(356, y, t, anchor='start', size=6, weight=500)
+    for (x, y), k in [((70, 30), 'A'), ((70, 80), 'B'), ((322, 76), 'C'), ((322, 108), 'D'), ((322, 200), 'E')]:
+        f.circle(x, y, 5, fill=CYAN, stroke='white', sw=0.6); f.text(x, y, k, size=5.4, color='white', weight=600)
+    return f.svg()

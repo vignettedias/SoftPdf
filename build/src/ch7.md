@@ -82,6 +82,16 @@ More modules are not always better. As the number of modules increases, the cost
 
 *Refactoring* is a reorganization technique that improves the internal structure of a design or its code without changing its external behavior. Its purposes are to eliminate redundancy and unused elements, to improve efficiency, and to enhance readability, maintainability, and scalability. A designer looks for poorly constructed elements, low-cohesion components that perform unrelated functions, and unnecessary complexity. For example, a ReportManager that fetches sales records, computes statistics, and e-mails a PDF can be split into SalesRepository, SalesStatistics, and ReportMailer; managers receive the same report, but each component now has one responsibility. Refactoring does not fix defects, because it does not change behavior; debugging does.
 
+::: example ex-payment | Abstraction or refinement?
+A payment system for an e-commerce website can be structured in two ways. The first creates a general Payment class, with Credit_Card, PayPal, and UPI as subclasses. The second starts with a single Payment_Processor module, which is later divided into separate handlers for each payment method. Which method uses abstraction and which uses refinement? Which is better for adding new payment methods in the future?
+--- solution
+The first method uses *abstraction*. Payment states what every payment has in common, such as validate() and process(amount), and hides how each kind of payment does it; the subclasses supply the details. The second method uses *refinement*: it begins with one abstract module and elaborates it top-down, dividing Payment_Processor into more detailed handlers.
+
+The abstraction-based design is better for extension. A new method, such as a wallet or net banking, is added as a new subclass of Payment, and the code that calls payment.process() does not change, because it depends only on the abstraction (the design is open for extension but closed for modification). Each subclass can be tested on its own, and a fault in one does not affect the others. In the refined design, the knowledge of which handler to call stays inside Payment_Processor, so every new method means changing and re-testing that existing module.
+--- answer
+Method 1 (Payment superclass with subclasses) is abstraction; method 2 (splitting Payment_Processor into handlers) is refinement. Abstraction is better for adding payment methods: new subclasses are added without modifying existing code.
+:::
+
 ## 7.3 Cohesion and coupling
 
 Component-level design defines the internal structure of each module identified by the architecture. Its quality is judged by two complementary measures. *Cohesion* looks inside a module and asks how strongly its elements belong together. *Coupling* looks between modules and asks how strongly they depend on one another. Together they express *functional independence*: a module is functionally independent when it has a single, well-defined purpose (high cohesion) and a minimal, simple interface to other modules (low coupling). The rule *high cohesion, low coupling* is the most important principle of modular design.
@@ -177,6 +187,32 @@ Classify each fragment. (1) end_of_day() closes the database, backs up the logs,
 (1) Temporal cohesion: the tasks are grouped only because they run at the end of the day. (2) Stamp coupling: a whole record is passed where one field is needed; passing order.weight would give data coupling. (3) Inside render, logical cohesion; between the caller and render, control coupling, since fmt selects the behavior. (4) Common coupling through shared global data. (5) Data coupling, the weakest and best form.
 :::
 
+::: example ex-library | Coupling and cohesion in a library management system
+Identify the type of coupling in each interaction, and the type of cohesion the modules exhibit where applicable. (i) When a user logs in, the User Management module verifies the credentials, checks for pending fines, and sends the user's status (active or inactive) and fine details to the Borrowing module, which decides whether the user can borrow. (ii) When a user borrows a book, the Borrowing module directly accesses and updates the availability status in the Book Management module's database tables. (iii) The Borrowing module calls the Notification module, passing the user's contact details, the book title, and the due date as function arguments; the Notification module sends an e-mail or SMS. (iv) The Report Generation module retrieves structured data (JSON responses) from the Borrowing, Book Management, and User Management modules to report overdue and most-borrowed books, reading but never modifying it. (v) Inside the Borrowing module the steps are, in order: validate user eligibility, check book availability, update borrowing records, adjust book availability, notify the user. (vi) The Notification module checks the user's preferred channel (e-mail, SMS, or push) and selects a function with a chain of if–else conditions.
+--- solution
+(i) *Data coupling*: only the elementary values the Borrowing module needs (a status and the fine details) are passed. User Management has *functional cohesion*, because its elements serve the single task of establishing the user's standing.
+
+(ii) *Content coupling*, the strongest form: the Borrowing module reaches into another module's internal data, so a change to the Book Management tables breaks it. The remedy is to call an operation such as bookManager.markBorrowed(bookId). Book Management itself remains functionally cohesive.
+
+(iii) *Data coupling*: each argument is an elementary value that the Notification module uses. If the whole user record were passed when only the contact details are used, the coupling would become stamp coupling.
+
+(iv) *Stamp coupling*: whole structured records (JSON documents) are passed and the report uses only some of their fields. Because the data is only read, the coupling is weak, and it is not common coupling, since nothing is shared and written. Report Generation is functionally cohesive.
+
+(v) *Procedural cohesion*: the steps must be performed in a fixed order, but each works on different data (the user, the book, the loan records), rather than consuming the output of the previous step. If each step passed its result to the next, as in read, validate, compute, the cohesion would be sequential.
+
+(vi) *Logical cohesion*: the e-mail, SMS, and push functions are grouped because they are the same kind of operation, and one is selected by a condition. If the caller passed the channel as a flag, the caller and the module would also be control coupled.
+--- answer
+(i) Data coupling; functional cohesion. (ii) Content coupling. (iii) Data coupling. (iv) Stamp coupling (read-only). (v) Procedural cohesion. (vi) Logical cohesion.
+:::
+
+::: example ex-wx-coupling | Coupling in a weather sensing system
+[[fig:wx-arch]] shows the modules of the weather sensing and alert system of [[ex:ex-wx-activity]]. The temperature module receives readings from the probe and passes a calibrated temperature to the synchronizer; the packager passes a packet of humidity, raw pressure count, and sensor id; the API poller passes the raw data received from a remote weather service; and the evaluator reads and writes a global alert log that also holds the thresholds set from the admin panel. Determine and justify the coupling of interactions a to e.
+
+@fig wx-arch
+--- answer
+(a) Sensors → temperature data collection: *external coupling*, because the module depends on the device's externally imposed interface and signal format. (b) Temperature collection → synchronizer: *data coupling*, because one elementary value, the calibrated temperature, is passed. (c) Humidity and pressure packager → synchronizer: *stamp coupling*, because a composite packet is passed and the synchronizer depends on its structure. (d) External API poller → synchronizer: *external coupling*, because the raw data is still in the third-party service's format, so a change to the remote API affects the synchronizer; if the poller converted it to a pressure value first, this would be data coupling and the external dependency would be confined to the poller. (e) Evaluator ↔ global alert log: *common coupling*, because the log is shared global data that is read and written by the evaluator and the admin panel, so a fault in either can corrupt the other's data.
+:::
+
 ::: example ex-doceditor | Architecture, coupling, and cohesion for a collaborative editor
 A cloud-based document editor lets many users edit a document simultaneously, track changes, and chat. It must be scalable and allow later additions such as AI writing assistance and advanced versioning. (a) Identify an appropriate architectural style and justify it. (b) State design assumptions for three types of coupling and two types of cohesion that give good modularity.
 --- solution
@@ -229,9 +265,9 @@ The UI design process is iterative and is represented by a spiral with four acti
 3. *Interface construction* Begin with a *prototype*, an interactive mock-up used to evaluate usage scenarios, then use UI toolkits to complete the interface.
 4. *Interface validation* Confirm that the interface supports all user tasks and their variations, and assess ease of use, ease of learning, and user acceptance by *usability testing* with real users.
 
-@fig ui-spiral
-
 Several passes through the spiral elaborate the interface incrementally, so not every detail need be specified in the first iteration.
+
+@fig ui-spiral
 
 The following issues arise in almost every interface design. *System response time* has two characteristics, its length and its *variability*; consistent response times are preferable to highly variable ones, even if slightly longer. *Help facilities* must decide whether help is available for all functions, how it is accessed, how it is represented and structured, and how the user returns to work. *Error messages* should use language the user understands, give constructive advice for recovery, indicate any negative consequences, be accompanied by a visual or audible cue, and never blame the user: 'The date must be in DD/MM/YYYY format; your other entries have been kept' is better than 'Error 0x80070057'. *Menu and command labels* should be consistent, learnable, and customizable. *Accessibility* must allow people with visual, hearing, or mobility impairments to use the system, and *internationalization* designs a locale-independent core, supported by Unicode, that can be *localized* for particular languages and regions.
 
@@ -249,6 +285,8 @@ A good interface is visually apparent and forgiving, hides system internals, and
 8. *Accessibility* The interface is usable by people with disabilities.
 
 Other principles often listed for web and mobile applications are *anticipation* (offer what the user will need next), *controlled autonomy*, *focus* on the primary task, *Fitts's law* (the time to select a target grows with its distance and shrinks with its size, so frequent targets should be large and close), *latency reduction* (acknowledge and occupy delays), *learnability*, *work-product integrity*, *tracking state*, and *visible navigation*.
+
+Sommerville states six principles of user interface design: *user familiarity* (the interface uses terms and concepts drawn from the experience of the people who will use the system most); *consistency* (comparable operations are activated in the same way); *minimal surprise* (users are never surprised by the behavior of the system); *recoverability* (the interface includes mechanisms, such as confirmation of destructive actions and undo, that allow users to recover from errors); *user guidance* (the interface gives meaningful feedback when errors occur and provides context-sensitive help); and *user diversity* (the interface provides appropriate interaction facilities for different types of users).
 
 The *elements* of an interface are its layout (the arrangement of elements on the screen), typography, color, icons, buttons, forms (input fields for collecting data), and navigation (the system for moving between parts of the interface). A layout is usually designed first as a wireframe that places these elements, and the principles are then checked against it.
 
@@ -274,6 +312,24 @@ Each screen is designed for the user who will use it and the task they perform m
 @fig ui-principles-table
 :::
 
+::: example ex-wx-dashboard | A dashboard for a weather sensing system
+(a) Design a user interface dashboard for the weather sensing and alert system of [[ex:ex-wx-activity]], showing its layout structure, visual hierarchy, navigation elements, widget placement, and interaction components. (b) Annotate the areas where user familiarity, consistency, recoverability, user diversity, and user guidance are applied, with a brief justification for each.
+--- solution
+(a) The dashboard ([[fig:wx-dashboard]]) has a *header bar* with the station name, a live-data indicator and clock, settings, and help. A *navigation panel* on the left gives Dashboard, Alerts (with a count), History, Thresholds, Sensors, and Help. The *content area* follows a visual hierarchy from top to bottom: three reading tiles (temperature, humidity, pressure), each with a large current value and its status; an alert banner, shown only when a threshold is violated, with Acknowledge and Undo buttons; a 24-hour chart with the threshold drawn as a line and toggle buttons for the variable; and, at the bottom, a table of recent alerts and a form for editing a threshold. The most urgent information, the current readings and any alert, is largest and highest.
+
+@fig wx-dashboard
+
+(b) The annotations A to E in the figure mark where each principle is applied:
+
+- A *User familiarity* The tiles use the units and terms meteorologists know (°C, %, hPa) and the conventions of other dashboards: a warning triangle for alerts and a left-hand navigation menu.
+- B *Consistency* Every reading tile has the same structure, red always means a violated threshold, and all buttons look and behave alike, so learning one part teaches the rest.
+- C *Recoverability* An acknowledged alert can be undone, and a threshold change takes effect only when it is saved, with the default shown so that it can be restored.
+- D *User diversity* Status is shown by text as well as color, for color-blind users; the chart can be switched between variables for analysts, while casual users read the tiles; and alerts reach users by SMS or e-mail as they prefer.
+- E *User guidance* The threshold form states the valid range and default, the alert banner explains what was exceeded and for how long, and Help is always available in the navigation and header.
+--- answer
+A dashboard with a header, left navigation, reading tiles, an alert banner, a trend chart, an alert table, and a threshold form, arranged by urgency, with the five principles applied as annotated in [[fig:wx-dashboard]].
+:::
+
 ::: keypoints
 - Design translates the requirements model into data/class, architectural, interface, and component-level designs. Ten principles, from avoiding tunnel vision to reviewing for conceptual errors, guide it.
 - Abstraction may be procedural, data, or control abstraction. Separation of concerns divides a problem into independently solvable concerns and is realized by modularity.
@@ -282,5 +338,6 @@ Each screen is designed for the user who will use it and the task they perform m
 - Cohesion, from lowest to highest, is coincidental, logical, temporal, procedural, communicational, sequential, and functional.
 - Coupling, from strongest to weakest, is content, common, external, control, stamp, and data coupling. The goal is high cohesion and low coupling, which is functional independence.
 - The golden rules of interface design are to place the user in control, reduce the user's memory load, and make the interface consistent. The user, design, mental, and implementation models should be aligned.
+- Sommerville's interface principles are user familiarity, consistency, minimal surprise, recoverability, user guidance, and user diversity.
 - The interface design process is a spiral of analysis and modeling, design, construction, and validation. Response time, help, error handling, labeling, accessibility, and internationalization must always be considered.
 :::
