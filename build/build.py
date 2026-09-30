@@ -88,12 +88,24 @@ class Chapter:
         parts = re.split(r'^--- *(solution|answer) *$', body, flags=re.M)
         q = parts[0]
         sections = dict(zip(parts[1::2], parts[2::2]))
-        out = [f'<div class="ex" id="{eid}"><div class="ext"><span class="n">Example {self.ex_no[eid]}</span>{md_inline(title)}</div>']
-        out.append(f'<div class="q">{self.blocks(q)}</div>')
+        # figures named in the question are set after the frame, which spans the full width
+        qfigs = re.findall(r'^@(?:fig|table) +[\w-]+\s*$', q, flags=re.M)
+        q = re.sub(r'^@(?:fig|table) +[\w-]+\s*$\n?', '', q, flags=re.M)
+        out = [f'<div class="ex" id="{eid}"><div class="qbox"><div class="ext"><span class="n">Example {self.ex_no[eid]}</span>{md_inline(title)}</div>']
+        out.append(f'<div class="q">{self.blocks(q)}</div></div>')
+        if qfigs:
+            out.append(self.blocks('\n\n'.join(qfigs)))
+        tail = []
         if 'solution' in sections:
-            out.append(f'<div class="sol">{self.blocks(sections["solution"], lead="Solution")}</div>')
+            tail.append(f'<div class="sol">{self.blocks(sections["solution"], lead="Solution")}</div>')
         if 'answer' in sections:
-            out.append(f'<div class="ans">{self.blocks(sections["answer"], lead="Answer")}</div>')
+            tail.append(f'<div class="ans">{self.blocks(sections["answer"], lead="Answer")}</div>')
+        if tail:
+            last = tail[-1]
+            k = max(last.rfind('</p>'), last.rfind('</li>'))
+            if k > 0:  # end-of-example mark after the last line of text
+                tail[-1] = last[:k] + '<span class="eoe"></span>' + last[k:]
+        out += tail
         out.append('</div>')
         return '\n'.join(out)
 

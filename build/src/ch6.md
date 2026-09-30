@@ -285,11 +285,11 @@ An online shopping platform lets customers browse a product catalogue, add items
 --- solution
 (a) The context (level-0) diagram shows the three external entities and the data that crosses the boundary ([[fig:shop-context]]).
 
-@fig shop-context
-
 At level 1 the system is decomposed into six processes and four data stores ([[fig:shop-l1]]). The customer's flows are shared among processes 1.0 to 5.0, and each flow on the context diagram reappears, so the levels balance.
 
 (b) Each customer or administrator request (browse, update cart, order, pay, account, admin) is one input that is routed to one of several alternative processes, so the top level of the system has *transaction flow*. Transaction mapping gives a reception branch that reads and validates the request and a dispatcher with one module per transaction ([[fig:shop-structure]]). The Place order path is itself a transform flow (read cart → compute total → pay → record order), so it is factored further beneath its module.
+
+@fig shop-context
 
 @fig shop-l1
 

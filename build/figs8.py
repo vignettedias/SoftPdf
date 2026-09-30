@@ -293,7 +293,7 @@ def _():
     w = 80
     for i, (h, a, b) in enumerate(st):
         x = 4 + i * 83
-        shade = ['#E0F4FB', '#CDEDF8', '#B8E5F5', '#A2DCF2', '#8BD3EE'][i]
+        shade = '#EAF7FD'
         f.poly([(x, 4), (x + w - 8, 4), (x + w, 16), (x + w - 8, 28), (x, 28), (x + 8, 16)] if i else [(x, 4), (x + w - 8, 4), (x + w, 16), (x + w - 8, 28), (x, 28)], close=True, color=CYAN, w=0.8, fill=shade)
         f.text(x + w / 2, 16, h, weight=600, size=5.8)
         f.rect(x + 2, 32, w - 10, 96, stroke=CYAN, sw=0.5, fill='white')
@@ -319,8 +319,8 @@ def _():
     M = [(210, 28, 'Acceptance\ntest design'), (210, 74, 'System\ntest design'), (210, 120, 'Integration\ntest design'), (210, 166, 'Unit\ntest design')]
     R = [(366, 28, 'Acceptance\ntesting'), (336, 74, 'System\ntesting'), (306, 120, 'Integration\ntesting'), (276, 166, 'Unit\ntesting')]
     # the V
-    f.raw(f'<path d="M 28 14 L 198 236 L 222 236 L 392 14" fill="none" stroke="#9FD9F0" stroke-width="10" stroke-linejoin="round" opacity="0.55"/>')
-    f.head(378, 36, 392, 14, 'fill', 10, color='#5BBFE6')
+    f.raw(f'<path d="M 28 14 L 198 236 L 222 236 L 392 14" fill="none" stroke="#D4EFFC" stroke-width="10" stroke-linejoin="round" opacity="0.55"/>')
+    f.head(378, 36, 392, 14, 'fill', 10, color='#6CCFF6')
     for (x1, y1, _), (x2, y2, _) in zip(L, M):
         f.arrow([(x1 + 30, y1), (x2 - 30, y2)], dash='3,2', size=3.5)
     for (x1, y1, _), (x2, y2, _) in zip(M, R):
@@ -331,8 +331,8 @@ def _():
         f.arrow([(a[0] + 6, a[1] - 12), (b[0] - 8, b[1] + 12)], dash='3,2', size=3.5)
     f.arrow([(154, 178), (194, 214)], dash='3,2', size=3.5); f.arrow([(226, 214), (266, 178)], dash='3,2', size=3.5)
     for x, y, t in L + M + R:
-        ell(f, x, y, t, rx=27, fill='#FFF7F0' if (x, y, t) in L else ('#F2FAFD' if (x, y, t) in M else '#EFF9F1'))
-    ell(f, 210, 222, 'Coding', rx=26, ry=10, fill='#FFF7F0')
+        ell(f, x, y, t, rx=27, fill='white' if (x, y, t) in L else ('white' if (x, y, t) in M else 'white'))
+    ell(f, 210, 222, 'Coding', rx=26, ry=10, fill='white')
     f.text(18, 150, 'VERIFICATION\n(static: reviews,\ninspections,\nwalkthroughs, audits)\n"Are we building the\nproduct right?"', size=5.6, anchor='start', weight=500)
     f.text(408, 150, 'VALIDATION\n(dynamic: execute\nthe software at\neach test level)\n"Are we building the\nright product?"', size=5.6, anchor='end', weight=500)
     f.text(210, 246, 'test design on the left feeds test execution on the right at the same level', size=5.4, italic=True)
@@ -344,7 +344,7 @@ def _():
     f = Fig(420, 64, fs=6)
     for i, t in enumerate(['Component\n(unit) testing', 'Component\nintegration\ntesting', 'System\nintegration\ntesting', 'System\ntesting', 'Acceptance\ntesting']):
         cx = 44 + i * 83
-        f.circle(cx, 32, 28, fill=['#E0F4FB', '#CDEDF8', '#B8E5F5', '#A2DCF2', '#8BD3EE'][i], stroke=CYAN)
+        f.circle(cx, 32, 28, fill='#EAF7FD', stroke=CYAN)
         f.text(cx, 32, t, size=5.8, weight=500)
         if i < 4:
             f.arrow([(cx + 28, 32), (cx + 55, 32)], size=4)
@@ -392,9 +392,9 @@ def _():
     f = Fig(420, 120, fs=6)
     for x0, title, stub in [(10, 'Testing B with a stub (C not yet developed)', True), (222, 'Testing B with a driver (A not yet developed)', False)]:
         f.text(x0 + 94, 8, title, weight=600, size=6)
-        mod(f, x0 + 46, 20, 'driver_test_calculate_dose()' if not stub else 'A: Main_Controller()', fill='#FFF4E5' if not stub else 'white', dash='3,2' if not stub else None)
-        mod(f, x0 + 46, 56, 'B: CalculateDose()', fill='#E3F6E8')
-        mod(f, x0 + 46, 92, 'getPatientData_stub()' if stub else 'C: Database.getPatientData()', fill='#FFF4E5' if stub else 'white', dash='3,2' if stub else None)
+        mod(f, x0 + 46, 20, 'driver_test_calculate_dose()' if not stub else 'A: Main_Controller()', fill='white' if not stub else 'white', dash='3,2' if not stub else None)
+        mod(f, x0 + 46, 56, 'B: CalculateDose()', fill='white')
+        mod(f, x0 + 46, 92, 'getPatientData_stub()' if stub else 'C: Database.getPatientData()', fill='white' if stub else 'white', dash='3,2' if stub else None)
         f.arrow([(x0 + 94, 40), (x0 + 94, 56)], size=3.5); f.text(x0 + 98, 48, 'calls', size=5.4, anchor='start')
         f.arrow([(x0 + 94, 76), (x0 + 94, 92)], size=3.5); f.text(x0 + 98, 84, 'calls', size=5.4, anchor='start')
         f.text(x0 + 150, 102 if stub else 30, 'returns fixed data\n{age: 65, weight: 70}' if stub else 'supplies inputs,\nchecks the output', size=5.2, italic=True, anchor='start')

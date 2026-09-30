@@ -210,7 +210,7 @@ def _():
     screen(f, 4, 4, 412, 188, 'Dispatch — Assign delivery partner')
     f.text(12, 30, 'Order #4821 · Spice Garden → Anna Nagar, 3.2 km · Ready in 8 min', anchor='start', weight=500)
     # map
-    f.rect(10, 40, 180, 140, stroke=GREY, sw=0.5, fill='#F2FAFD')
+    f.rect(10, 40, 180, 140, stroke=GREY, sw=0.5, fill='white')
     for gx in range(10, 190, 30):
         f.line(gx, 40, gx, 180, w=0.3, color='#CDE9F5')
     for gy in range(40, 180, 28):
@@ -238,7 +238,7 @@ def _():
 def _():
     f = Fig(336, 236, fs=6.4)
     screen(f, 90, 4, 156, 228, 'Track order #4821')
-    f.rect(96, 24, 144, 88, stroke=GREY, sw=0.5, fill='#F2FAFD')
+    f.rect(96, 24, 144, 88, stroke=GREY, sw=0.5, fill='white')
     f.poly([(110, 100), (140, 80), (170, 84), (200, 50), (226, 40)], color=CYAN, w=1.4, dash='3,2')
     f.rect(106, 96, 8, 8, fill=DARK, stroke=DARK); f.circle(226, 40, 4, fill='white', stroke=DARK)
     f.circle(170, 84, 5, fill=CYAN, stroke=CYAN)
@@ -300,19 +300,19 @@ def _():
     screen(f, 4, 4, 330, 242, 'Weather Monitor — Station WS-12')
     f.text(328, 12, 'Live ● 12:41   ⚙  ?', anchor='end', size=5.8, color='white')
     # nav
-    f.rect(4, 20, 58, 226, stroke=GREY, sw=0.5, fill='#F2FAFD')
+    f.rect(4, 20, 58, 226, stroke=GREY, sw=0.5, fill='white')
     for i, t in enumerate(['Dashboard', 'Alerts (2)', 'History', 'Thresholds', 'Sensors', 'Help']):
         f.rect(8, 28 + i * 20, 50, 15, stroke=CYAN if i == 0 else GREY, sw=0.5, fill=CYAN if i == 0 else 'white')
         f.text(33, 35.5 + i * 20, t, size=5.6, color='white' if i == 0 else DARK, weight=500 if i == 0 else 400)
     # tiles
     for i, (n, v, st) in enumerate([('Temperature', '31.4 °C', 'normal'), ('Humidity', '88 %', 'HIGH'), ('Pressure', '1002 hPa', 'normal')]):
         x = 70 + i * 86
-        f.rect(x, 26, 80, 44, stroke=CYAN, sw=0.8, fill='#FFF4F2' if st == 'HIGH' else 'white')
+        f.rect(x, 26, 80, 44, stroke=CYAN, sw=0.8, fill='#EAF7FD' if st == 'HIGH' else 'white')
         f.text(x + 6, 34, n, anchor='start', size=5.8, color=GREY)
         f.text(x + 6, 50, v, anchor='start', size=10, weight=600)
-        f.text(x + 6, 63, st, anchor='start', size=5.6, weight=600, color='#D0342C' if st == 'HIGH' else '#1B8A3C')
+        f.text(x + 6, 63, st, anchor='start', size=5.6, weight=600, color=DARK if st == 'HIGH' else DARK)
     # alert banner
-    f.rect(70, 76, 252, 26, stroke='#D0342C', sw=0.8, fill='#FFF4F2')
+    f.rect(70, 76, 252, 26, stroke=DARK, sw=0.8, fill='#EAF7FD')
     f.text(76, 84, '⚠ Humidity above 85 % for 10 min (threshold 85 %)', anchor='start', size=5.8, weight=600)
     f.text(76, 95, 'Users notified by SMS and e-mail.', anchor='start', size=5.4)
     btn(f, 244, 82, 36, 'Acknowledge', True, 12); btn(f, 284, 82, 34, 'Undo', False, 12)
@@ -322,7 +322,7 @@ def _():
     import math
     pts = [(80 + k * 6, 170 - 20 * math.sin(k / 5) - k * 0.4) for k in range(40)]
     f.poly(pts, color=CYAN, w=1)
-    f.line(80, 142, 318, 142, dash='3,2', color='#D0342C', w=0.6); f.text(318, 138, 'threshold', anchor='end', size=5.2, color='#D0342C')
+    f.line(80, 142, 318, 142, dash='3,2', color=DARK, w=0.6); f.text(318, 138, 'threshold', anchor='end', size=5.2, color=DARK)
     for i, t in enumerate(['Temp', 'Humidity', 'Pressure']):
         f.rect(210 + i * 38, 111, 34, 10, stroke=CYAN, sw=0.5, fill=CYAN if i == 1 else 'white'); f.text(227 + i * 38, 116, t, size=5, color='white' if i == 1 else DARK)
     # table & threshold form
@@ -389,8 +389,8 @@ def _():
 @fig('coh-coup-matrix', 'Combinations of cohesion and coupling')
 def _():
     f = Fig(336, 116, fs=6.2)
-    cells = [(0, 0, 'Ideal', 'focused modules that\nwork independently', '#E3F6E8'), (1, 0, 'Tolerable', 'unfocused but\nisolated modules', 'white'),
-             (0, 1, 'Fragile', 'focused modules with\nbrittle dependencies', 'white'), (1, 1, 'Worst', 'unfocused and entangled:\na maintenance nightmare', '#FDEBEA')]
+    cells = [(0, 0, 'Ideal', 'focused modules that\nwork independently', 'white'), (1, 0, 'Tolerable', 'unfocused but\nisolated modules', 'white'),
+             (0, 1, 'Fragile', 'focused modules with\nbrittle dependencies', 'white'), (1, 1, 'Worst', 'unfocused and entangled:\na maintenance nightmare', 'white')]
     for c, r, t, d, fill in cells:
         x, y = 90 + c * 120, 20 + r * 46
         f.rect(x, y, 116, 42, fill=fill, stroke=CYAN)
@@ -410,7 +410,7 @@ def _():
     f.line(140, 10, 140, 128, w=0.4, color=GREY)
     xs = [(144, 'Authentication\nService', 'login(credentials)'), (213, 'EmailService', 'sendWelcomeEmail(u)'), (282, 'PricingService', 'calculateDiscount(u)'), (351, 'ReportGenerator', 'exportToPDF(user)')]
     for x, n, op in xs:
-        b = f.uclass(x, 20, 67, n, [], [op], stroke='#2BA84A')
+        b = f.uclass(x, 20, 67, n, [], [op], stroke=CYAN)
         f.arrow([(x + 33, 20 + b[3]), (282, 100)], kind='open', dash='3,2', size=4)
     f.uclass(252, 100, 60, 'User', ['id', 'email', 'name'], [])
     f.text(200, 147, 'each class now has functional cohesion', size=5.6, italic=True)
@@ -427,9 +427,9 @@ def _():
     f.arrow([(40, 16 + o[3]), (34, 96)], size=4); f.arrow([(96, 16 + o[3]), (102, 96)], size=4)
     f.text(67, 142, 'hard-wired to one provider\nand one database', size=5.4, italic=True)
     f.line(140, 10, 140, 146, w=0.4, color=GREY)
-    oa = f.uclass(232, 14, 118, 'Order', ['payment: PaymentProcessor', 'repository: OrderRepository'], ['Order(payment, repository)', 'checkout()'], stroke='#2BA84A')
-    pi = f.uclass(158, 74, 84, '«interface»\nOrderRepository', [], ['save(order)'], stroke='#2BA84A')
-    qi = f.uclass(334, 74, 84, '«interface»\nPaymentProcessor', [], ['process(amount)'], stroke='#2BA84A')
+    oa = f.uclass(232, 14, 118, 'Order', ['payment: PaymentProcessor', 'repository: OrderRepository'], ['Order(payment, repository)', 'checkout()'], stroke=CYAN)
+    pi = f.uclass(158, 74, 84, '«interface»\nOrderRepository', [], ['save(order)'], stroke=CYAN)
+    qi = f.uclass(334, 74, 84, '«interface»\nPaymentProcessor', [], ['process(amount)'], stroke=CYAN)
     f.arrow([(260, 14 + oa[3]), (220, 74)], kind='open', size=4); f.arrow([(322, 14 + oa[3]), (360, 74)], kind='open', size=4)
     for x, n in [(150, 'PostgreSQL\nRepository'), (206, 'MongoDB\nRepository'), (326, 'PayPal\nProcessor'), (382, 'Stripe\nProcessor')]:
         f.box(x, 128, 52 if x < 300 else 36, 20, n, shadow=False, size=5.2)
@@ -448,11 +448,11 @@ def _():
         f.arrow([(68, 14 + cm[3]), (27 + i * 42, 118)], kind='open', dash='3,2', size=3.5)
     f.text(67, 150, 'static calls to concrete services:\nexternal coupling; coincidental cohesion', size=5.2, italic=True)
     f.line(140, 10, 140, 172, w=0.4, color=GREY)
-    co = f.uclass(236, 14, 110, 'CheckoutOrchestrator', [], ['process(order)'], stroke='#2BA84A')
+    co = f.uclass(236, 14, 110, 'CheckoutOrchestrator', [], ['process(order)'], stroke=CYAN)
     items = [(144, 'OrderValidator', 'validate(order)', False), (213, '«interface»\nPaymentGateway', 'charge(amount)', True),
              (282, 'InventoryService', 'reserve(items)', False), (351, '«interface»\nNotifier', 'sendConfirmation(...)', True)]
     for x, n, op, itf in items:
-        b = f.uclass(x, 70, 66, n, [], [op], stroke='#2BA84A')
+        b = f.uclass(x, 70, 66, n, [], [op], stroke=CYAN)
         f.arrow([(291, 14 + co[3]), (x + 33, 70)], kind='open', dash='3,2', size=3.5)
     for x, n, tx in [(190, 'PayPalGateway', 246), (240, 'StripeGateway', 246), (340, 'EmailNotifier', 384), (386, 'SMS\nNotifier', 384)]:
         f.box(x, 138, 44 if x < 380 else 32, 18, n, shadow=False, size=5)

@@ -15,7 +15,7 @@
 @page{size:424pt 562.5pt;margin:0}
 :root{--cyan:#00ADEF;--shadow:#6CCFF6;--tint:#D4EFFC;--tint2:#B9E5FA;--kp:#E9F7FE;--ink:#231F20}
 html,body{margin:0;padding:0}
-body{font-family:'Book Serif',serif;font-size:9.8pt;line-height:12pt;color:var(--ink);
+body{font-family:'Book Serif',serif;font-size:10pt;line-height:12.5pt;color:var(--ink);
   -webkit-print-color-adjust:exact;print-color-adjust:exact;hyphens:auto;font-kerning:normal}
 .flow{margin-left:88pt;width:336pt;text-align:justify;orphans:2;widows:2}
 p{margin:0;text-indent:12pt}
@@ -77,26 +77,35 @@ table.pt td:first-child{width:22%}
 table.pt td p{text-indent:0}
 
 /* code */
-pre{margin:10pt 0;padding:7pt 9pt;background:var(--tint);font:400 7.9pt/10pt 'Fira Mono',monospace;
+pre{margin:8pt 0;padding:0 0 0 12pt;background:none;font:400 7.9pt/10pt 'Fira Mono',monospace;
   white-space:pre;text-align:left;break-inside:avoid;overflow:hidden}
 pre code{font-size:inherit;font-family:inherit}
 .fig pre{margin:0}
 
-/* worked examples */
-.ex{clear:both;margin:15pt 0 14pt 0;border-top:.5pt solid var(--cyan);border-bottom:.5pt solid var(--cyan);padding:5pt 0 7pt 0}
-.ex .ext{font:500 10pt/12.5pt 'Fira Sans',sans-serif;color:var(--ink);margin-bottom:4pt;text-align:left;break-after:avoid}
-.ex .ext .n{color:var(--cyan);font-weight:600;margin-right:5pt}
-.ex .q{font:400 9pt/11.6pt 'Fira Sans',sans-serif;text-align:left;hyphens:manual}
+/* worked examples: the question is set like the book's sidebars (bracketed frame, sans text);
+   the solution is ordinary body text */
+.ex{clear:both;margin:16pt 0 14pt 0}
+.ex .qbox{margin-left:-88pt;width:424pt;box-sizing:border-box;padding:8pt 16pt 9pt 16pt;
+  border-left:1pt solid var(--cyan);border-right:1pt solid var(--cyan);
+  background:linear-gradient(var(--cyan),var(--cyan)) left top/34pt 1pt no-repeat,
+    linear-gradient(var(--cyan),var(--cyan)) right top/34pt 1pt no-repeat,
+    linear-gradient(var(--cyan),var(--cyan)) left bottom/34pt 1pt no-repeat,
+    linear-gradient(var(--cyan),var(--cyan)) right bottom/34pt 1pt no-repeat;
+  box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.ex .qbox{break-inside:avoid}
+.ex .ext{font:600 9.5pt/12pt 'Fira Sans',sans-serif;color:var(--ink);margin-bottom:5pt;text-align:left;break-after:avoid}
+.ex .ext .n{margin-right:6pt}
+.ex .q{font:400 9.3pt/11.8pt 'Fira Sans',sans-serif;text-align:justify;hyphens:auto}
 .ex .q p{text-indent:0;margin:0 0 3pt 0}
+.ex .q p:last-child{margin-bottom:0}
 .ex .q ol,.ex .q ul{margin:4pt 0}
 .ex .q ol>li{margin-bottom:2pt}
 .ex .q pre{margin:5pt 0}
 .ex .lbl{font:500 9.6pt 'Fira Sans',sans-serif;margin-right:4pt}
-.ex .sol{margin-top:6pt}
-.ex .sol>p:first-child{text-indent:0}
-.ex .ans{margin-top:7pt;background:var(--kp);padding:4pt 6pt 5pt 6pt;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-.ex .ans p{text-indent:0}
-.ex .ans ol,.ex .ans ul{margin:3pt 0}
+.ex .sol,.ex .ans{margin-top:8pt;text-align:justify}
+.ex .sol>p:first-child,.ex .ans>p:first-child{text-indent:0}
+.ex .ans ol,.ex .ans ul{margin:4pt 0}
+.ex .eoe{display:inline-block;width:5pt;height:5pt;background:var(--shadow);margin-left:6pt;vertical-align:baseline}
 .ex .fig{margin-left:-88pt}
 
 /* displayed formula */
