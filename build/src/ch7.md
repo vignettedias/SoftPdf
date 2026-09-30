@@ -1,0 +1,410 @@
+Software design is the activity in which the *what* of a system, captured in the requirements model, is converted into the *how* of a buildable solution. It is an iterative process that translates requirements into a blueprint for constructing the software. It begins with a high-level, abstract representation and becomes progressively more detailed, while every refinement remains traceable to the requirements.
+
+Design is a core part of software engineering and is applied whatever software process is used: waterfall, incremental, spiral, or agile. It begins after the requirements have been analyzed and modeled, and it is the last modeling step before construction (code generation and testing). Design matters for several reasons. It determines how easily the software can be built and later changed; it is the place where quality is established, since quality cannot be added after coding; it produces representations that can be assessed before any code exists; and it is the foundation for coding, testing, deployment, and maintenance. Without design, the result is a system that is unstable, difficult to test, and impossible to assess.
+
+This chapter describes the design model and the principles and concepts of good design, the measures of module quality called cohesion and coupling, and the design of user interfaces.
+
+## 7.1 The design model and design principles
+
+The requirements model of Chapter 5 contains scenario-based, class-based, flow-oriented, and behavioral elements. Design uses these elements to produce four design models ([[fig:design-pyramid]]):
+
+1. *Data/class design* converts analysis classes into design classes and defines the data structures required for implementation. It forms the base of the pyramid, because every other design decision depends on the data the system manipulates.
+2. *Architectural design* defines the relationships between the major structural elements of the software, using architectural styles and patterns (Chapter 6).
+3. *Interface design* specifies how the software communicates with other systems and with the people who use it: the flow of information across the system boundary and the associated behavior (Section 7.4).
+4. *Component-level design* converts the structural elements of the architecture into procedural descriptions of each component: its internal algorithms and data.
+
+The correspondence is not one-to-one. Every design model draws on several analysis elements; component-level design, for example, uses class-based, flow, and behavioral models together.
+
+@fig design-pyramid
+
+### 7.1.1 Data design and entity–relationship diagrams
+
+Data design begins from a *data model* of the information the system keeps, usually drawn as an entity–relationship (ER) diagram ([[fig:er-notation]]). An *entity* is a thing about which data is stored, such as Student or Course; a *weak entity* (double rectangle) cannot be identified without its owner, as an Installment is identified only within its Loan. *Attributes* describe entities; the *key* attribute, underlined, identifies each instance uniquely; a *derived* attribute (dashed) is computed from others, as age from date of birth; and a *multivalued* attribute (double ellipse) can hold several values, as the phone numbers of a customer. A *relationship* (diamond) associates entities, and its *cardinality* states how many instances of each take part: one-to-one (1:1), one-to-many (1:N), or many-to-many (M:N). An attribute that belongs to the relationship rather than to either entity, such as the date on which a student enrols in a course, is a *descriptive attribute*. When the model is converted to tables, each entity becomes a table keyed by its key attribute, a 1:N relationship becomes a foreign key on the N side, and an M:N relationship becomes an associative table holding both keys and any descriptive attributes. Worked ER diagrams are given in [[ex:ex-records]] and [[ex:ex-tneb]]. The same diagrams can be drawn in UML class notation, with entities as classes and cardinalities as multiplicities, as in this book's figures.
+
+@fig er-notation
+
+### 7.1.2 Quality and principles of design
+
+A design is evaluated through technical reviews. A good design must implement all the explicit requirements of the requirements model and accommodate the implicit requirements expected by stakeholders; it must be a readable, understandable guide for those who code, test, and support the software; and it must give a complete picture of the software, addressing the data, functional, and behavioral domains from an implementation perspective.
+
+Ten principles guide both the design process and the design product:
+
+1. *Avoid tunnel vision* Consider all requirements and alternative approaches, not a single aspect such as performance.
+2. *Be traceable to the analysis model* Every design element should have a justification in the requirements, so that nothing is omitted and nothing unnecessary is added.
+3. *Do not reinvent the wheel* Reuse libraries, components, and proven patterns.
+4. *Minimize intellectual distance* Structure the software as the real-world problem is structured; a library system whose modules are members, books, and loans is easier to understand than one organized around arbitrary technical divisions.
+5. *Exhibit uniformity and integration* Keep structure, style, and logic consistent across components developed by different teams.
+6. *Accommodate change* Use modular, scalable structures that absorb new requirements.
+7. *Degrade gracefully* Bad data or errors must not crash the whole system; error handling and fallbacks keep it running with reduced function.
+8. *Design is not coding, and coding is not design* Design plans structure at a higher level of abstraction than code, even when it includes pseudocode for complex algorithms.
+9. *Assess quality during design* Evaluate efficiency, scalability, and correctness while designing, not at the end.
+10. *Review to minimize conceptual errors* Peer reviews catch logical flaws before they reach the code.
+
+The design process itself proceeds top-down in three iterative stages ([[fig:design-process]]). The system interface, the architecture, and the detailed design are each generated, documented, and evaluated in turn; after each evaluation the designer may return and improve the document, and the process ends with a formal review of the complete design.
+
+@fig design-process
+
+## 7.2 Design concepts
+
+Design concepts help designers answer three questions: how the software should be divided into smaller components; how the details of functions and data structures can be separated from the overall conceptual representation of the software; and what criteria define the quality of a design. Abstraction and refinement answer the second question; modularity, separation of concerns, and architecture the first; cohesion, coupling, and the design principles the third.
+
+### 7.2.1 Abstraction
+
+Abstraction is the process of hiding implementation details and showing only the essential features of a system. At the highest level of abstraction a solution is stated in the language of the problem domain; at lower levels it is described more and more procedurally, until at the lowest level it can be implemented directly. Abstraction reduces complexity because, at any moment, the designer deals only with the details relevant at the current level. There are three types:
+
+1. *Procedural abstraction* A process is broken into named procedures that perform specific tasks without exposing their implementation. A function calculateInterest(principal, rate, time) computes interest without revealing the formula.
+2. *Data abstraction* A data structure is defined so that its implementation is hidden and only the necessary operations are exposed. A Calculator class whose result attribute is private and read only through getResult() can later store the result differently without affecting its callers.
+3. *Control abstraction* The details of control flow are hidden so that the programmer thinks about the task rather than the mechanism. A for-each loop or an iterator replaces manual management of loop counters; a menu-driven runCalculator() function hides the loop, the switch statement, and the termination logic.
+
+Abstraction is related to, but not the same as, encapsulation. Abstraction is a design concept concerned with *what* is exposed; encapsulation (information hiding) is the mechanism, such as the private keyword, that prevents access to what is not exposed.
+
+### 7.2.2 Design patterns and separation of concerns
+
+A *design pattern* is a proven solution to a recurring design problem, recorded with its context and the essential structure of the solution so that it can be reused. A pattern helps a designer decide whether it applies to the current problem, whether it can be reused to save effort, and whether it can guide the development of a similar pattern. Model–view–controller, singleton, and observer are familiar examples.
+
+*Separation of concerns* is the principle that a complex problem is easier to solve when it is broken into pieces that can each be solved and optimized independently. A *concern* is a feature or behavior specified in the requirements. The justification is divide and conquer: solving one large problem is harder than solving several small ones. Separation of concerns is the principle; modularity, abstraction, functional independence, and refinement are the techniques that realize it.
+
+### 7.2.3 Modularity
+
+Modularity is the practice of dividing a system into smaller, manageable, and independent components called modules, which can be combined to form the complete system. A monolithic program cannot easily be understood by one reader, because the number of control paths, variables, and interactions is too large. Dividing it into modules makes each part intellectually manageable. Modularity makes software easier to understand, improves reuse, simplifies debugging and maintenance, allows new features to be added as new modules, and allows teams to work in parallel.
+
+Five criteria are used to evaluate how well a design method supports effective modularity:
+
+1. *Modular decomposability* The problem can be divided systematically into subproblems, such as a banking system divided into account management, loan processing, and transactions.
+2. *Modular composability* Existing modules can be assembled into new systems, such as a payment-gateway module reused across e-commerce platforms.
+3. *Modular understandability* Each module can be understood as a standalone unit.
+4. *Modular continuity* Small changes in requirements affect individual modules only; a change in tax rules affects only the tax module.
+5. *Modular protection* An error inside one module does not propagate to others.
+
+More modules are not always better. As the number of modules increases, the cost of developing each module falls, but the cost of integrating them (interfaces, calls, communication) rises ([[fig:modularity-cost]]). Too few modules give *undermodularity*, with large, complex modules approaching a monolith; too many give *overmodularity*, with high integration cost. The total cost is lowest in a region around some number M of modules, which cannot be predicted exactly but which a designer should aim for.
+
+@fig modularity-cost
+
+### 7.2.4 Refinement and refactoring
+
+*Refinement* (stepwise refinement) is a top-down strategy in which a function is elaborated level by level, from an abstract statement to detailed procedural steps that can be coded directly ([[fig:login-refine]]). Abstraction and refinement are complementary: abstraction lets a designer state a procedure while suppressing detail, and refinement reveals the detail as design proceeds. Refinement in design corresponds to partitioning in requirements analysis.
+
+@fig login-refine
+
+*Refactoring* is a reorganization technique that improves the internal structure of a design or its code without changing its external behavior. Its purposes are to eliminate redundancy and unused elements, to improve efficiency, and to enhance readability, maintainability, and scalability. A designer looks for poorly constructed elements, low-cohesion components that perform unrelated functions, and unnecessary complexity. For example, a ReportManager that fetches sales records, computes statistics, and e-mails a PDF can be split into SalesRepository, SalesStatistics, and ReportMailer; managers receive the same report, but each component now has one responsibility. Refactoring does not fix defects, because it does not change behavior; debugging does. Section 7.3.3 shows refactoring driven by cohesion and coupling.
+
+::: example ex-payment | Abstraction or refinement?
+A payment system for an e-commerce website can be structured in two ways. The first creates a general Payment class, with Credit_Card, PayPal, and UPI as subclasses. The second starts with a single Payment_Processor module, which is later divided into separate handlers for each payment method. Which method uses abstraction and which uses refinement? Which is better for adding new payment methods in the future?
+--- solution
+The first method uses *abstraction*. Payment states what every payment has in common, such as validate() and process(amount), and hides how each kind of payment does it; the subclasses supply the details. The second method uses *refinement*: it begins with one abstract module and elaborates it top-down, dividing Payment_Processor into more detailed handlers.
+
+The abstraction-based design is better for extension. A new method, such as a wallet or net banking, is added as a new subclass of Payment, and the code that calls payment.process() does not change, because it depends only on the abstraction (the design is open for extension but closed for modification). Each subclass can be tested on its own, and a fault in one does not affect the others. In the refined design, the knowledge of which handler to call stays inside Payment_Processor, so every new method means changing and re-testing that existing module.
+--- answer
+Method 1 (Payment superclass with subclasses) is abstraction; method 2 (splitting Payment_Processor into handlers) is refinement. Abstraction is better for adding payment methods: new subclasses are added without modifying existing code.
+:::
+
+## 7.3 Cohesion and coupling
+
+Component-level design defines the internal structure of each module identified by the architecture. Its quality is judged by two complementary measures. *Cohesion* looks inside a module and asks how strongly its elements belong together. *Coupling* looks between modules and asks how strongly they depend on one another. Together they express *functional independence*: a module is functionally independent when it has a single, well-defined purpose (high cohesion) and a minimal, simple interface to other modules (low coupling). The rule *high cohesion, low coupling* is the most important principle of modular design.
+
+### 7.3.1 Cohesion
+
+Cohesion is the degree to which the elements inside a module (its functions, data, and statements) are related to each other and belong together. A highly cohesive module performs a single, well-defined task. A module with low cohesion groups loosely related or unrelated functionality, which makes it harder to understand, test, and change. Seven levels of cohesion are distinguished, from lowest to highest ([[fig:cohesion-scale]]). Some texts omit procedural and sequential cohesion and use a five-level scale; this book uses the full seven-level scale.
+
+@fig cohesion-scale
+
+1. *Coincidental cohesion* (lowest) Unrelated functions are grouped together for no reason, usually through lack of planning; for example, a module that prints a report, clears the screen, and plays music. A change to one task risks disturbing the others that happen to live beside it.
+2. *Logical cohesion* Functions that perform logically similar operations, or that belong to the same category, are grouped together, and the one executed is selected by an external control such as a flag. An output_handler(output_type, data) that prints to screen, printer, or file according to output_type is logically cohesive. Every value of the flag must be tested, and a new output type requires changing the shared module.
+3. *Temporal cohesion* Functions are grouped because they are executed at the same time or in response to the same event, not because they are related: for example, a start-up module that initializes variables, opens files, and clears the screen, or a set of actions all triggered when an order is updated.
+4. *Procedural cohesion* Elements are grouped because they must be executed in a fixed order, although they do not operate on the same data; for example, check permissions, then open the file, then log the access.
+5. *Communicational cohesion* Elements are grouped because they operate on the same data: get a temperature, log it, and display it. The functions share an input or output, which ties them together.
+6. *Sequential cohesion* Elements are grouped because the output of one is the input of the next, like a chain: read the order, validate it, and compute its total.
+7. *Functional cohesion* (highest) Every element contributes to a single, well-defined task; for example, calculate_average(numbers).
+
+A practical test is to describe the module in one sentence. If the sentence has a single verb and object ('computes the average'), the module is functionally cohesive. If it needs 'and' joining unrelated activities, cohesion is lower; 'at start-up' or 'when … happens' suggests temporal cohesion; 'first … then …' suggests procedural cohesion; 'depending on the flag' or 'of this kind' suggests logical cohesion.
+
+Higher cohesion is desirable because a module that focuses on one task is easier to understand and modify, has clear expected results and is therefore easier to test, and is self-contained and therefore easier to reuse and extend.
+
+::: example ex-coh-code | Classifying the cohesion of two code fragments
+These fragments illustrate a measure within a module that influences maintainability and reuse. Identify the type of cohesion (the bonding within the module) in each and state whether it is high or low.
+
+```
+(i)  def calculate_average(numbers):
+         """Calculates the average of a list of numbers."""
+         if not numbers:
+             return 0
+         return sum(numbers) / len(numbers)
+
+(ii) class Utility:
+         def print_message(self, message):
+             print(message)
+         def calculate_square(self, number):
+             return number * number
+         def read_file(self, filename):
+             with open(filename, 'r') as file:
+                 return file.read()
+```
+--- solution
+The measure within a module is cohesion (the measure between modules is coupling). Apply the one-sentence test to each module.
+
+(i) 'calculate_average computes the average of a list of numbers.' One verb, one object: every statement, including the empty-list guard, contributes to that result.
+
+(ii) 'Utility prints a message *and* squares a number *and* reads a file.' The three methods share no data, no order of execution, and no purpose; they have been placed together only because each is a 'utility'.
+--- answer
+(i) Functional cohesion, which is high and desirable: all elements contribute to a single, well-defined task. (ii) Coincidental cohesion, which is low and undesirable: the elements are grouped arbitrarily with no logical relationship. Utility should be split, for example into a messaging module, a math module, and a file module.
+:::
+
+::: example ex-coh-fd | Cohesion in the modules of a food-delivery system
+Classify the cohesion of each of the following modules of a food-delivery order system.
+
+1. The Order Validation module performs a single, unified purpose.
+2. Order handling passes validated order details on to restaurant processing in a chained workflow, the output of each step being the input of the next.
+3. The Restaurant Manager processes the order id, the items, and the restaurant id, all operating on the same data.
+4. The Delivery Partner Allocator's tasks (select rider → check location → assign order) follow a fixed execution order.
+5. The Real-Time Tracker groups GPS updates and ETA calculations because they fall under the same category of work.
+6. Notification generation (SMS, e-mail, push) is triggered together when the order is updated.
+7. The Central Order Database module groups orders, riders, restaurants, payments, and tracking because they share data.
+8. Unrelated tasks such as analytics, rider assignment, and GPS tracking are placed in one module.
+9. The Payment Gateway module has only one responsibility: authorizing transactions.
+10. Start-up tasks such as syncing restaurant data, refreshing rider availability, and preloading menus are grouped together.
+--- solution
+Ask for each module why its elements are together: one task (functional), a data chain (sequential), shared data (communicational), fixed order (procedural), same time or event (temporal), same category chosen by a flag (logical), or no reason (coincidental).
+--- answer
+1. Functional. 2. Sequential. 3. Communicational. 4. Procedural. 5. Logical. 6. Temporal. 7. Communicational. 8. Coincidental. 9. Functional. 10. Temporal.
+:::
+
+::: example ex-temporal | The contribution of temporal cohesion
+How does temporal cohesion contribute to the organization of a module's functionality? Give an example from a real application.
+--- answer
+Temporal cohesion groups actions that must happen at the same time or in response to the same event. Its contribution is organizational: all the actions for one moment are in one place, so they are guaranteed to run together, the sequence of start-up (or shutdown) is easy to read and check, and nothing is forgotten when the event occurs. For example, when a mobile banking app starts, one start-up module loads the configuration, restores the session, checks for updates, and preloads the account summary. Its weakness is that the actions are otherwise unrelated, so each must be changed without disturbing the others. It lies low on the cohesion scale, and the best designs keep such a module as a thin coordinator that *calls* functionally cohesive modules (loadConfig(), restoreSession(), and so on) rather than containing their logic.
+:::
+
+### 7.3.2 Coupling
+
+Coupling is the degree of interdependence between modules: how closely one module is connected to another. Low coupling is desirable because it makes the system more modular and easier to maintain, test, and extend; high coupling increases complexity and makes change ripple from module to module. Seven types are distinguished, from strongest (worst) to weakest (best) ([[fig:coupling-scale]]):
+
+@fig coupling-scale
+
+1. *Content coupling* One module directly modifies, or relies on, the internal data or logic of another, for example by setting module_b.internal_data = 42. It violates information hiding: if B changes its internals, A breaks.
+2. *Common coupling* Several modules share global data, such as a global configuration dictionary. A fault seen in one module may be caused by any other module that writes the global data.
+3. *External coupling* Modules depend on an externally imposed format, protocol, device, or service, such as a third-party authentication API. The system is exposed to changes or failures outside its control.
+4. *Control coupling* One module controls the behavior of another by passing a control flag, as in function_b('start'). The caller must know about the callee's internal decisions; the callee in control coupling usually has logical cohesion.
+5. *Stamp coupling* A whole data structure is passed when only part of it is needed, as when process_student(student) uses only student.id. Changes to the structure ripple to the callee unnecessarily.
+6. *Data coupling* Modules share only the elementary data they need, as parameters, as in greet_user(name, age) or gateway.charge(99.99, "USD").
+7. *Message coupling* (weakest) Modules communicate only by sending messages or events, asynchronously, with no direct knowledge of each other ([[fig:msg-coupling]]). An OrderService publishes an order_placed event to an event bus; an EmailService and an InventoryService subscribe to it. The publisher does not know that the consumers exist, so a new consumer, such as an AnalyticsService, is added without changing it, and the services fail independently: if e-mail is down, orders are still processed.
+
+@fig msg-coupling
+
+::: example ex-coupling | Classifying cohesion and coupling together
+Classify each fragment. (1) end_of_day() closes the database, backs up the logs, and sends a summary e-mail. (2) shipping_cost(order) uses only order.weight from an Order record with twenty fields. (3) render(report, fmt), with fmt in {"pdf", "csv", "html"} and a separate branch for each. (4) Two modules both read and write a global variable current_user. (5) greet_user(name, age) is called with just the two values it prints.
+--- answer
+(1) Temporal cohesion: the tasks are grouped only because they run at the end of the day. (2) Stamp coupling: a whole record is passed where one field is needed; passing order.weight would give data coupling. (3) Inside render, logical cohesion; between the caller and render, control coupling, since fmt selects the behavior. (4) Common coupling through shared global data. (5) Data coupling, the weakest and best form.
+:::
+
+::: example ex-library | Coupling and cohesion in a library management system
+Identify the type of coupling in each interaction, and the type of cohesion the modules exhibit where applicable. (i) When a user logs in, the User Management module verifies the credentials, checks for pending fines, and sends the user's status (active or inactive) and fine details to the Borrowing module, which decides whether the user can borrow. (ii) When a user borrows a book, the Borrowing module directly accesses and updates the availability status in the Book Management module's database tables. (iii) The Borrowing module calls the Notification module, passing the user's contact details, the book title, and the due date as function arguments; the Notification module sends an e-mail or SMS. (iv) The Report Generation module retrieves structured data (JSON responses) from the Borrowing, Book Management, and User Management modules to report overdue and most-borrowed books, reading but never modifying it. (v) Inside the Borrowing module the steps are, in order: validate user eligibility, check book availability, update borrowing records, adjust book availability, notify the user. (vi) The Notification module checks the user's preferred channel (e-mail, SMS, or push) and selects a function with a chain of if–else conditions.
+--- solution
+(i) *Data coupling*: only the elementary values the Borrowing module needs (a status and the fine details) are passed. User Management has *functional cohesion*, because its elements serve the single task of establishing the user's standing.
+
+(ii) *Content coupling*, the strongest form: the Borrowing module reaches into another module's internal data, so a change to the Book Management tables breaks it. The remedy is to call an operation such as bookManager.markBorrowed(bookId). Book Management itself remains functionally cohesive.
+
+(iii) *Data coupling*: each argument is an elementary value that the Notification module uses. If the whole user record were passed when only the contact details are used, the coupling would become stamp coupling.
+
+(iv) *Stamp coupling*: whole structured records (JSON documents) are passed and the report uses only some of their fields. Because the data is only read, the coupling is weak, and it is not common coupling, since nothing is shared and written. Report Generation is functionally cohesive.
+
+(v) *Procedural cohesion*: the steps must be performed in a fixed order, but each works on different data (the user, the book, the loan records), rather than consuming the output of the previous step. If each step passed its result to the next, as in read, validate, compute, the cohesion would be sequential.
+
+(vi) *Logical cohesion*: the e-mail, SMS, and push functions are grouped because they are the same kind of operation, and one is selected by a condition. If the caller passed the channel as a flag, the caller and the module would also be control coupled.
+--- answer
+(i) Data coupling; functional cohesion. (ii) Content coupling. (iii) Data coupling. (iv) Stamp coupling (read-only). (v) Procedural cohesion. (vi) Logical cohesion.
+:::
+
+::: example ex-wx-coupling | Coupling in a weather sensing system
+[[fig:wx-arch]] shows the modules of the weather sensing and alert system of [[ex:ex-wx-activity]]. The temperature module receives readings from the probe and passes a calibrated temperature to the synchronizer; the packager passes a packet of humidity, raw pressure count, and sensor id; the API poller passes the raw data received from a remote weather service; and the evaluator reads and writes a global alert log that also holds the thresholds set from the admin panel. Determine and justify the coupling of interactions a to e.
+
+@fig wx-arch
+--- answer
+(a) Sensors → temperature data collection: *external coupling*, because the module depends on the device's externally imposed interface and signal format. (b) Temperature collection → synchronizer: *data coupling*, because one elementary value, the calibrated temperature, is passed. (c) Humidity and pressure packager → synchronizer: *stamp coupling*, because a composite packet is passed and the synchronizer depends on its structure. (d) External API poller → synchronizer: *external coupling*, because the raw data is still in the third-party service's format, so a change to the remote API affects the synchronizer; if the poller converted it to a pressure value first, this would be data coupling and the external dependency would be confined to the poller. (e) Evaluator ↔ global alert log: *common coupling*, because the log is shared global data that is read and written by the evaluator and the admin panel, so a fault in either can corrupt the other's data.
+:::
+
+::: example ex-cart | Identifying and removing coupling in a checkout
+Identify the coupling in the first version of ShoppingCart.checkout(), and state what it becomes in the second.
+
+```
+# Version 1
+def checkout(self):
+    db = DatabaseConnection("mysql://...")
+    db.save(self.items)
+    global current_user
+    send_email(current_user.email, "Receipt")
+    payment = PaymentProcessor()
+    payment._balance -= self.total()
+
+# Version 2
+def checkout(self, payment_gateway, event_bus):
+    transaction_id = payment_gateway.charge(self.total())
+    event_bus.publish("order_completed",
+        {"items": self.items, "transaction_id": transaction_id})
+```
+--- answer
+Version 1 has three strong forms of coupling: *external* coupling, because checkout creates a connection to one specific database from a hard-coded address; *common* coupling, because it reads the global current_user, which any module can change; and *content* coupling, because it subtracts from the private field _balance of PaymentProcessor. Version 2 has *data* coupling with the payment gateway, which receives one number and returns an identifier, and *message* coupling with the e-mail, inventory, and database services, which react to the order_completed event. The gateway and the event bus are passed in (dependency injection), so either can be replaced by a test double.
+:::
+
+::: example ex-doceditor | Architecture, coupling, and cohesion for a collaborative editor
+A cloud-based document editor lets many users edit a document simultaneously, track changes, and chat. It must be scalable and allow later additions such as AI writing assistance and advanced versioning. (a) Identify an appropriate architectural style and justify it. (b) State design assumptions for three types of coupling and two types of cohesion that give good modularity.
+--- solution
+(a) A *layered* architecture, deployed client–server, is appropriate: a presentation layer (editor, change view, and chat in the browser), a collaboration and business-logic layer (session management, merging concurrent edits, change tracking, versioning, and chat), a service-integration layer (cloud storage and, later, AI services), and a data layer (documents, versions, messages). Each layer uses only the one below, so the user interface, the collaboration logic, and the storage can be changed or scaled independently, and a new AI assistant is added in the service layer without touching the editor. Because the modules are only data coupled (below), individual services, such as chat, can later be scaled out on their own servers.
+
+(b) *Coupling* (choose the weak forms and control the strong ones):
+
+1. *Data coupling* between most modules: the editor passes only an edit operation (position, inserted text, user id) to the collaboration module, and chat passes only a message and a channel id.
+2. *Stamp coupling*, used deliberately only where the whole record is needed: the versioning module receives a complete ChangeSet record because it stores all its fields.
+3. *External coupling* confined to adapter modules: only a StorageAdapter depends on the cloud storage API and only an AIAdapter on the future AI service, so a change of provider affects one module.
+
+Content and common coupling are avoided: no module writes another's internal data, and there is no shared global document state.
+
+*Cohesion*:
+
+1. *Functional cohesion* for each module: Merge concurrent edits, Record version, and Deliver chat message each do one thing.
+2. *Communicational cohesion* for the change-tracking module, whose functions (record change, list changes, accept or reject change) all operate on the same document-change data.
+--- answer
+(a) Layered architecture (with client–server deployment), justified by modularity, independent scaling, and easy extension. (b) Coupling: data (edit operations and messages), controlled stamp (whole change records for versioning), and external coupling isolated in adapters. Cohesion: functional (single-task modules) and communicational (change tracking on shared change data).
+:::
+
+The two properties reinforce each other. When related elements are placed together (high cohesion), fewer connections are needed to other modules (low coupling); when modules communicate through a few simple parameters, each can be understood in isolation. The results are concrete: a requirement change affects one module (modular continuity); a fault is unlikely to propagate (modular protection); each module can be unit-tested with simple stubs and drivers; functionally cohesive, data-coupled modules can be reused elsewhere; and teams can work in parallel. The combinations are summarized in [[fig:coh-coup-matrix]]. Note the difference between communicational cohesion (functions *inside one module* sharing data, which is acceptable) and common coupling (*different modules* sharing global data, which is not).
+
+@fig coh-coup-matrix
+
+### 7.3.3 Refactoring designs
+
+Refactoring (Section 7.2.4) is guided by cohesion and coupling. The usual signs that a design needs it are a class with several unrelated responsibilities (low cohesion); hard-coded dependencies on particular databases, providers, or file formats (external coupling); direct use of another class's internal fields (content coupling); shared global state (common coupling); and flags that switch a function's behavior (control coupling). The standard remedies are to *extract class*, giving each responsibility its own class; to *introduce an interface* and pass the implementation in (dependency injection), so that the class depends on an abstraction; to *encapsulate a field* behind operations; and to *replace a direct call by an event*. After each step the tests are run again, because the external behavior must not change.
+
+::: example ex-refactor | Three design refactorings
+Refactor (a) a UserManager with the operations login, sendWelcomeEmail, calculateDiscount, and exportToPDF; (b) an Order that holds a PayPalPaymentProcessor and a MySQLDatabase; and (c) a CheckoutManager that validates an order, charges it through PayPal, updates stock in MySQL, and sends e-mail through Gmail, all by static calls. State the cohesion and coupling before and after.
+--- solution
+(a) UserManager has *coincidental* cohesion: authentication, e-mail, pricing, and reporting have nothing in common, so a change to discount rules risks breaking login. It is split into AuthenticationService, EmailService, PricingService, and ReportGenerator, each *functionally* cohesive and each using User ([[fig:refactor-user]]).
+
+@fig refactor-user
+
+(b) Order is tightly coupled to one payment provider and one database: neither can be replaced, and Order cannot be tested without them. This is *external* coupling to concrete classes, since the order depends on a particular provider and storage technology. Two interfaces are introduced, PaymentProcessor and OrderRepository, and the implementations are passed to the constructor ([[fig:refactor-order]]). Order now knows only the interfaces and exchanges only an amount or an order with them, which is *data* coupling; PayPal can be replaced by Stripe, or MySQL by PostgreSQL, without changing Order, and tests can use mock implementations.
+
+@fig refactor-order
+
+(c) CheckoutManager has *coincidental* cohesion (validation, payment, inventory, and messaging) and *external* coupling to three concrete services. It becomes a CheckoutOrchestrator that performs the four steps in order through OrderValidator, a PaymentGateway interface, an InventoryService (which uses an InventoryRepository interface), and a Notifier interface, each injected ([[fig:refactor-checkout]]).
+
+@fig refactor-checkout
+--- answer
+(a) Coincidental → functional cohesion, by extracting four classes. (b) External coupling to concrete classes → data coupling through interfaces with dependency injection. (c) Coincidental cohesion and external coupling → an orchestrator whose steps run in a fixed order over the same order (sequential cohesion), data coupled to functionally cohesive services behind interfaces.
+:::
+
+## 7.4 User interface design
+
+The user interface (UI) is the part of the software that people see, hear, and touch. However sound the architecture and components, a system whose interface confuses or frustrates its users will be judged a failure. User interface design is the activity of creating an effective communication medium between a human and a computer: identifying interface objects and actions and producing screen layouts and interaction mechanisms that let users perform their tasks efficiently, intuitively, and with satisfaction.
+
+### 7.4.1 The golden rules
+
+Three golden rules form the basis of interface design principles:
+
+1. *Place the user in control* The interface should respond to the user's needs, so that users feel in charge of the system rather than controlled by it. Interaction modes should not force users into unnecessary actions and should be easy to enter and leave (for example, turning spell-checking on and off); interaction should be flexible (keyboard, mouse, touch, voice); actions should be interruptible and undoable; skilled users should be able to streamline repetitive tasks, for example with macros; technical internals should be hidden from casual users; and users should be able to manipulate on-screen objects directly.
+2. *Reduce the user's memory load* The more a user must remember, the more error-prone the interaction. Visual cues let users recognize rather than recall; defaults should be meaningful, with a way to reset them; shortcuts should be intuitive (Alt+P for print); layouts should use real-world metaphors, such as a chequebook for bill payment; and information should be disclosed progressively, overview first and detail on demand.
+3. *Make the interface consistent* Consistency lets users transfer what they have learned in one part of the system to every other part. Visual information should be organized by the same rules on all screens; input mechanisms and navigation should be standardized; indicators such as titles, icons, and colors should show users where they are; applications in a family should follow the same conventions; and widely accepted interaction patterns should not be changed without a compelling reason.
+
+### 7.4.2 Interface design models and users
+
+Four models come into play when a user interface is analyzed and designed ([[fig:ui-models]]). The *user model* is a profile of the end users (their demographics, abilities, and goals), established by the software engineer. The *design model* is created by the engineer to fit the user model. The *mental model* is the user's own perception of how the system works. The *implementation model* is the system's look and feel together with its supporting documentation. The goal of interface design is to make the implementation model coincide with the users' mental model, so that the system behaves as its users expect. The key rule is 'know the user, know the tasks': designers must not substitute their own view for the user's.
+
+@fig ui-models
+
+Users are classified in the user model as *novices*, who have no syntactic knowledge of the system and little semantic knowledge of the application; *knowledgeable, intermittent users*, who understand the application but have low recall of the interface details; and *knowledgeable, frequent users*, who have good semantic and syntactic knowledge and look for shortcuts and abbreviated modes of interaction. A good interface serves all three: guided workflows and visible menus for novices, consistent layout and recognizable icons for intermittent users, and keyboard shortcuts and macros for frequent users.
+
+### 7.4.3 The interface design process
+
+The UI design process is iterative and is represented by a spiral with four activities ([[fig:ui-spiral]]):
+
+1. *Interface analysis and modeling* Understand user profiles, skill levels, and environment; define user categories and elicit their requirements; analyze the tasks users perform; and analyze the physical work environment (location, lighting, noise). This corresponds to *user research* and to organizing the content and navigation (*information architecture*).
+2. *Interface design* Define interface objects, actions, and their screen representations. Low-fidelity *wireframes* sketch the layout of each screen, and *visual design* applies typography, color, and iconography.
+3. *Interface construction* Begin with a *prototype*, an interactive mock-up used to evaluate usage scenarios, then use UI toolkits to complete the interface.
+4. *Interface validation* Confirm that the interface supports all user tasks and their variations, and assess ease of use, ease of learning, and user acceptance by *usability testing* with real users.
+
+Several passes through the spiral elaborate the interface incrementally, so not every detail need be specified in the first iteration.
+
+@fig ui-spiral
+
+The following issues arise in almost every interface design. *System response time* has two characteristics, its length and its *variability*; consistent response times are preferable to highly variable ones, even if slightly longer. *Help facilities* must decide whether help is available for all functions, how it is accessed, how it is represented and structured, and how the user returns to work. *Error messages* should use language the user understands, give constructive advice for recovery, indicate any negative consequences, be accompanied by a visual or audible cue, and never blame the user: 'The date must be in DD/MM/YYYY format; your other entries have been kept' is better than 'Error 0x80070057'. *Menu and command labels* should be consistent, learnable, and customizable. *Accessibility* must allow people with visual, hearing, or mobility impairments to use the system, and *internationalization* designs a locale-independent core, supported by Unicode, that can be *localized* for particular languages and regions.
+
+### 7.4.4 Principles and elements of interface design
+
+A good interface is visually apparent and forgiving, hides system internals, and minimizes the input the user must supply. The following principles make these characteristics concrete:
+
+1. *Clarity* The interface is easy to understand and navigate; every element has an obvious purpose.
+2. *Consistency* Colors, fonts, icons, terms, and controls are used in the same way throughout.
+3. *Familiarity* Familiar patterns and conventions, and real-world metaphors, reduce the learning curve.
+4. *Efficiency* Users accomplish their tasks quickly and easily; the user's efficiency, not the developer's convenience, is optimized.
+5. *Responsiveness and visibility of status* The interface responds quickly and always shows what the system is doing: progress, location, and the result of each action.
+6. *Aesthetics* The interface is visually appealing, readable for all age groups, and uncluttered.
+7. *Forgiveness* Users can recover easily from errors, with undo and clear paths back; work is saved automatically.
+8. *Accessibility* The interface is usable by people with disabilities.
+
+Other principles often listed for web and mobile applications are *anticipation* (offer what the user will need next), *controlled autonomy*, *focus* on the primary task, *Fitts's law* (the time to select a target grows with its distance and shrinks with its size, so frequent targets should be large and close), *latency reduction* (acknowledge and occupy delays), *learnability*, *work-product integrity*, *tracking state*, and *visible navigation*.
+
+Sommerville states six principles of user interface design: *user familiarity* (the interface uses terms and concepts drawn from the experience of the people who will use the system most); *consistency* (comparable operations are activated in the same way); *minimal surprise* (users are never surprised by the behavior of the system); *recoverability* (the interface includes mechanisms, such as confirmation of destructive actions and undo, that allow users to recover from errors); *user guidance* (the interface gives meaningful feedback when errors occur and provides context-sensitive help); and *user diversity* (the interface provides appropriate interaction facilities for different types of users).
+
+*UI design* is concerned with the look and feel of the product: its aesthetics, layout, typography, colors, and visual elements. *UX design* is concerned with the overall experience: how the user feels while interacting with the product, including usability, accessibility, and functionality. The key elements of a user interface are:
+
+1. *Visual design* *Typography*: fonts that are readable and suited to the purpose, with a small number of sizes and weights used consistently for headings, body text, and labels. *Color palette*: colors used strategically to guide attention, convey meaning (red for errors, green for success), and maintain consistency, with enough contrast and never as the only carrier of meaning. *Imagery*: icons, illustrations, and images that match the product's tone.
+2. *Layout and structure* *Grid systems* organize content in a balanced structure; *spacing* between elements avoids clutter and improves readability; *visual hierarchy* makes the important elements prominent through size, color, or placement.
+3. *Interactivity* *Buttons and controls* (sliders, toggles, menus) are clear and look clickable; *animations and transitions* give feedback and make changes easy to follow; *micro-interactions*, such as a button changing color when pressed or a heart filling when an item is liked, confirm each action.
+4. *Accessibility* The interface is usable by people who rely on screen readers or who are color blind, following the Web Content Accessibility Guidelines (WCAG): text alternatives, keyboard access, and sufficient contrast.
+5. *Consistency* One design language across all screens and components avoids confusion and builds trust.
+6. *Responsiveness* The interface adapts to desktops, tablets, and phones.
+
+Other elements are forms (input fields for collecting data) and navigation (the system for moving between parts of the interface). A layout is usually designed first as a wireframe that places these elements, and the principles are then checked against it. In practice, UI design proceeds through research (users, their needs and pain points, competitors), wireframing, prototyping, visual design (colors, typography, and imagery in high-fidelity mock-ups), usability testing, iteration, and implementation with the developers, which are the activities of the spiral in [[fig:ui-spiral]].
+
+Shneiderman's *eight golden rules* are also widely used: strive for consistency (the same button styles on every page); enable frequent users to use shortcuts (keyboard shortcuts); offer informative feedback (loading indicators, success messages); design dialogs to yield closure (progress indicators and a final confirmation); prevent errors (input validation, confirmation dialogs); permit easy reversal of actions (undo and redo); support an internal locus of control (users initiate actions and can customize settings); and reduce short-term memory load (on-screen hints). To these, many designers add keeping interfaces simple and natural, providing clear navigation (breadcrumbs, persistent menus), being forgiving (editable forms, helpful error messages), focusing on accessibility (high contrast, alternative text), and testing and iterating (usability and A/B testing).
+
+::: example ex-ui-fd | Screen layouts for an order processing and delivery system
+For a food-delivery company's order processing and delivery management system: (a) design user interface layouts for (i) the restaurant order management screen, (ii) the delivery partner assignment screen, and (iii) the real-time order tracking screen; (b) show in a table how key user interface design principles are applied and satisfied in these screens.
+--- solution
+Each screen is designed for the user who will use it and the task they perform most often.
+
+(i) *Restaurant order management* ([[fig:scr-restaurant]]) is used by busy kitchen staff on a tablet. Tabs separate New, Preparing, Ready, and Completed orders and show counts. Each new-order card shows only the items, time, and payment, with one-tap Accept and Reject and a preparation-time selector. Selecting an order opens its detail panel with Mark ready and Call rider. An out-of-stock toggle prevents orders that cannot be met, and a sound alert announces new orders.
+
+@fig scr-restaurant
+
+(ii) *Delivery partner assignment* ([[fig:scr-assign]]) is used by a dispatcher. A live map shows the restaurant and nearby partners; beside it, suggested partners are ranked nearest first with distance, time, rating, and status. A partner who is still on a delivery can only be queued. Automatic assignment counts down visibly and can be overridden or undone.
+
+(iii) *Real-time order tracking* ([[fig:scr-track]]) is used by the customer on a phone. The estimated arrival time is the most prominent element, above a five-step progress bar and a map with the rider's location, updated every ten seconds. The rider's name and rating are shown with a Call button, and delays are explained in plain language.
+
+@fig scr-assign
+
+@fig scr-track
+--- answer
+(b) The principles and their application are summarized in [[fig:ui-principles-table]].
+
+@fig ui-principles-table
+:::
+
+::: example ex-wx-dashboard | A dashboard for a weather sensing system
+(a) Design a user interface dashboard for the weather sensing and alert system of [[ex:ex-wx-activity]], showing its layout structure, visual hierarchy, navigation elements, widget placement, and interaction components. (b) Annotate the areas where user familiarity, consistency, recoverability, user diversity, and user guidance are applied, with a brief justification for each.
+--- solution
+(a) The dashboard ([[fig:wx-dashboard]]) has a *header bar* with the station name, a live-data indicator and clock, settings, and help. A *navigation panel* on the left gives Dashboard, Alerts (with a count), History, Thresholds, Sensors, and Help. The *content area* follows a visual hierarchy from top to bottom: three reading tiles (temperature, humidity, pressure), each with a large current value and its status; an alert banner, shown only when a threshold is violated, with Acknowledge and Undo buttons; a 24-hour chart with the threshold drawn as a line and toggle buttons for the variable; and, at the bottom, a table of recent alerts and a form for editing a threshold. The most urgent information, the current readings and any alert, is largest and highest.
+
+@fig wx-dashboard
+
+(b) The annotations A to E in the figure mark where each principle is applied:
+
+- A *User familiarity* The tiles use the units and terms meteorologists know (°C, %, hPa) and the conventions of other dashboards: a warning triangle for alerts and a left-hand navigation menu.
+- B *Consistency* Every reading tile has the same structure, red always means a violated threshold, and all buttons look and behave alike, so learning one part teaches the rest.
+- C *Recoverability* An acknowledged alert can be undone, and a threshold change takes effect only when it is saved, with the default shown so that it can be restored.
+- D *User diversity* Status is shown by text as well as color, for color-blind users; the chart can be switched between variables for analysts, while casual users read the tiles; and alerts reach users by SMS or e-mail as they prefer.
+- E *User guidance* The threshold form states the valid range and default, the alert banner explains what was exceeded and for how long, and Help is always available in the navigation and header.
+--- answer
+A dashboard with a header, left navigation, reading tiles, an alert banner, a trend chart, an alert table, and a threshold form, arranged by urgency, with the five principles applied as annotated in [[fig:wx-dashboard]].
+:::
+
+::: keypoints
+- Design translates the requirements model into data/class, architectural, interface, and component-level designs. Ten principles, from avoiding tunnel vision to reviewing for conceptual errors, guide it.
+- Abstraction may be procedural, data, or control abstraction. Separation of concerns divides a problem into independently solvable concerns and is realized by modularity.
+- Modularity is judged by decomposability, composability, understandability, continuity, and protection; the total cost of a design is lowest between undermodularity and overmodularity.
+- Refinement elaborates a design top-down; refactoring improves internal structure without changing external behavior.
+- Cohesion, from lowest to highest, is coincidental, logical, temporal, procedural, communicational, sequential, and functional.
+- Coupling, from strongest to weakest, is content, common, external, control, stamp, data, and message coupling. The goal is high cohesion and low coupling, which is functional independence.
+- The golden rules of interface design are to place the user in control, reduce the user's memory load, and make the interface consistent. The user, design, mental, and implementation models should be aligned.
+- Sommerville's interface principles are user familiarity, consistency, minimal surprise, recoverability, user guidance, and user diversity.
+- The interface design process is a spiral of analysis and modeling, design, construction, and validation. Response time, help, error handling, labeling, accessibility, and internationalization must always be considered.
+:::
