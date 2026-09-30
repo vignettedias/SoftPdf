@@ -61,6 +61,7 @@ ol ol>li::before{content:counter(li,lower-alpha) ')'}
 .fig.wide .art{text-align:center}
 .fig.wide .cap{float:left;width:80pt;margin:10pt 0 0 0;position:relative;z-index:2}
 .fig.wide+*{}
+.fig.wide+.fig{clear:both}
 .cap{font:400 8pt/9.7pt 'Fira Sans',sans-serif;text-align:left;hyphens:manual}
 .cap::before{content:'';display:block;width:36pt;border-top:.5pt solid var(--ink);margin-bottom:4.5pt}
 .cap b{font-weight:500}

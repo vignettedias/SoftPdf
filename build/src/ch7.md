@@ -17,7 +17,13 @@ The correspondence is not one-to-one. Every design model draws on several analys
 
 @fig design-pyramid
 
-### 7.1.1 Quality and principles of design
+### 7.1.1 Data design and entity–relationship diagrams
+
+Data design begins from a *data model* of the information the system keeps, usually drawn as an entity–relationship (ER) diagram ([[fig:er-notation]]). An *entity* is a thing about which data is stored, such as Student or Course; a *weak entity* (double rectangle) cannot be identified without its owner, as an Installment is identified only within its Loan. *Attributes* describe entities; the *key* attribute, underlined, identifies each instance uniquely; a *derived* attribute (dashed) is computed from others, as age from date of birth; and a *multivalued* attribute (double ellipse) can hold several values, as the phone numbers of a customer. A *relationship* (diamond) associates entities, and its *cardinality* states how many instances of each take part: one-to-one (1:1), one-to-many (1:N), or many-to-many (M:N). An attribute that belongs to the relationship rather than to either entity, such as the date on which a student enrols in a course, is a *descriptive attribute*. When the model is converted to tables, each entity becomes a table keyed by its key attribute, a 1:N relationship becomes a foreign key on the N side, and an M:N relationship becomes an associative table holding both keys and any descriptive attributes. Worked ER diagrams are given in [[ex:ex-records]] and [[ex:ex-tneb]]. The same diagrams can be drawn in UML class notation, with entities as classes and cardinalities as multiplicities, as in this book's figures.
+
+@fig er-notation
+
+### 7.1.2 Quality and principles of design
 
 A design is evaluated through technical reviews. A good design must implement all the explicit requirements of the requirements model and accommodate the implicit requirements expected by stakeholders; it must be a readable, understandable guide for those who code, test, and support the software; and it must give a complete picture of the software, addressing the data, functional, and behavioral domains from an implementation perspective.
 
@@ -80,7 +86,7 @@ More modules are not always better. As the number of modules increases, the cost
 
 @fig login-refine
 
-*Refactoring* is a reorganization technique that improves the internal structure of a design or its code without changing its external behavior. Its purposes are to eliminate redundancy and unused elements, to improve efficiency, and to enhance readability, maintainability, and scalability. A designer looks for poorly constructed elements, low-cohesion components that perform unrelated functions, and unnecessary complexity. For example, a ReportManager that fetches sales records, computes statistics, and e-mails a PDF can be split into SalesRepository, SalesStatistics, and ReportMailer; managers receive the same report, but each component now has one responsibility. Refactoring does not fix defects, because it does not change behavior; debugging does.
+*Refactoring* is a reorganization technique that improves the internal structure of a design or its code without changing its external behavior. Its purposes are to eliminate redundancy and unused elements, to improve efficiency, and to enhance readability, maintainability, and scalability. A designer looks for poorly constructed elements, low-cohesion components that perform unrelated functions, and unnecessary complexity. For example, a ReportManager that fetches sales records, computes statistics, and e-mails a PDF can be split into SalesRepository, SalesStatistics, and ReportMailer; managers receive the same report, but each component now has one responsibility. Refactoring does not fix defects, because it does not change behavior; debugging does. Section 7.3.3 shows refactoring driven by cohesion and coupling.
 
 ::: example ex-payment | Abstraction or refinement?
 A payment system for an e-commerce website can be structured in two ways. The first creates a general Payment class, with Credit_Card, PayPal, and UPI as subclasses. The second starts with a single Payment_Processor module, which is later divided into separate handlers for each payment method. Which method uses abstraction and which uses refinement? Which is better for adding new payment methods in the future?
@@ -170,7 +176,7 @@ Temporal cohesion groups actions that must happen at the same time or in respons
 
 ### 7.3.2 Coupling
 
-Coupling is the degree of interdependence between modules: how closely one module is connected to another. Low coupling is desirable because it makes the system more modular and easier to maintain, test, and extend; high coupling increases complexity and makes change ripple from module to module. Six types are distinguished, from strongest (worst) to weakest (best) ([[fig:coupling-scale]]):
+Coupling is the degree of interdependence between modules: how closely one module is connected to another. Low coupling is desirable because it makes the system more modular and easier to maintain, test, and extend; high coupling increases complexity and makes change ripple from module to module. Seven types are distinguished, from strongest (worst) to weakest (best) ([[fig:coupling-scale]]):
 
 @fig coupling-scale
 
@@ -179,7 +185,10 @@ Coupling is the degree of interdependence between modules: how closely one modul
 3. *External coupling* Modules depend on an externally imposed format, protocol, device, or service, such as a third-party authentication API. The system is exposed to changes or failures outside its control.
 4. *Control coupling* One module controls the behavior of another by passing a control flag, as in function_b('start'). The caller must know about the callee's internal decisions; the callee in control coupling usually has logical cohesion.
 5. *Stamp coupling* A whole data structure is passed when only part of it is needed, as when process_student(student) uses only student.id. Changes to the structure ripple to the callee unnecessarily.
-6. *Data coupling* (weakest) Modules share only the elementary data they need, as parameters, as in greet_user(name, age).
+6. *Data coupling* Modules share only the elementary data they need, as parameters, as in greet_user(name, age) or gateway.charge(99.99, "USD").
+7. *Message coupling* (weakest) Modules communicate only by sending messages or events, asynchronously, with no direct knowledge of each other ([[fig:msg-coupling]]). An OrderService publishes an order_placed event to an event bus; an EmailService and an InventoryService subscribe to it. The publisher does not know that the consumers exist, so a new consumer, such as an AnalyticsService, is added without changing it, and the services fail independently: if e-mail is down, orders are still processed.
+
+@fig msg-coupling
 
 ::: example ex-coupling | Classifying cohesion and coupling together
 Classify each fragment. (1) end_of_day() closes the database, backs up the logs, and sends a summary e-mail. (2) shipping_cost(order) uses only order.weight from an Order record with twenty fields. (3) render(report, fmt), with fmt in {"pdf", "csv", "html"} and a separate branch for each. (4) Two modules both read and write a global variable current_user. (5) greet_user(name, age) is called with just the two values it prints.
@@ -213,6 +222,29 @@ Identify the type of coupling in each interaction, and the type of cohesion the 
 (a) Sensors → temperature data collection: *external coupling*, because the module depends on the device's externally imposed interface and signal format. (b) Temperature collection → synchronizer: *data coupling*, because one elementary value, the calibrated temperature, is passed. (c) Humidity and pressure packager → synchronizer: *stamp coupling*, because a composite packet is passed and the synchronizer depends on its structure. (d) External API poller → synchronizer: *external coupling*, because the raw data is still in the third-party service's format, so a change to the remote API affects the synchronizer; if the poller converted it to a pressure value first, this would be data coupling and the external dependency would be confined to the poller. (e) Evaluator ↔ global alert log: *common coupling*, because the log is shared global data that is read and written by the evaluator and the admin panel, so a fault in either can corrupt the other's data.
 :::
 
+::: example ex-cart | Identifying and removing coupling in a checkout
+Identify the coupling in the first version of ShoppingCart.checkout(), and state what it becomes in the second.
+
+```
+# Version 1
+def checkout(self):
+    db = DatabaseConnection("mysql://...")
+    db.save(self.items)
+    global current_user
+    send_email(current_user.email, "Receipt")
+    payment = PaymentProcessor()
+    payment._balance -= self.total()
+
+# Version 2
+def checkout(self, payment_gateway, event_bus):
+    transaction_id = payment_gateway.charge(self.total())
+    event_bus.publish("order_completed",
+        {"items": self.items, "transaction_id": transaction_id})
+```
+--- answer
+Version 1 has three strong forms of coupling: *external* coupling, because checkout creates a connection to one specific database from a hard-coded address; *common* coupling, because it reads the global current_user, which any module can change; and *content* coupling, because it subtracts from the private field _balance of PaymentProcessor. Version 2 has *data* coupling with the payment gateway, which receives one number and returns an identifier, and *message* coupling with the e-mail, inventory, and database services, which react to the order_completed event. The gateway and the event bus are passed in (dependency injection), so either can be replaced by a test double.
+:::
+
 ::: example ex-doceditor | Architecture, coupling, and cohesion for a collaborative editor
 A cloud-based document editor lets many users edit a document simultaneously, track changes, and chat. It must be scalable and allow later additions such as AI writing assistance and advanced versioning. (a) Identify an appropriate architectural style and justify it. (b) State design assumptions for three types of coupling and two types of cohesion that give good modularity.
 --- solution
@@ -234,7 +266,31 @@ Content and common coupling are avoided: no module writes another's internal dat
 (a) Layered architecture (with client–server deployment), justified by modularity, independent scaling, and easy extension. (b) Coupling: data (edit operations and messages), controlled stamp (whole change records for versioning), and external coupling isolated in adapters. Cohesion: functional (single-task modules) and communicational (change tracking on shared change data).
 :::
 
-The two properties reinforce each other. When related elements are placed together (high cohesion), fewer connections are needed to other modules (low coupling); when modules communicate through a few simple parameters, each can be understood in isolation. The results are concrete: a requirement change affects one module (modular continuity); a fault is unlikely to propagate (modular protection); each module can be unit-tested with simple stubs and drivers; functionally cohesive, data-coupled modules can be reused elsewhere; and teams can work in parallel. Note the difference between communicational cohesion (functions *inside one module* sharing data, which is acceptable) and common coupling (*different modules* sharing global data, which is not).
+The two properties reinforce each other. When related elements are placed together (high cohesion), fewer connections are needed to other modules (low coupling); when modules communicate through a few simple parameters, each can be understood in isolation. The results are concrete: a requirement change affects one module (modular continuity); a fault is unlikely to propagate (modular protection); each module can be unit-tested with simple stubs and drivers; functionally cohesive, data-coupled modules can be reused elsewhere; and teams can work in parallel. The combinations are summarized in [[fig:coh-coup-matrix]]. Note the difference between communicational cohesion (functions *inside one module* sharing data, which is acceptable) and common coupling (*different modules* sharing global data, which is not).
+
+@fig coh-coup-matrix
+
+### 7.3.3 Refactoring designs
+
+Refactoring (Section 7.2.4) is guided by cohesion and coupling. The usual signs that a design needs it are a class with several unrelated responsibilities (low cohesion); hard-coded dependencies on particular databases, providers, or file formats (external coupling); direct use of another class's internal fields (content coupling); shared global state (common coupling); and flags that switch a function's behavior (control coupling). The standard remedies are to *extract class*, giving each responsibility its own class; to *introduce an interface* and pass the implementation in (dependency injection), so that the class depends on an abstraction; to *encapsulate a field* behind operations; and to *replace a direct call by an event*. After each step the tests are run again, because the external behavior must not change.
+
+::: example ex-refactor | Three design refactorings
+Refactor (a) a UserManager with the operations login, sendWelcomeEmail, calculateDiscount, and exportToPDF; (b) an Order that holds a PayPalPaymentProcessor and a MySQLDatabase; and (c) a CheckoutManager that validates an order, charges it through PayPal, updates stock in MySQL, and sends e-mail through Gmail, all by static calls. State the cohesion and coupling before and after.
+--- solution
+(a) UserManager has *coincidental* cohesion: authentication, e-mail, pricing, and reporting have nothing in common, so a change to discount rules risks breaking login. It is split into AuthenticationService, EmailService, PricingService, and ReportGenerator, each *functionally* cohesive and each using User ([[fig:refactor-user]]).
+
+@fig refactor-user
+
+(b) Order is tightly coupled to one payment provider and one database: neither can be replaced, and Order cannot be tested without them. This is *external* coupling to concrete classes, since the order depends on a particular provider and storage technology. Two interfaces are introduced, PaymentProcessor and OrderRepository, and the implementations are passed to the constructor ([[fig:refactor-order]]). Order now knows only the interfaces and exchanges only an amount or an order with them, which is *data* coupling; PayPal can be replaced by Stripe, or MySQL by PostgreSQL, without changing Order, and tests can use mock implementations.
+
+@fig refactor-order
+
+(c) CheckoutManager has *coincidental* cohesion (validation, payment, inventory, and messaging) and *external* coupling to three concrete services. It becomes a CheckoutOrchestrator that performs the four steps in order through OrderValidator, a PaymentGateway interface, an InventoryService (which uses an InventoryRepository interface), and a Notifier interface, each injected ([[fig:refactor-checkout]]).
+
+@fig refactor-checkout
+--- answer
+(a) Coincidental → functional cohesion, by extracting four classes. (b) External coupling to concrete classes → data coupling through interfaces with dependency injection. (c) Coincidental cohesion and external coupling → an orchestrator whose steps run in a fixed order over the same order (sequential cohesion), data coupled to functionally cohesive services behind interfaces.
+:::
 
 ## 7.4 User interface design
 
@@ -288,7 +344,18 @@ Other principles often listed for web and mobile applications are *anticipation*
 
 Sommerville states six principles of user interface design: *user familiarity* (the interface uses terms and concepts drawn from the experience of the people who will use the system most); *consistency* (comparable operations are activated in the same way); *minimal surprise* (users are never surprised by the behavior of the system); *recoverability* (the interface includes mechanisms, such as confirmation of destructive actions and undo, that allow users to recover from errors); *user guidance* (the interface gives meaningful feedback when errors occur and provides context-sensitive help); and *user diversity* (the interface provides appropriate interaction facilities for different types of users).
 
-The *elements* of an interface are its layout (the arrangement of elements on the screen), typography, color, icons, buttons, forms (input fields for collecting data), and navigation (the system for moving between parts of the interface). A layout is usually designed first as a wireframe that places these elements, and the principles are then checked against it.
+*UI design* is concerned with the look and feel of the product: its aesthetics, layout, typography, colors, and visual elements. *UX design* is concerned with the overall experience: how the user feels while interacting with the product, including usability, accessibility, and functionality. The key elements of a user interface are:
+
+1. *Visual design* *Typography*: fonts that are readable and suited to the purpose, with a small number of sizes and weights used consistently for headings, body text, and labels. *Color palette*: colors used strategically to guide attention, convey meaning (red for errors, green for success), and maintain consistency, with enough contrast and never as the only carrier of meaning. *Imagery*: icons, illustrations, and images that match the product's tone.
+2. *Layout and structure* *Grid systems* organize content in a balanced structure; *spacing* between elements avoids clutter and improves readability; *visual hierarchy* makes the important elements prominent through size, color, or placement.
+3. *Interactivity* *Buttons and controls* (sliders, toggles, menus) are clear and look clickable; *animations and transitions* give feedback and make changes easy to follow; *micro-interactions*, such as a button changing color when pressed or a heart filling when an item is liked, confirm each action.
+4. *Accessibility* The interface is usable by people who rely on screen readers or who are color blind, following the Web Content Accessibility Guidelines (WCAG): text alternatives, keyboard access, and sufficient contrast.
+5. *Consistency* One design language across all screens and components avoids confusion and builds trust.
+6. *Responsiveness* The interface adapts to desktops, tablets, and phones.
+
+Other elements are forms (input fields for collecting data) and navigation (the system for moving between parts of the interface). A layout is usually designed first as a wireframe that places these elements, and the principles are then checked against it. In practice, UI design proceeds through research (users, their needs and pain points, competitors), wireframing, prototyping, visual design (colors, typography, and imagery in high-fidelity mock-ups), usability testing, iteration, and implementation with the developers, which are the activities of the spiral in [[fig:ui-spiral]].
+
+Shneiderman's *eight golden rules* are also widely used: strive for consistency (the same button styles on every page); enable frequent users to use shortcuts (keyboard shortcuts); offer informative feedback (loading indicators, success messages); design dialogs to yield closure (progress indicators and a final confirmation); prevent errors (input validation, confirmation dialogs); permit easy reversal of actions (undo and redo); support an internal locus of control (users initiate actions and can customize settings); and reduce short-term memory load (on-screen hints). To these, many designers add keeping interfaces simple and natural, providing clear navigation (breadcrumbs, persistent menus), being forgiving (editable forms, helpful error messages), focusing on accessibility (high contrast, alternative text), and testing and iterating (usability and A/B testing).
 
 ::: example ex-ui-fd | Screen layouts for an order processing and delivery system
 For a food-delivery company's order processing and delivery management system: (a) design user interface layouts for (i) the restaurant order management screen, (ii) the delivery partner assignment screen, and (iii) the real-time order tracking screen; (b) show in a table how key user interface design principles are applied and satisfied in these screens.
@@ -336,7 +403,7 @@ A dashboard with a header, left navigation, reading tiles, an alert banner, a tr
 - Modularity is judged by decomposability, composability, understandability, continuity, and protection; the total cost of a design is lowest between undermodularity and overmodularity.
 - Refinement elaborates a design top-down; refactoring improves internal structure without changing external behavior.
 - Cohesion, from lowest to highest, is coincidental, logical, temporal, procedural, communicational, sequential, and functional.
-- Coupling, from strongest to weakest, is content, common, external, control, stamp, and data coupling. The goal is high cohesion and low coupling, which is functional independence.
+- Coupling, from strongest to weakest, is content, common, external, control, stamp, data, and message coupling. The goal is high cohesion and low coupling, which is functional independence.
 - The golden rules of interface design are to place the user in control, reduce the user's memory load, and make the interface consistent. The user, design, mental, and implementation models should be aligned.
 - Sommerville's interface principles are user familiarity, consistency, minimal surprise, recoverability, user guidance, and user diversity.
 - The interface design process is a spiral of analysis and modeling, design, construction, and validation. Response time, help, error handling, labeling, accessibility, and internationalization must always be considered.

@@ -111,14 +111,13 @@ def _():
 
 @fig('coupling-scale', 'The scale of coupling')
 def _():
-    f = Fig(336, 64, fs=6.6)
-    names = ['Content', 'Common', 'External', 'Control', 'Stamp', 'Data']
-    w = 50
+    f = Fig(336, 64, fs=6.2)
+    names = ['Content', 'Common', 'External', 'Control', 'Stamp', 'Data', 'Message']
+    w = 43
     for i, n in enumerate(names):
-        x = 4 + i * 55
-        shade = int(145 + i * 22)
-        f.rect(x, 14, w, 26, stroke=CYAN, fill=f'rgb({255-(5-i)*45},{255-(5-i)*16},255)')
-        f.text(x + w / 2, 27, n, size=6.4)
+        x = 4 + i * 47.3
+        f.rect(x, 14, w, 26, stroke=CYAN, fill=f'rgb({255-(6-i)*38},{255-(6-i)*13},255)')
+        f.text(x + w / 2, 27, n, size=6)
     f.arrow([(4, 50), (330, 50)], size=4)
     f.text(4, 8, 'high (worst)', anchor='start', size=6.2, italic=True); f.text(330, 8, 'low (best)', anchor='end', size=6.2, italic=True)
     f.text(167, 59, 'decreasing interdependence between modules', size=6.2)
@@ -339,4 +338,125 @@ def _():
         f.text(356, y, t, anchor='start', size=6, weight=500)
     for (x, y), k in [((70, 30), 'A'), ((70, 80), 'B'), ((322, 76), 'C'), ((322, 108), 'D'), ((322, 200), 'E')]:
         f.circle(x, y, 5, fill=CYAN, stroke='white', sw=0.6); f.text(x, y, k, size=5.4, color='white', weight=600)
+    return f.svg()
+
+
+# ------------------------------------------------------------------ Module 4 additions
+@fig('er-notation', 'Notation of entity–relationship diagrams', wide=True)
+def _():
+    f = Fig(420, 150, fs=6.2)
+    # Chen symbols (left)
+    f.text(96, 8, 'Chen notation', weight=500, size=6.4)
+    f.rect(8, 22, 58, 20); f.text(37, 32, 'Entity')
+    f.rect(8, 56, 58, 20); f.rect(11, 59, 52, 14); f.text(37, 66, 'Weak entity', size=5.8)
+    f.raw(f'<ellipse cx="37" cy="100" rx="30" ry="10" fill="white" stroke="{CYAN}" stroke-width="1"/>'); f.text(37, 100, 'Attribute')
+    f.raw(f'<ellipse cx="37" cy="130" rx="30" ry="10" fill="white" stroke="{CYAN}" stroke-width="1"/>'); f.text(37, 130, 'Key')
+    f.line(25, 134, 49, 134, w=0.5)
+    f.poly([(150, 22), (182, 36), (150, 50), (118, 36)], close=True, color=CYAN, w=1, fill='white'); f.text(150, 36, 'Relationship', size=5.6)
+    f.raw(f'<ellipse cx="150" cy="80" rx="30" ry="10" fill="white" stroke="{CYAN}" stroke-width="1" stroke-dasharray="3,2"/>'); f.text(150, 80, 'Derived', size=5.8)
+    f.raw(f'<ellipse cx="150" cy="108" rx="30" ry="10" fill="white" stroke="{CYAN}" stroke-width="1"/>'); f.raw(f'<ellipse cx="150" cy="108" rx="27" ry="7.5" fill="none" stroke="{CYAN}" stroke-width="0.8"/>'); f.text(150, 108, 'Multivalued', size=5.6)
+    f.line(188, 18, 188, 142, w=0.4, color=GREY)
+    # cardinality examples (right)
+    f.text(304, 8, 'Cardinality (1 and N marked on the lines)', weight=500, size=6.4)
+    rows = [(26, 'Person', '1', 'holds', '1', 'Passport', 'one-to-one'),
+            (64, 'Department', '1', 'employs', 'N', 'Employee', 'one-to-many'),
+            (102, 'Student', 'M', 'enrols in', 'N', 'Course', 'many-to-many')]
+    for y, a, ca, r, cb, b, t in rows:
+        f.rect(198, y - 9, 56, 18); f.text(226, y, a, size=6)
+        f.rect(348, y - 9, 56, 18); f.text(376, y, b, size=6)
+        f.line(254, y, 348, y)
+        f.poly([(301, y - 8), (321, y), (301, y + 8), (281, y)], close=True, color=CYAN, w=0.8, fill='white'); f.text(301, y, r, size=4.8)
+        f.text(259, y - 4, ca, size=6, anchor='start'); f.text(343, y - 4, cb, size=6, anchor='end')
+        f.text(301, y + 14, t, size=5.4, italic=True, color=GREY)
+    f.text(300, 136, 'M:N is implemented by an associative entity (Enrollment) holding both keys', size=5.4, italic=True)
+    return f.svg()
+
+
+@fig('msg-coupling', 'Message coupling through an event bus')
+def _():
+    f = Fig(336, 112, fs=6.4)
+    f.box(4, 44, 76, 24, 'OrderService', weight=500)
+    f.rbox(128, 40, 80, 32, 'Event bus\n"order_placed"', fill='#EAF7FD')
+    for i, t in enumerate(['EmailService', 'InventoryService', 'AnalyticsService']):
+        f.box(252, 8 + i * 36, 80, 22, t)
+        f.arrow([(208, 56), (230, 56), (230, 19 + i * 36), (252, 19 + i * 36)], size=3.5)
+    f.arrow([(80, 56), (128, 56)], size=3.5); f.text(104, 50, 'publish', size=5.8)
+    f.text(236, 104, 'subscribe', size=5.8, anchor='start')
+    f.text(66, 96, 'the publisher does not\nknow its consumers', size=5.6, italic=True)
+    return f.svg()
+
+
+@fig('coh-coup-matrix', 'Combinations of cohesion and coupling')
+def _():
+    f = Fig(336, 116, fs=6.2)
+    cells = [(0, 0, 'Ideal', 'focused modules that\nwork independently', '#E3F6E8'), (1, 0, 'Tolerable', 'unfocused but\nisolated modules', 'white'),
+             (0, 1, 'Fragile', 'focused modules with\nbrittle dependencies', 'white'), (1, 1, 'Worst', 'unfocused and entangled:\na maintenance nightmare', '#FDEBEA')]
+    for c, r, t, d, fill in cells:
+        x, y = 90 + c * 120, 20 + r * 46
+        f.rect(x, y, 116, 42, fill=fill, stroke=CYAN)
+        f.text(x + 58, y + 12, t, weight=600); f.text(x + 58, y + 28, d, size=5.6)
+    f.text(148, 12, 'High cohesion', weight=500); f.text(268, 12, 'Low cohesion', weight=500)
+    f.text(44, 41, 'Loose\ncoupling', weight=500); f.text(44, 87, 'Tight\ncoupling', weight=500)
+    return f.svg()
+
+
+@fig('refactor-user', 'Refactoring a coincidentally cohesive class', wide=True)
+def _():
+    f = Fig(420, 150, fs=6)
+    f.text(64, 6, 'Before', weight=600, size=6.4); f.text(300, 6, 'After', weight=600, size=6.4)
+    um = f.uclass(4, 14, 120, 'UserManager', [], ['login(User)', 'sendWelcomeEmail(User)', 'calculateDiscount(User): double', 'exportToPDF(User): byte[]'])
+    u = f.uclass(34, 90, 60, 'User', ['id', 'email', 'name'], [])
+    f.arrow([(64, 14 + um[3]), (64, 90)], kind='open', dash='3,2', size=4)
+    f.line(140, 10, 140, 128, w=0.4, color=GREY)
+    xs = [(144, 'Authentication\nService', 'login(credentials)'), (213, 'EmailService', 'sendWelcomeEmail(u)'), (282, 'PricingService', 'calculateDiscount(u)'), (351, 'ReportGenerator', 'exportToPDF(user)')]
+    for x, n, op in xs:
+        b = f.uclass(x, 20, 67, n, [], [op], stroke='#2BA84A')
+        f.arrow([(x + 33, 20 + b[3]), (282, 100)], kind='open', dash='3,2', size=4)
+    f.uclass(252, 100, 60, 'User', ['id', 'email', 'name'], [])
+    f.text(200, 147, 'each class now has functional cohesion', size=5.6, italic=True)
+    return f.svg()
+
+
+@fig('refactor-order', 'Replacing concrete dependencies by interfaces', wide=True)
+def _():
+    f = Fig(420, 150, fs=6)
+    f.text(64, 6, 'Before', weight=600, size=6.4); f.text(300, 6, 'After', weight=600, size=6.4)
+    o = f.uclass(8, 16, 118, 'Order', ['paymentProcessor: PayPalProcessor', 'database: MySQLDatabase'], ['checkout()'])
+    f.uclass(4, 96, 60, 'PayPal\nProcessor', [], ['charge(amount)'])
+    f.uclass(72, 96, 60, 'MySQL\nDatabase', [], ['save(order)'])
+    f.arrow([(40, 16 + o[3]), (34, 96)], size=4); f.arrow([(96, 16 + o[3]), (102, 96)], size=4)
+    f.text(67, 142, 'hard-wired to one provider\nand one database', size=5.4, italic=True)
+    f.line(140, 10, 140, 146, w=0.4, color=GREY)
+    oa = f.uclass(232, 14, 118, 'Order', ['payment: PaymentProcessor', 'repository: OrderRepository'], ['Order(payment, repository)', 'checkout()'], stroke='#2BA84A')
+    pi = f.uclass(158, 74, 84, '«interface»\nOrderRepository', [], ['save(order)'], stroke='#2BA84A')
+    qi = f.uclass(334, 74, 84, '«interface»\nPaymentProcessor', [], ['process(amount)'], stroke='#2BA84A')
+    f.arrow([(260, 14 + oa[3]), (220, 74)], kind='open', size=4); f.arrow([(322, 14 + oa[3]), (360, 74)], kind='open', size=4)
+    for x, n in [(150, 'PostgreSQL\nRepository'), (206, 'MongoDB\nRepository'), (326, 'PayPal\nProcessor'), (382, 'Stripe\nProcessor')]:
+        f.box(x, 128, 52 if x < 300 else 36, 20, n, shadow=False, size=5.2)
+        tx = 200 if x < 300 else 376
+        f.arrow([(x + (26 if x < 300 else 18), 128), (tx, 74 + 34)], kind='tri', dash='3,2', size=3.5)
+    return f.svg()
+
+
+@fig('refactor-checkout', 'Refactoring a checkout manager into an orchestrator of services', wide=True)
+def _():
+    f = Fig(420, 176, fs=6)
+    f.text(64, 6, 'Before', weight=600, size=6.4); f.text(300, 6, 'After', weight=600, size=6.4)
+    cm = f.uclass(10, 14, 116, 'CheckoutManager', [], ['process(order)', 'validate(order)', 'chargePayment(order)', 'updateInventory(order)', 'sendEmail(order)'])
+    for i, n in enumerate(['PayPal', 'MySQL', 'Gmail']):
+        f.box(8 + i * 42, 118, 38, 16, n, shadow=False, size=5.6)
+        f.arrow([(68, 14 + cm[3]), (27 + i * 42, 118)], kind='open', dash='3,2', size=3.5)
+    f.text(67, 150, 'static calls to concrete services:\nexternal coupling; coincidental cohesion', size=5.2, italic=True)
+    f.line(140, 10, 140, 172, w=0.4, color=GREY)
+    co = f.uclass(236, 14, 110, 'CheckoutOrchestrator', [], ['process(order)'], stroke='#2BA84A')
+    items = [(144, 'OrderValidator', 'validate(order)', False), (213, '«interface»\nPaymentGateway', 'charge(amount)', True),
+             (282, 'InventoryService', 'reserve(items)', False), (351, '«interface»\nNotifier', 'sendConfirmation(...)', True)]
+    for x, n, op, itf in items:
+        b = f.uclass(x, 70, 66, n, [], [op], stroke='#2BA84A')
+        f.arrow([(291, 14 + co[3]), (x + 33, 70)], kind='open', dash='3,2', size=3.5)
+    for x, n, tx in [(190, 'PayPalGateway', 246), (240, 'StripeGateway', 246), (340, 'EmailNotifier', 384), (386, 'SMS\nNotifier', 384)]:
+        f.box(x, 138, 44 if x < 380 else 32, 18, n, shadow=False, size=5)
+        f.arrow([(x + (22 if x < 380 else 16), 138), (tx, 110)], kind='tri', dash='3,2', size=3)
+    f.box(288, 150, 58, 18, '«interface»\nInventoryRepository', shadow=False, size=4.8)
+    f.arrow([(315, 99), (317, 150)], kind='open', dash='3,2', size=3.5)
     return f.svg()
