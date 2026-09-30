@@ -321,7 +321,7 @@ Modified requirements for the new version:
 6. *(Regulation)* Environmental claims shall be displayed only where supported by a stored certificate.
 7. *(Consequential)* Customers shall be able to request collection of used StyleSphere items and track the resulting store credit.
 
-Requirements 2, 3, and 6 address trust; 1 addresses acquisition; 4 and 5 address the supply chain; 6 is mutable, 3 is emergent, 7 is consequential, and 4 and 5 are compatibility requirements.
+Requirement 1 addresses acquisition; 2 and 3 address trust; 4 and 5 address the supply chain; 6 addresses regulation and also supports trust; 7 introduces a new service. By type, 6 is mutable, 3 is emergent, 7 is consequential, and 4 and 5 are compatibility requirements.
 :::
 
 ### 4.7.2 Requirements management planning and change management

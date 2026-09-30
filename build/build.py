@@ -76,6 +76,9 @@ class Chapter:
             art = re.sub(r'width="([\d.]+)pt" height="([\d.]+)pt"', lambda m: f'width="{float(m.group(1))*sc:.1f}pt" height="{float(m.group(2))*sc:.1f}pt"', art, count=1)
             art = re.sub(r'style="width:([\d.]+)pt;height:([\d.]+)pt"', lambda m: f'style="width:{float(m.group(1))*sc:.1f}pt;height:{float(m.group(2))*sc:.1f}pt"', art, count=1)
         arth = f'<div class="art">{art}</div>'
+        if '<table' in art:
+            capt = f'<caption class="tcap"><div class="cap"><b>Figure {num}</b>&ensp;{md_inline(cap)}</div></caption>'
+            return f'<div class="fig top tbl" id="{fid}">{caph}<div class="art">{art}</div></div>'
         if opts.get('wide'):
             return f'<div class="{cls}" id="{fid}">{arth}{caph}</div>'
         return f'<div class="{cls}" id="{fid}">{caph}{arth}</div>'

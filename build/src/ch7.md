@@ -137,7 +137,7 @@ The measure within a module is cohesion (the measure between modules is coupling
 Classify the cohesion of each of the following modules of a food-delivery order system.
 
 1. The Order Validation module performs a single purpose: checking that an order is valid.
-2. The validation module passes the validated order to the next module in a chain, which prices it, which in turn passes it to the module that places it.
+2. An order-placement module whose steps form a chain: it validates the order, passes the validated order to its pricing step, and passes the priced order to its submission step.
 3. A module processes the order ID, the items, and the restaurant ID, all using the same order record.
 4. A module performs its tasks in a fixed order: check the restaurant is open, then lock the cart, then start the payment.
 5. GPS updates and ETA calculation are grouped together because they belong to the same category of 'location functions', and a parameter selects which is performed.

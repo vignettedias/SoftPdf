@@ -119,7 +119,7 @@ A class is drawn as a rectangle with three compartments: the name, the attribute
 
 Generalization and realization are easily confused because both use a hollow triangle. The difference is the line: a *solid* line means that the subclass inherits the structure and behavior of a superclass; a *dashed* line means that a class promises to implement the operations declared by an interface.
 
-*Multiplicity* (cardinality) is written at each end of an association to say how many objects take part: 1 (exactly one), 0..1 (zero or one), * or 0..* (any number), 1..* (at least one), or a range such as 1..4.
+*Multiplicity* (cardinality) is written at each end of an association to say how many objects take part: 1 (exactly one), 0..1 (zero or one), \* or 0..\* (any number), 1..\* (at least one), or a range such as 1..4.
 
 @fig lib-class
 
@@ -146,8 +146,8 @@ For the food-delivery system, draw a class diagram showing the multiplicities of
 --- answer
 Multiplicity determines three things in the implementation:
 
-1. *Database design* A one-to-many association (Customer 1 — 0..* Order) becomes a foreign key in the 'many' table (Order.customerId); a many-to-many association needs a separate link table; a composition (Order ◆— OrderItem) means that item rows are deleted with their order.
-2. *Object and memory structure* An end with multiplicity 1 or 0..1 becomes a single reference (order.payment); an end with * becomes a collection (customer.orders). A lower bound of 0 means that the reference may be null and the code must handle that case.
+1. *Database design* A one-to-many association (Customer 1 — 0..\* Order) becomes a foreign key in the 'many' table (Order.customerId); a many-to-many association needs a separate link table; a composition (Order ◆— OrderItem) means that item rows are deleted with their order.
+2. *Object and memory structure* An end with multiplicity 1 or 0..1 becomes a single reference (order.payment); an end with \* becomes a collection (customer.orders). A lower bound of 0 means that the reference may be null and the code must handle that case.
 3. *Constraint enforcement* Bounds are business rules that the code must check: exactly one payment per order, at least one item per order, and at most one delivery partner per order.
 :::
 

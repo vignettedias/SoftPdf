@@ -136,3 +136,10 @@ pre code{font-size:inherit;font-family:inherit}
 .fig.wide.tbl .cap{float:none;margin:6pt 0 0 0}
 table.pt tr{break-inside:avoid}
 table.pt thead{display:table-header-group}
+
+table.pt caption.tcap{caption-side:bottom;text-align:left;padding-top:8pt}
+table.pt caption.tcap .cap{width:80pt;line-height:9.7pt;font-size:8pt}
+.fig.wide.tbl .art{line-height:normal}
+.fig.top.tbl{break-inside:auto;align-items:start}
+.fig.top.tbl .cap{margin-top:0}
+.fig.top.tbl .art{line-height:normal;text-align:left}
