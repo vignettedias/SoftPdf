@@ -1,0 +1,138 @@
+@font-face{font-family:'Book Serif';src:url('fonts/FreeSerif.ttf');font-weight:400;font-style:normal}
+@font-face{font-family:'Book Serif';src:url('fonts/FreeSerifItalic.ttf');font-weight:400;font-style:italic}
+@font-face{font-family:'Book Serif';src:url('fonts/FreeSerifBold.ttf');font-weight:700;font-style:normal}
+@font-face{font-family:'Book Serif';src:url('fonts/FreeSerifBoldItalic.ttf');font-weight:700;font-style:italic}
+@font-face{font-family:'Fira Sans';src:url('fonts/FiraSans-300.ttf');font-weight:300}
+@font-face{font-family:'Fira Sans';src:url('fonts/FiraSans-400.ttf');font-weight:400}
+@font-face{font-family:'Fira Sans';src:url('fonts/FiraSans-400i.ttf');font-weight:400;font-style:italic}
+@font-face{font-family:'Fira Sans';src:url('fonts/FiraSans-500.ttf');font-weight:500}
+@font-face{font-family:'Fira Sans';src:url('fonts/FiraSans-500i.ttf');font-weight:500;font-style:italic}
+@font-face{font-family:'Fira Sans';src:url('fonts/FiraSans-600.ttf');font-weight:600}
+@font-face{font-family:'Fira Sans';src:url('fonts/FiraSans-700.ttf');font-weight:700}
+@font-face{font-family:'Fira Mono';src:url('fonts/FiraMono-400.ttf');font-weight:400}
+@font-face{font-family:'Fira Mono';src:url('fonts/FiraMono-500.ttf');font-weight:500}
+
+@page{size:424pt 562.5pt;margin:0}
+:root{--cyan:#00ADEF;--shadow:#6CCFF6;--tint:#D4EFFC;--tint2:#B9E5FA;--kp:#E9F7FE;--ink:#231F20}
+html,body{margin:0;padding:0}
+body{font-family:'Book Serif',serif;font-size:10pt;line-height:12.5pt;color:var(--ink);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;hyphens:auto;font-kerning:normal}
+.flow{margin-left:88pt;width:336pt;text-align:justify;orphans:2;widows:2}
+p{margin:0;text-indent:12pt}
+h2+p,h3+p,.noind,.fig+p.noind{text-indent:0}
+em,i{font-style:italic}
+strong,b{font-weight:700}
+code{font-family:'Fira Mono',monospace;font-size:8.6pt}
+
+/* section heading: number in a cyan bar in the margin column */
+h2.sec{clear:both;position:relative;margin:25pt 0 12.5pt -88pt;height:15pt;display:flex;align-items:center;
+  break-after:avoid;break-inside:avoid;font-weight:normal}
+h2.sec .num{display:block;width:80.5pt;height:12pt;background:var(--cyan);color:#fff;text-align:right;
+  font:700 12.2pt/12pt 'Fira Sans',sans-serif;padding-right:3.5pt;box-sizing:border-box;letter-spacing:.3pt}
+h2.sec .t{margin-left:4pt;font:600 13.4pt/15pt 'Fira Sans',sans-serif;color:var(--cyan);letter-spacing:.55pt;text-align:left}
+h2.sec.first{margin-top:0}
+/* subsection heading */
+h3.sub{clear:both;position:relative;margin:21pt 0 7pt 0;font:500 11.6pt/13pt 'Fira Sans',sans-serif;color:var(--cyan);
+  border-bottom:.5pt solid var(--cyan);padding-bottom:1pt;break-after:avoid;break-inside:avoid;text-align:left}
+h3.sub .num{position:absolute;right:346pt;top:0;white-space:nowrap}
+h2.sec+h3.sub{margin-top:6pt}
+/* run-in heading */
+.runin{font-family:'Fira Sans',sans-serif;font-weight:500;font-size:9.6pt}
+
+/* lists */
+ol,ul{margin:12.5pt 0;padding:0;list-style:none}
+ol{counter-reset:li}
+ol>li{position:relative;padding-left:18pt;margin:0 0 6pt 0;counter-increment:li}
+ol>li:last-child{margin-bottom:0}
+ol>li::before{content:counter(li) '.';position:absolute;left:0;top:0}
+ul>li{position:relative;padding-left:14pt;margin:0 0 4pt 0}
+ul>li::before{content:'';position:absolute;left:2pt;top:3.6pt;width:4.6pt;height:4.6pt;background:var(--shadow)}
+li p{text-indent:0}
+li>ul,li>ol{margin:4pt 0 2pt 0}
+ol ol>li::before{content:counter(li,lower-alpha) ')'}
+
+/* figures */
+.fig{display:grid;grid-template-columns:80pt 336pt;column-gap:8pt;margin:14pt 0 14pt -88pt;break-inside:avoid;align-items:end}
+.fig .cap{grid-column:1;grid-row:1;align-self:end;margin-bottom:1pt}
+.fig .art{grid-column:2;grid-row:1;text-align:center;line-height:0}
+.fig.top{align-items:start}
+.fig.top .cap{align-self:start}
+.fig.wide{display:block;margin-left:-88pt;width:424pt}
+.fig.wide .art{text-align:center}
+.fig.wide .cap{float:left;width:80pt;margin:10pt 0 0 0;position:relative;z-index:2}
+.fig.wide+*{}
+.cap{font:400 8pt/9.7pt 'Fira Sans',sans-serif;text-align:left;hyphens:manual}
+.cap::before{content:'';display:block;width:36pt;border-top:.5pt solid var(--ink);margin-bottom:4.5pt}
+.cap b{font-weight:500}
+.art svg{display:inline-block;overflow:visible}
+.floatcap{float:left;margin-left:-88pt;width:80pt;margin-top:4pt}
+
+/* tables (pattern-table style) */
+table.pt{width:100%;border-collapse:collapse;font:400 8pt/10pt 'Fira Sans',sans-serif;text-align:left}
+table.pt th{background:var(--cyan);color:#fff;font-weight:500;padding:3.2pt 6pt;vertical-align:top;border-bottom:1pt solid #fff}
+table.pt td{padding:4pt 6pt;vertical-align:top;border-bottom:1pt solid #fff;background:var(--tint)}
+table.pt tr:nth-child(even) td{background:var(--tint2)}
+table.pt td:first-child{width:22%}
+table.pt td p{text-indent:0}
+
+/* code */
+pre{margin:10pt 0;padding:7pt 9pt;background:var(--tint);font:400 7.9pt/10pt 'Fira Mono',monospace;
+  white-space:pre;text-align:left;break-inside:avoid;overflow:hidden}
+pre code{font-size:inherit;font-family:inherit}
+.fig pre{margin:0}
+
+/* worked examples */
+.ex{clear:both;margin:15pt 0 14pt 0;border-top:.5pt solid var(--cyan);border-bottom:.5pt solid var(--cyan);padding:5pt 0 7pt 0}
+.ex .ext{font:500 10pt/12.5pt 'Fira Sans',sans-serif;color:var(--ink);margin-bottom:4pt;text-align:left;break-after:avoid}
+.ex .ext .n{color:var(--cyan);font-weight:600;margin-right:5pt}
+.ex .q{font:400 9pt/11.6pt 'Fira Sans',sans-serif;text-align:left;hyphens:manual}
+.ex .q p{text-indent:0;margin:0 0 3pt 0}
+.ex .q ol,.ex .q ul{margin:4pt 0}
+.ex .q ol>li{margin-bottom:2pt}
+.ex .q pre{margin:5pt 0}
+.ex .lbl{font:500 9.6pt 'Fira Sans',sans-serif;margin-right:4pt}
+.ex .sol{margin-top:6pt}
+.ex .sol>p:first-child{text-indent:0}
+.ex .ans{margin-top:7pt;background:var(--kp);padding:4pt 6pt 5pt 6pt;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.ex .ans p{text-indent:0}
+.ex .ans ol,.ex .ans ul{margin:3pt 0}
+.ex .fig{margin-left:-88pt}
+
+/* displayed formula */
+.eq{margin:8pt 0 8pt 18pt;text-align:left;text-indent:0}
+.eq.c{text-align:center;margin-left:0}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:11pt;margin:0 2pt}
+.frac>span:first-child{border-bottom:.5pt solid var(--ink);padding:0 2pt}
+
+/* key points */
+.kp{break-before:page;margin-left:-88pt;width:424pt}
+.kp h2{font:700 10.4pt/12pt 'Fira Sans',sans-serif;letter-spacing:2.6pt;color:var(--cyan);margin:14pt 0 8pt 5pt}
+.kp .box{background:#fff;padding:14pt 12pt 12pt 33pt}
+.kp .box ul{margin:0}
+.kp .box li{font:400 9.3pt/11.6pt 'Fira Sans',sans-serif;padding-left:0;margin-bottom:7pt;text-align:left;hyphens:manual}
+.kp .box li::before{left:-15pt;top:2.3pt;width:6pt;height:6pt;background:var(--shadow)}
+
+/* chapter opener */
+.opener{position:relative;height:562.5pt;overflow:hidden;break-after:page;font-family:'Fira Sans',sans-serif}
+.opener .cn{position:absolute;font:700 31pt/32pt 'Fira Sans',sans-serif;color:var(--cyan)}
+.opener .rule{position:absolute;width:42pt;border-top:.5pt solid var(--ink)}
+.opener .ct{position:absolute;font:500 29pt/35pt 'Fira Sans',sans-serif;color:var(--cyan);width:300pt;letter-spacing:-.2pt;text-align:left}
+.opener .ob{position:absolute;width:287pt;text-align:left}
+.opener h4{font:600 13.5pt/15pt 'Fira Sans',sans-serif;color:var(--cyan);margin:0 0 7pt 0}
+.opener .ob p{font:400 9.3pt/11.8pt 'Fira Sans',sans-serif;text-indent:0;margin:0 0 7pt 0}
+.opener .ob ul{margin:0 0 0 0}
+.opener .ob ul li{font:400 9.3pt/11.8pt 'Fira Sans',sans-serif;padding-left:12pt;margin-bottom:6.5pt}
+.opener .ob ul li::before{top:2.6pt;left:0;width:5.2pt;height:5.2pt;background:var(--ink)}
+.opener .toc{margin-top:17pt}
+.opener .toc div{font:400 9.3pt/13.6pt 'Fira Sans',sans-serif}
+.opener .toc b{color:var(--ink);font-weight:600;display:inline-block;width:21pt}
+
+.pb{break-before:page}
+.keep{break-inside:avoid}
+.small{font-size:9pt}
+.sans{font-family:'Fira Sans',sans-serif}
+
+.fig.wide.tbl{break-inside:auto}
+.fig.wide.tbl .cap{float:none;margin:6pt 0 0 0}
+table.pt tr{break-inside:avoid}
+table.pt thead{display:table-header-group}
